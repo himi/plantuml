@@ -15,8 +15,6 @@ script:
 
 deploy:
   provider: script
-  script:
-    - cd releng/net.sourceforge.plantuml.aggregator
-    - mvn verify -Prelease-composite
+  script: bash -c "cd releng/net.sourceforge.plantuml.aggregator && mvn verify -Prelease-composite"
   on:
     tags: true
