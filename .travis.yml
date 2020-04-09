@@ -12,3 +12,11 @@ cache:
 script:
   - cd releng/net.sourceforge.plantuml.aggregator
   - mvn clean install
+
+deploy:
+  provider: script
+  script:
+    - cd releng/net.sourceforge.plantuml.aggregator
+    - mvn verify -Prelease-composite
+  on:
+    tags: true
