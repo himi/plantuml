@@ -39,6 +39,7 @@
 		<module>../../features/net.sourceforge.plantuml.feature</module>
 		<module>../../features/net.sourceforge.plantuml.ecore.feature</module>
 
-		<module>../net.sourceforge.plantuml.repository</module>
+		<!-- <module>../net.sourceforge.plantuml.repository</module> -->
+		<module>../net.sourceforge.plantuml.all.repository</module>
 	</modules>
 </project>
