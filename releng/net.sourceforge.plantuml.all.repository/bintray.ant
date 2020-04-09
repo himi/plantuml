@@ -104,6 +104,7 @@
   </target>
 
   <target name="push-p2-repo-to-bintray">
+    <!--
     <apply executable="cmd" parallel="false" relative="true" addsourcefile="false">
       <arg value="/c" />
       <arg value="echo" />
@@ -126,6 +127,7 @@
         </compositemapper>
       </chainedmapper>
     </apply>
+    -->
 
     <apply executable="curl" parallel="false" relative="true" addsourcefile="false">
       <arg value="-XPUT" />
