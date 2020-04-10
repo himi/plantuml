@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Handle p2 composite metadata from Bintray" basedir=".">
 
+  <property environment="env"/>
   <property name="bintray.user" value="${env.BINTRAY_USER}" />
   <property name="bintray.apikey" value="${env.BINTRAY_APIKEY}" />
   <!--
