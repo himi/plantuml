@@ -545,6 +545,7 @@ public class Cluster implements Moveable {
 		final List<IShapePseudo> result = new ArrayList<IShapePseudo>();
 		result.add(entries.get(0));
 		for (int i = 1; i < entries.size(); i++) {
+            // Pseudo space for the label
 			result.add(new ShapePseudoImpl("psd" + UniqueSequence.getValue(), width, 5));
 			result.add(entries.get(i));
 		}
@@ -566,8 +567,9 @@ public class Cluster implements Moveable {
 		return node.getMaxWidthFromLabelForEntryExit(stringBounder);
 	}
 
-	public void printClusterEntryExit(StringBuilder sb, StringBounder stringBounder) {
-		final List<Node> nodesEntryExitList = getNodesEntryExit(EntityPosition.getInputs());
+	public void printClusterEntryExit(StringBuilder sb, StringBounder stringBounder,
+                                      String rank, EnumSet<EntityPosition> targets) {
+		final List<Node> nodesEntryExitList = getNodesEntryExit(targets);
 		final double maxWith = getMaxWidthFromLabelForEntryExit(nodesEntryExitList, stringBounder);
 		final double naturalSpace = 70;
 		final List<? extends IShapePseudo> entries;
@@ -577,36 +579,57 @@ public class Cluster implements Moveable {
 			entries = nodesEntryExitList;
 		}
 		if (entries.size() > 0) {
-			sb.append("{rank=source;");
+            sb.append("{rank=");
+            sb.append(rank);
+            sb.append(';');
 			for (IShapePseudo sh : entries) {
-				sb.append(sh.getUid() + ";");
+				sb.append(sh.getUid());
+				sb.append(';');
 			}
-			sb.append("}");
+			sb.append('}');
+			SvekUtils.println(sb);
 			for (IShapePseudo sh : entries) {
 				sh.appendShape(sb, stringBounder);
 			}
-		}
-		final List<Node> exits = getNodesEntryExit(EntityPosition.getOutputs());
-		if (exits.size() > 0) {
-			sb.append("{rank=sink;");
-			for (Node sh : exits) {
-				sb.append(sh.getUid() + ";");
+			SvekUtils.println(sb);
+            boolean arrow = false;
+            String node = null;
+			for (IShapePseudo sh : entries) {
+                if (arrow) {
+                    sb.append("->");
+                }
+                arrow = true;
+                node = sh.getUid();
+                sb.append(node);
 			}
-			sb.append("}");
-			for (Node sh : exits) {
-				sh.appendShape(sb, stringBounder);
-			}
+            sb.append(';');
+            sb.append(node);
+            sb.append("->");
+            sb.append("empty" + color);
+            sb.append(';');
 		}
+    }
+
+	public void printClusterEntryExit(StringBuilder sb, String label, StringBounder stringBounder) {
+        /*
+        sb.append("{rank=sink;");
+        sb.append("empty" + color);
+        sb.append(";}");
+        */
+        printClusterEntryExit(sb, stringBounder, "source", EntityPosition.getInputs());
+        printClusterEntryExit(sb, stringBounder, "same", EntityPosition.getSame());
+        printClusterEntryExit(sb, stringBounder, "sink", EntityPosition.getOutputs());
+        subgraphCluster(sb, "ee");
 	}
 
-	public boolean printCluster2(StringBuilder sb, Collection<Line> lines, StringBounder stringBounder, DotMode dotMode,
+	public Node printCluster2(StringBuilder sb, Collection<Line> lines, StringBounder stringBounder, DotMode dotMode,
 			GraphvizVersion graphvizVersion, UmlDiagramType type) {
 		// Log.println("Cluster::printCluster " + this);
 
-		boolean added = false;
+		Node added = null;
 		for (Node node : getNodesOrderedWithoutTop(lines)) {
 			node.appendShape(sb, stringBounder);
-			added = true;
+			added = node;
 		}
 
 		if (skinParam.useRankSame() && dotMode != DotMode.NO_LEFT_RIGHT_AND_XLABEL
@@ -774,8 +797,8 @@ public class Cluster implements Moveable {
 		}
 
 		if (hasEntryOrExitPoint) {
-			printClusterEntryExit(sb, stringBounder);
-			subgraphCluster(sb, "ee", label);
+			// sb.append("label=" + label + ";");
+			printClusterEntryExit(sb, label, stringBounder);
 		} else {
 			sb.append("label=" + label + ";");
 			SvekUtils.println(sb);
@@ -810,12 +833,25 @@ public class Cluster implements Moveable {
 			SvekUtils.println(sb);
 		}
 		SvekUtils.println(sb);
-		printCluster1(sb, lines, stringBounder);
-		final boolean added = printCluster2(sb, lines, stringBounder, dotMode, graphvizVersion, type);
-		if (hasEntryOrExitPoint && added == false) {
-			final String empty = "empty" + color;
-			sb.append(empty + " [shape=point,width=.01,label=\"\"];");
+        final String empty = "empty" + color;
+		if (hasEntryOrExitPoint) {
+			sb.append(empty + " [shape=rect,label=");
+            sb.append(label);
+            sb.append("];");
+            SvekUtils.println(sb);
 		}
+		printCluster1(sb, lines, stringBounder);
+		Node sub = printCluster2(sb, lines, stringBounder, dotMode, graphvizVersion, type);
+		if (hasEntryOrExitPoint) {
+            if (sub != null) {
+                SvekUtils.println(sb);
+                sb.append(empty);
+                sb.append("->");
+                sb.append(sub.getUid());
+                sb.append(';');
+                SvekUtils.println(sb);
+            }
+        }
 		sb.append("}");
 		if (protection1) {
 			sb.append("}");
@@ -824,9 +860,11 @@ public class Cluster implements Moveable {
 			sb.append("}");
 			sb.append("}");
 		}
+
 		if (hasEntryOrExitPoint) {
 			sb.append("}");
 		}
+
 		if (protection0) {
 			sb.append("}");
 		}
@@ -841,10 +879,18 @@ public class Cluster implements Moveable {
 		subgraphCluster(sb, id, "\"\"");
 	}
 
-	private void subgraphCluster(StringBuilder sb, String id, String label) {
-		final String uid = getClusterId() + id;
-		sb.append("subgraph " + uid + " {");
+	private String subgraphClusterId(String id) {
+		return getClusterId() + id;
+    }
+
+	private void outputSubgraphCluster(StringBuilder sb, String subgraphClusterId, String label) {
+		sb.append("subgraph " + subgraphClusterId + " {");
 		sb.append("label=" + label + ";");
+	}
+
+	private void subgraphCluster(StringBuilder sb, String id, String label) {
+        outputSubgraphCluster(sb, subgraphClusterId(id), label);
+
 	}
 
 	public int getColor() {

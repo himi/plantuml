@@ -118,6 +118,7 @@ import net.sourceforge.plantuml.svek.image.EntityImageLollipopInterfaceEye2;
 import net.sourceforge.plantuml.svek.image.EntityImageMap;
 import net.sourceforge.plantuml.svek.image.EntityImageNote;
 import net.sourceforge.plantuml.svek.image.EntityImageObject;
+import net.sourceforge.plantuml.svek.image.EntityImagePort;
 import net.sourceforge.plantuml.svek.image.EntityImagePseudoState;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
 import net.sourceforge.plantuml.svek.image.EntityImageState2;
@@ -152,6 +153,10 @@ public final class GeneralImageBuilder {
 		}
 		if (leaf.getLeafType() == LeafType.ACTIVITY) {
 			return new EntityImageActivity(leaf, skinParam, bibliotekon);
+		}
+		if (leaf.getLeafType() == LeafType.PORT) {
+			final Cluster parent = bibliotekon.getCluster(leaf.getParentContainer());
+			return new EntityImagePort(leaf, skinParam, parent, bibliotekon);
 		}
 		if (leaf.getLeafType() == LeafType.STATE) {
 			if (leaf.getEntityPosition() != EntityPosition.NORMAL) {

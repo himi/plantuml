@@ -48,8 +48,7 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public enum EntityPosition {
-
-	NORMAL, ENTRY_POINT, EXIT_POINT, INPUT_PIN, OUTPUT_PIN, EXPANSION_INPUT, EXPANSION_OUTPUT;
+	NORMAL, ENTRY_POINT, EXIT_POINT, INPUT_PIN, OUTPUT_PIN, EXPANSION_INPUT, EXPANSION_OUTPUT, PORT;
 
 	public static final double RADIUS = 6;
 
@@ -68,7 +67,7 @@ public enum EntityPosition {
 				drawLine(ug, getPointOnCircle(xc, yc, -Math.PI / 4, radius),
 						getPointOnCircle(xc, yc, Math.PI - Math.PI / 4, radius));
 			}
-		} else if (this == INPUT_PIN || this == OUTPUT_PIN) {
+		} else if (this == INPUT_PIN || this == OUTPUT_PIN || this == PORT) {
 			final Shadowable rectangle = new URectangle(RADIUS * 2, RADIUS * 2);
 			ug.draw(rectangle);
 		} else if (this == EXPANSION_INPUT || this == EXPANSION_OUTPUT) {
@@ -125,6 +124,9 @@ public enum EntityPosition {
 	}
 
 	public static EntityPosition fromStereotype(String label) {
+		if ("<<port>>".equalsIgnoreCase(label)) {
+			return PORT;
+		}
 		if ("<<entrypoint>>".equalsIgnoreCase(label)) {
 			return ENTRY_POINT;
 		}
@@ -154,4 +156,7 @@ public enum EntityPosition {
 		return EnumSet.of(EXIT_POINT, OUTPUT_PIN, EXPANSION_OUTPUT);
 	}
 
+	public static EnumSet<EntityPosition> getSame() {
+		return EnumSet.of(PORT);
+	}
 }

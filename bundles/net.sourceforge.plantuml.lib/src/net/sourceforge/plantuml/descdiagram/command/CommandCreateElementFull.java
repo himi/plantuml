@@ -68,7 +68,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiagram> {
 
-	public static final String ALL_TYPES = "artifact|actor|folder|card|file|package|rectangle|label|node|frame|cloud|database|queue|stack|storage|agent|usecase|component|boundary|control|entity|interface|circle|collections";
+	public static final String ALL_TYPES = "artifact|actor|folder|card|file|package|rectangle|label|node|frame|cloud|database|queue|stack|storage|agent|usecase|component|boundary|control|entity|interface|circle|collections|port";
 
 	public CommandCreateElementFull() {
 		super(getRegexConcat());
@@ -178,6 +178,9 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		if (symbol == null) {
 			type = LeafType.DESCRIPTION;
 			usymbol = diagram.getSkinParam().getActorStyle().getUSymbol();
+		} else if (symbol.equalsIgnoreCase("port")) {
+			type = LeafType.PORT;
+			usymbol = null;
 		} else if (symbol.equalsIgnoreCase("usecase")) {
 			type = LeafType.USECASE;
 			usymbol = null;

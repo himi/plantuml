@@ -56,6 +56,8 @@ public enum LeafType {
 	
 	DOMAIN, REQUIREMENT,
 
+	PORT,
+
 	STILL_UNKNOWN;
 
 	public static LeafType getLeafType(String type) {

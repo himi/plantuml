@@ -2,17 +2,6 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
- *
- * Project Info:  https://plantuml.com
- * 
- * If you like this project or if you find it useful, you can support us at:
- * 
- * https://plantuml.com/patreon (only 1$ per month!)
- * https://plantuml.com/paypal
- * 
- * This file is part of PlantUML.
- *
  * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
  * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
@@ -30,7 +19,7 @@
  * limitations under the License.
  * 
  *
- * Original Author:  Arnaud Roques
+ * Original Author:  Hisashi Miyashita
  */
 package net.sourceforge.plantuml.svek.image;
 
@@ -38,25 +27,31 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.ColorParam;
+import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.svek.Bibliotekon;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.Node;
+import net.sourceforge.plantuml.svek.ShapeType;
+import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class EntityImageStateBorder extends AbstractEntityImageBorder {
-	public EntityImageStateBorder(ILeaf leaf, ISkinParam skinParam, Cluster stateParent, final Bibliotekon bibliotekon) {
-		super(leaf, skinParam, stateParent, bibliotekon, FontParam.STATE);
+public class EntityImagePort extends AbstractEntityImageBorder {
+	public EntityImagePort(ILeaf leaf, ISkinParam skinParam,
+                           Cluster parent, final Bibliotekon bibliotekon) {
+		super(leaf, skinParam, parent, bibliotekon, FontParam.BOUNDARY);
 	}
 
 	private boolean upPosition() {
@@ -65,10 +60,27 @@ public class EntityImageStateBorder extends AbstractEntityImageBorder {
 		return node.getMinY() < clusterCenter.getY();
 	}
 
+	public Dimension2D calculateDimension(StringBounder stringBounder) {
+        double sp = EntityPosition.RADIUS * 2;
+        return new Dimension2DDouble(sp, sp);
+	}
+
+	public double getMaxWidthFromLabelForEntryExit(StringBounder stringBounder) {
+		final Dimension2D dimDesc = desc.calculateDimension(stringBounder);
+		return dimDesc.getWidth();
+	}
+
+    private void drawSymbol(UGraphic ug) {
+        final Shadowable rect = new URectangle(EntityPosition.RADIUS * 2,
+                                               EntityPosition.RADIUS * 2);
+        ug.draw(rect);
+    }
+
 	final public void drawU(UGraphic ug) {
 		double y = 0;
 		final Dimension2D dimDesc = desc.calculateDimension(ug.getStringBounder());
 		final double x = 0 - (dimDesc.getWidth() - 2 * EntityPosition.RADIUS) / 2;
+
 		if (upPosition()) {
 			y -= 2 * EntityPosition.RADIUS + dimDesc.getHeight();
 		} else {
@@ -84,6 +96,10 @@ public class EntityImageStateBorder extends AbstractEntityImageBorder {
 		}
 		ug = ug.apply(new UChangeBackColor(backcolor));
 
-		entityPosition.drawSymbol(ug, rankdir);
+		drawSymbol(ug);
+	}
+
+	public ShapeType getShapeType() {
+		return ShapeType.RECTANGLE;
 	}
 }
