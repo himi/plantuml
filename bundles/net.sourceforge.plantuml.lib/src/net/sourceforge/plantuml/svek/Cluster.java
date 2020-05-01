@@ -568,7 +568,8 @@ public class Cluster implements Moveable {
 	}
 
 	public void printClusterEntryExit(StringBuilder sb, StringBounder stringBounder,
-                                      String rank, EnumSet<EntityPosition> targets) {
+                                      String rank, EnumSet<EntityPosition> targets,
+                                      String empty) {
 		final List<Node> nodesEntryExitList = getNodesEntryExit(targets);
 		final double maxWith = getMaxWidthFromLabelForEntryExit(nodesEntryExitList, stringBounder);
 		final double naturalSpace = 70;
@@ -605,20 +606,15 @@ public class Cluster implements Moveable {
             sb.append(';');
             sb.append(node);
             sb.append("->");
-            sb.append("empty" + color);
+            sb.append(empty);
             sb.append(';');
 		}
     }
 
-	public void printClusterEntryExit(StringBuilder sb, String label, StringBounder stringBounder) {
-        /*
-        sb.append("{rank=sink;");
-        sb.append("empty" + color);
-        sb.append(";}");
-        */
-        printClusterEntryExit(sb, stringBounder, "source", EntityPosition.getInputs());
-        printClusterEntryExit(sb, stringBounder, "same", EntityPosition.getSame());
-        printClusterEntryExit(sb, stringBounder, "sink", EntityPosition.getOutputs());
+	public void printClusterEntryExit(StringBuilder sb, String label, StringBounder stringBounder, String empty) {
+        printClusterEntryExit(sb, stringBounder, "source", EntityPosition.getInputs(), empty);
+        printClusterEntryExit(sb, stringBounder, "same", EntityPosition.getSame(), empty);
+        printClusterEntryExit(sb, stringBounder, "sink", EntityPosition.getOutputs(), empty);
         subgraphCluster(sb, "ee");
 	}
 
@@ -796,9 +792,11 @@ public class Cluster implements Moveable {
 			label = "\"\"";
 		}
 
+        final String empty = "empty" + color;
+
 		if (hasEntryOrExitPoint) {
 			// sb.append("label=" + label + ";");
-			printClusterEntryExit(sb, label, stringBounder);
+			printClusterEntryExit(sb, label, stringBounder, empty);
 		} else {
 			sb.append("label=" + label + ";");
 			SvekUtils.println(sb);
@@ -833,9 +831,9 @@ public class Cluster implements Moveable {
 			SvekUtils.println(sb);
 		}
 		SvekUtils.println(sb);
-        final String empty = "empty" + color;
+
 		if (hasEntryOrExitPoint) {
-			sb.append(empty + " [shape=rect,label=");
+			sb.append(empty + " [shape=rect,width=.01,height=.01,label=");
             sb.append(label);
             sb.append("];");
             SvekUtils.println(sb);
