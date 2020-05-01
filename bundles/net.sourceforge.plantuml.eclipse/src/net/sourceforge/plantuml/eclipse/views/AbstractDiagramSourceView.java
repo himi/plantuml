@@ -45,6 +45,7 @@ import net.sourceforge.plantuml.eclipse.Activator;
 import net.sourceforge.plantuml.eclipse.utils.DiagramTextIteratorProvider;
 import net.sourceforge.plantuml.eclipse.utils.DiagramTextProvider;
 import net.sourceforge.plantuml.eclipse.utils.DiagramTextProvider2;
+import net.sourceforge.plantuml.eclipse.utils.DiagramTextProviderS2;
 import net.sourceforge.plantuml.eclipse.utils.PlantumlConstants;
 
 public abstract class AbstractDiagramSourceView extends ViewPart {
@@ -363,6 +364,13 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 		final ISelectionProvider selectionProvider = editor.getSite().getSelectionProvider();
 		if (selectionProvider != null) {
 			for (final DiagramTextProvider diagramTextProvider : diagramTextProviders) {
+                if (diagramTextProvider instanceof DiagramTextProviderS2) {
+                    final DiagramTextProviderS2 dtps2 = (DiagramTextProviderS2) diagramTextProvider;
+                    for (final String view: dtps2.getViews()) {
+                        final ActionContributionItem action = new ActionContributionItem(createSetDiagramViewAction(editor, selectionProvider, dtps2, view));
+						actions.add(action);
+                    }
+                }
 				if (diagramTextProvider instanceof DiagramTextIteratorProvider && diagramTextProvider.supportsEditor(editor)) {
 					final Iterator<ISelection> selections = ((DiagramTextIteratorProvider) diagramTextProvider).getDiagramText(editor);
 					while (selections.hasNext()) {
@@ -385,6 +393,21 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 					public void run() {
 						diagramTextChangedListener.diagramChanged(editor, selection);
 						selectionProvider.setSelection(selection);
+					}
+				});
+			}
+		};
+	}
+
+	private Action createSetDiagramViewAction(final IEditorPart editor, final ISelectionProvider selectionProvider, final DiagramTextProviderS2 dtps2, final String view) {
+		return new Action(view) {
+			@Override
+			public void run() {
+				asyncExec(new Runnable() {
+					@Override
+					public void run() {
+                        dtps2.setView(view);
+						diagramTextChangedListener.diagramChanged(editor, null);
 					}
 				});
 			}
