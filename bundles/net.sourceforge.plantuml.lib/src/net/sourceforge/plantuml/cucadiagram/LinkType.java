@@ -204,8 +204,12 @@ public class LinkType {
 	}
 
 	public boolean isExtendsOrAggregationOrCompositionOrPlus() {
-		return isExtends() || isAggregationOrComposition() || isPlus();
+		return isExtends() || isAggregationOrComposition() || isPlus() || isOf(LinkDecor.DEFINEDBY) || isOf(LinkDecor.REDEFINES);
 	}
+
+    private boolean isOf(LinkDecor ld) {
+        return decor1 == ld || decor2 == ld;
+    }
 
 	private boolean isExtends() {
 		return decor1 == LinkDecor.EXTENDS || decor2 == LinkDecor.EXTENDS;

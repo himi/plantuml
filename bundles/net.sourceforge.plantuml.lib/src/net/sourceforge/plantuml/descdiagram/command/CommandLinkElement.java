@@ -83,14 +83,14 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional(new RegexLeaf("LABEL1", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0@)]|<\\||[%s]+o)?"), //
+				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0@)]|<\\|[\\|\\:]?|[%s]+o)?"), //
 				new RegexLeaf("BODY1", "([-=.~]+)"), //
 				new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + LINE_STYLE_MUTILPLES + ")\\])?"), //
 				new RegexOptional(new RegexLeaf("DIRECTION", "(left|right|up|down|le?|ri?|up?|do?)(?=[-=.~0()])")), //
 				new RegexOptional(new RegexLeaf("INSIDE", "(0|\\(0\\)|\\(0|0\\))(?=[-=.~])")), //
 				new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("BODY2", "([-=.~]*)"), //
-				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0@(]|\\|>|\\\\\\\\|o[%s]+)?"), //
+				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0@(]|[\\:\\|]?\\|>|\\\\\\\\|o[%s]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional(new RegexLeaf("LABEL2", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -136,9 +136,15 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d1 = LinkDecor.ARROW_TRIANGLE;
 		} else if (head1.equals("^")) {
 			d1 = LinkDecor.EXTENDS;
+		} else if (head1.equals(":|>")) {
+			d1 = LinkDecor.DEFINEDBY;
+		} else if (head1.equals("||>")) {
+			d1 = LinkDecor.REDEFINES;
 		} else if (head1.equals("|>")) {
 			d1 = LinkDecor.EXTENDS;
 		}
+
+
 
 		if (head2.equals("0)")) {
 			d2 = LinkDecor.CIRCLE_CONNECT;
@@ -162,6 +168,10 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d2 = LinkDecor.ARROW_TRIANGLE;
 		} else if (head2.equals("^")) {
 			d2 = LinkDecor.EXTENDS;
+		} else if (head2.equals("<|:")) {
+			d2 = LinkDecor.DEFINEDBY;
+		} else if (head2.equals("<||")) {
+			d2 = LinkDecor.REDEFINES;
 		} else if (head2.equals("<|")) {
 			d2 = LinkDecor.EXTENDS;
 		}

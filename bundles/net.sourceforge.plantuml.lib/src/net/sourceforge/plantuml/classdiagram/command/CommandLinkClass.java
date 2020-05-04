@@ -90,14 +90,14 @@ final public class CommandLinkClass extends SingleLineCommand2<AbstractClassOrOb
 
 				new RegexConcat(
 						//
-						new RegexLeaf("ARROW_HEAD1", "([%s]+[ox]|[)#\\[<*+^}]|[<\\[]\\||\\}o|\\}\\||\\|o|\\|\\|)?"), //
+						new RegexLeaf("ARROW_HEAD1", "([%s]+[ox]|[)#\\[<*+^}]|\\<\\|[\\:\\|]|[<\\[]\\||\\}o|\\}\\||\\|o|\\|\\|)?"), //
 						new RegexLeaf("ARROW_BODY1", "([-=.]+)"), //
 						new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 						new RegexLeaf("ARROW_DIRECTION", "(left|right|up|down|le?|ri?|up?|do?)?"), //
 						new RegexOptional(new RegexLeaf("INSIDE", "(0|\\(0\\)|\\(0|0\\))(?=[-=.~])")), //
 						new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 						new RegexLeaf("ARROW_BODY2", "([-=.]*)"), //
-						new RegexLeaf("ARROW_HEAD2", "([ox][%s]+|[(#\\]>*+^\\{]|\\|[>\\]]|o\\{|\\|\\{|o\\||\\|\\|)?")), //
+						new RegexLeaf("ARROW_HEAD2", "([ox][%s]+|:\\>\\>?|[(#\\]>*+^\\{]|[\\|\\:]\\|\\>|\\|[>\\]]|o\\{|\\|\\{|o\\||\\|\\|)?")), //
 				RegexLeaf.spaceZeroOrMore(), new RegexOptional(new RegexLeaf("SECOND_LABEL", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOr( //
@@ -567,6 +567,12 @@ final public class CommandLinkClass extends SingleLineCommand2<AbstractClassOrOb
 		if ("<|".equals(s)) {
 			return LinkDecor.EXTENDS;
 		}
+		if ("<|:".equals(s)) {
+			return LinkDecor.DEFINEDBY;
+		}
+		if ("<||".equals(s)) {
+			return LinkDecor.REDEFINES;
+		}
 		if ("}".equals(s)) {
 			return LinkDecor.CROWFOOT;
 		}
@@ -616,6 +622,12 @@ final public class CommandLinkClass extends SingleLineCommand2<AbstractClassOrOb
 		s = StringUtils.trin(s);
 		if ("|>".equals(s)) {
 			return LinkDecor.EXTENDS;
+		}
+		if (":|>".equals(s)) {
+			return LinkDecor.DEFINEDBY;
+		}
+		if ("||>".equals(s)) {
+			return LinkDecor.REDEFINES;
 		}
 		if (">".equals(s)) {
 			return LinkDecor.ARROW;
