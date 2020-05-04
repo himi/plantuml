@@ -19,7 +19,7 @@
  * limitations under the License.
  * 
  *
- * Original Author:  Hisashi Miyashita
+ * Creator:  Hisashi Miyashita
  */
 package net.sourceforge.plantuml.svek.image;
 
