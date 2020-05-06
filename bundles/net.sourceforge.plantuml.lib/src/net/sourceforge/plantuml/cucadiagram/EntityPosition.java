@@ -48,7 +48,7 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public enum EntityPosition {
-	NORMAL, ENTRY_POINT, EXIT_POINT, INPUT_PIN, OUTPUT_PIN, EXPANSION_INPUT, EXPANSION_OUTPUT, PORT;
+	NORMAL, ENTRY_POINT, EXIT_POINT, INPUT_PIN, OUTPUT_PIN, EXPANSION_INPUT, EXPANSION_OUTPUT, PORT, PORTIN, PORTOUT;
 
 	public static final double RADIUS = 6;
 
@@ -149,11 +149,11 @@ public enum EntityPosition {
 	}
 
 	public static EnumSet<EntityPosition> getInputs() {
-		return EnumSet.of(ENTRY_POINT, INPUT_PIN, EXPANSION_INPUT);
+		return EnumSet.of(ENTRY_POINT, INPUT_PIN, EXPANSION_INPUT, PORTIN);
 	}
 
 	public static EnumSet<EntityPosition> getOutputs() {
-		return EnumSet.of(EXIT_POINT, OUTPUT_PIN, EXPANSION_OUTPUT);
+		return EnumSet.of(EXIT_POINT, OUTPUT_PIN, EXPANSION_OUTPUT, PORTOUT);
 	}
 
 	public static EnumSet<EntityPosition> getSame() {

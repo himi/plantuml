@@ -36,7 +36,6 @@ package net.sourceforge.plantuml.descdiagram.command;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -68,7 +67,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiagram> {
 
-	public static final String ALL_TYPES = "artifact|actor|folder|card|file|package|rectangle|label|node|frame|cloud|database|queue|stack|storage|agent|usecase|component|boundary|control|entity|interface|circle|collections|port";
+	public static final String ALL_TYPES = "artifact|actor|folder|card|file|package|rectangle|label|node|frame|cloud|database|queue|stack|storage|agent|usecase|component|boundary|control|entity|interface|circle|collections|port|portin|portout";
 
 	public CommandCreateElementFull() {
 		super(getRegexConcat());
@@ -178,7 +177,13 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		if (symbol == null) {
 			type = LeafType.DESCRIPTION;
 			usymbol = diagram.getSkinParam().getActorStyle().getUSymbol();
-		} else if (symbol.equalsIgnoreCase("port")) {
+		} else if (symbol.equalsIgnoreCase("portin")) {
+			type = LeafType.PORTIN;
+			usymbol = null;
+        } else if (symbol.equalsIgnoreCase("portout")) {
+			type = LeafType.PORTOUT;
+			usymbol = null;
+        } else if (symbol.equalsIgnoreCase("port")) {
 			type = LeafType.PORT;
 			usymbol = null;
 		} else if (symbol.equalsIgnoreCase("usecase")) {

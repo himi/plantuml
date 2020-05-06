@@ -56,7 +56,7 @@ public enum LeafType {
 	
 	DOMAIN, REQUIREMENT,
 
-	PORT,
+	PORT, PORTIN, PORTOUT,
 
 	STILL_UNKNOWN;
 
