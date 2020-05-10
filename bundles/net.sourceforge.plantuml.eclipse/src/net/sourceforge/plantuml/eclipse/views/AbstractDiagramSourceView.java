@@ -78,6 +78,10 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 		return isLinkedToActivePart() && toggleAction == null || toggleAction.isChecked();
 	}
 
+    private boolean isRankDirLR() {
+        return rankdirAction != null && rankdirAction.isChecked();
+    }
+
 	private Control parent;
 
 	protected void asyncExec(final Runnable runnable) {
@@ -109,6 +113,22 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 	}
 
 	private IAction toggleAction, pinToAction, spawnAction;
+    private IAction rankdirAction, defaultLineAction, polyLineAction, orthogonalLineAction;
+
+    private enum LineStyle {
+        DEFAULT, POLYLINE, ORTHOGONAL;
+    }
+
+    private LineStyle currentLineStyle = LineStyle.DEFAULT;
+
+    private void updateLineStyle(LineStyle lineStyle) {
+        if (lineStyle == currentLineStyle) return;
+        defaultLineAction.setChecked(lineStyle == LineStyle.DEFAULT);
+        polyLineAction.setChecked(lineStyle == LineStyle.POLYLINE);
+        orthogonalLineAction.setChecked(lineStyle == LineStyle.ORTHOGONAL);
+        currentLineStyle = lineStyle;
+        updateDiagramText(true, currentPart, null);
+    }
 
 	protected void makeActions() {
 		pinToAction = new Action() {
@@ -157,6 +177,48 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 		toggleAction.setToolTipText(PlantumlConstants.TOGGLE_GENERATION_BUTTON);
 		toggleAction.setImageDescriptor(ImageDescriptor.createFromFile(PlantumlConstants.class, "/icons/link.gif"));
 		toggleAction.setChecked(true);
+
+
+		// action to switch TB or LR of rankdir.
+        rankdirAction = new Action() {
+			@Override
+			public void run() {
+                updateDiagramText(true, currentPart, null);
+			}
+        };
+		rankdirAction.setToolTipText(PlantumlConstants.RANKDIR_BUTTON);
+		rankdirAction.setImageDescriptor(ImageDescriptor.createFromFile(PlantumlConstants.class, "/icons/rankdir16.png"));
+		rankdirAction.setChecked(false);
+
+        defaultLineAction = new Action() {
+			@Override
+			public void run() {
+                updateLineStyle(LineStyle.DEFAULT);
+			}
+        };
+		defaultLineAction.setToolTipText(PlantumlConstants.RANKDIR_BUTTON);
+		defaultLineAction.setImageDescriptor(ImageDescriptor.createFromFile(PlantumlConstants.class, "/icons/tree.gif"));
+		defaultLineAction.setChecked(true);
+
+        polyLineAction = new Action() {
+			@Override
+			public void run() {
+                updateLineStyle(LineStyle.POLYLINE);
+			}
+        };
+		polyLineAction.setToolTipText(PlantumlConstants.POLYLINE_BUTTON);
+		polyLineAction.setImageDescriptor(ImageDescriptor.createFromFile(PlantumlConstants.class, "/icons/oblique.gif"));
+		polyLineAction.setChecked(false);
+
+        orthogonalLineAction = new Action() {
+			@Override
+			public void run() {
+                updateLineStyle(LineStyle.ORTHOGONAL);
+			}
+        };
+		orthogonalLineAction.setToolTipText(PlantumlConstants.ORTHOGONAL_LINE_BUTTON);
+		orthogonalLineAction.setImageDescriptor(ImageDescriptor.createFromFile(PlantumlConstants.class, "/icons/rectilinear.gif"));
+		orthogonalLineAction.setChecked(false);
 	}
 
 	protected void addActions(final IContributionManager manager, final IAction... actions) {
@@ -170,6 +232,7 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 
 	protected void addViewActions(final IContributionManager toolBarManager) {
 		addActions(toolBarManager, spawnAction, pinToAction, toggleAction);
+        addActions(toolBarManager, rankdirAction, defaultLineAction, polyLineAction, orthogonalLineAction);
 	}
 
 	protected String getEditorInputId(final IEditorInput editorInput) {
@@ -494,10 +557,45 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 		return false;
 	}
 
+    private String getAdditionalText() {
+        StringBuilder sb = new StringBuilder();
+        if (isRankDirLR()) {
+            sb.append(PlantumlConstants.LEFT_TO_RIGHT_DIRECTION);
+        }
+        switch (currentLineStyle) {
+        case POLYLINE:
+            sb.append(PlantumlConstants.LINESTYLE_POLYLINE);
+            break;
+        case ORTHOGONAL:
+            sb.append(PlantumlConstants.LINESTYLE_ORTHOGONAL);
+            break;
+		default:
+			break;
+        }
+
+        return sb.toString();
+    }
+
 	protected String ensureDiagram(String diagramText) {
-		if (! diagramText.startsWith("@")) {
-			diagramText = PlantumlConstants.START_UML + "\n" + diagramText + "\n" + PlantumlConstants.END_UML;
+        String additional = getAdditionalText();
+		if (diagramText.startsWith("@")) {
+            if (additional.length() > 0) {
+                int pos = diagramText.indexOf('\n');
+                if (pos < 0) {
+                    throw new IllegalArgumentException("No @enduml in diagram text:" + diagramText);
+                }
+                return diagramText.substring(0, pos) + additional + diagramText.substring(pos + 1);
+            } else {
+                return diagramText;
+            }
+        } else {
+            String head;
+            if (additional.length() > 0) {
+                head = PlantumlConstants.START_UML + "\n" + additional;
+            } else {
+                head = PlantumlConstants.START_UML + "\n";
+            }
+            return head + diagramText + "\n" + PlantumlConstants.END_UML;
 		}
-		return diagramText;
 	}
 }
