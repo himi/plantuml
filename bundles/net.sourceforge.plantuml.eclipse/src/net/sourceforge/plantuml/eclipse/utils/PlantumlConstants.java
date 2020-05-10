@@ -27,6 +27,8 @@ public interface PlantumlConstants {
 	public static final String SPAWN_BUTTON = "Open another view";
 	public static final String TOGGLE_GENERATION_BUTTON = "Link with editor";
 
+    public static final String RANKDIR_BUTTON = "Left to right direction";
+
 	/**
 	 * Labels for the Preferences
 	 */
@@ -37,6 +39,11 @@ public interface PlantumlConstants {
 
 	public static final String START_UML = "@startuml";
 	public static final String END_UML = "@enduml";
+
+	public static final String LEFT_TO_RIGHT_DIRECTION = "\nleft to right direction\n";
+
+	public static final String LINESTYLE_POLYLINE = "\nskinparam linetype polyline\n";
+	public static final String LINESTYLE_ORTHOGONAL = "\nskinparam linetype ortho\n";
 
 	public static final String AUTHORS_DIAGRAM = START_UML + "\nauthor\n" + END_UML;
 	public static final String TEST_DOT_DIAGRAM = START_UML + "\ntestdot\n" + END_UML;
