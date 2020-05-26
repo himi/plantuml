@@ -2,7 +2,7 @@
 <feature
       id="net.sourceforge.plantuml.lib.feature"
       label="%featureName"
-      version="1.2020.7.himi1"
+      version="1.2020.6.himi1"
       provider-name="PlantUML Team">
 
    <description url="http://plantuml.sourceforge.net/">
