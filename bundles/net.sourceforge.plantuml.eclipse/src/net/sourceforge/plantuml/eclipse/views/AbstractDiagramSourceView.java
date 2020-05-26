@@ -447,6 +447,24 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 		return actions;
 	}
 
+	protected Collection<ActionContributionItem> getEditorDiagramStyleActions(final IMenuManager menu) {
+		final Collection<ActionContributionItem> actions = new ArrayList<ActionContributionItem>();
+		final DiagramTextProvider[] diagramTextProviders = Activator.getDefault().getDiagramTextProviders(true);
+		final IEditorPart editor = (pinnedTo != null ? pinnedTo : getSite().getPage().getActiveEditor());
+		final ISelectionProvider selectionProvider = editor.getSite().getSelectionProvider();
+		if (selectionProvider == null) return actions;
+        for (final DiagramTextProvider diagramTextProvider : diagramTextProviders) {
+            if (diagramTextProvider instanceof DiagramTextProviderS2) {
+                final DiagramTextProviderS2 dtps2 = (DiagramTextProviderS2) diagramTextProvider;
+                for (final String style: dtps2.getStyles()) {
+                    final ActionContributionItem action = new ActionContributionItem(createSetDiagramStyleAction(editor, selectionProvider, dtps2, style));
+                    actions.add(action);
+                }
+            }
+		}
+		return actions;
+	}
+
 	private Action createEditorSelectionAction(final IEditorPart editor, final ISelectionProvider selectionProvider, final ISelection selection) {
 		return new Action(selection.toString()) {
 			@Override
@@ -470,6 +488,21 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 					@Override
 					public void run() {
                         dtps2.setView(view);
+						diagramTextChangedListener.diagramChanged(editor, null);
+					}
+				});
+			}
+		};
+	}
+
+	private Action createSetDiagramStyleAction(final IEditorPart editor, final ISelectionProvider selectionProvider, final DiagramTextProviderS2 dtps2, final String style) {
+		return new Action(style) {
+			@Override
+			public void run() {
+				asyncExec(new Runnable() {
+					@Override
+					public void run() {
+                        dtps2.setStyle(style);
 						diagramTextChangedListener.diagramChanged(editor, null);
 					}
 				});
@@ -576,7 +609,7 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
         return sb.toString();
     }
 
-	protected String ensureDiagram(String diagramText) {
+    protected String ensureDiagram(String diagramText) {
         String additional = getAdditionalText();
 		if (diagramText.startsWith("@")) {
             if (additional.length() > 0) {
@@ -596,6 +629,6 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
                 head = PlantumlConstants.START_UML + "\n";
             }
             return head + diagramText + "\n" + PlantumlConstants.END_UML;
-		}
-	}
+        }
+    }
 }

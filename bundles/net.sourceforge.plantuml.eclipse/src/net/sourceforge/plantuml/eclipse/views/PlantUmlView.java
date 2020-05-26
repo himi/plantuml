@@ -271,6 +271,19 @@ public class PlantUmlView extends AbstractDiagramSourceView implements ILinkSupp
 			}
 		});
 		menu.add(editorSelectionActionMenu);
+
+		final MenuManager editorStyleActionMenu = new MenuManager("Styles");
+		editorStyleActionMenu.add(new Action() {}); // will be removed, needed for the submenu to actually show
+		editorStyleActionMenu.setRemoveAllWhenShown(true);
+		editorStyleActionMenu.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(final IMenuManager menu) {
+				for (final ActionContributionItem actionContributionItem : getEditorDiagramStyleActions(menu)) {
+					menu.add(actionContributionItem);
+				}
+			}
+		});
+		menu.add(editorStyleActionMenu);
 	}
 
 	protected void addZoomActions(final IContributionManager toolBarManager) {
