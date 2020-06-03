@@ -792,7 +792,13 @@ public class Cluster implements Moveable {
 			label = "\"\"";
 		}
 
-        final String empty = "empty" + color;
+        final String empty;
+		if (thereALinkFromOrToGroup2) {
+            // We regard group's id as empty for hasEntryOrExitPoint
+            empty = getSpecialPointId(group);
+        } else {
+            empty = "empty" + color;
+        }
 
 		if (hasEntryOrExitPoint) {
 			// sb.append("label=" + label + ";");
@@ -800,6 +806,10 @@ public class Cluster implements Moveable {
 		} else {
 			sb.append("label=" + label + ";");
 			SvekUtils.println(sb);
+            if (thereALinkFromOrToGroup2) {
+                // hasEntryOrExitPoint will put an empty. Othwerwise we need to put a point to connect group.
+                sb.append(empty + " [shape=point,width=.01,label=\"\"];");
+            }
 		}
 
 		// if (hasEntryOrExitPoint) {
@@ -807,9 +817,6 @@ public class Cluster implements Moveable {
 		// subgraphCluster(sb, "ee");
 		// }
 
-		if (thereALinkFromOrToGroup2) {
-			sb.append(getSpecialPointId(group) + " [shape=point,width=.01,label=\"\"];");
-		}
 		if (thereALinkFromOrToGroup1) {
 			subgraphCluster(sb, "i");
 		}
