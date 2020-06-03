@@ -593,21 +593,24 @@ public class Cluster implements Moveable {
 				sh.appendShape(sb, stringBounder);
 			}
 			SvekUtils.println(sb);
-            boolean arrow = false;
-            String node = null;
-			for (IShapePseudo sh : entries) {
-                if (arrow) {
-                    sb.append("->");
-                }
-                arrow = true;
-                node = sh.getUid();
-                sb.append(node);
-			}
-            sb.append(';');
+
+            Iterator<? extends IShapePseudo> it = entries.iterator();
+            IShapePseudo sh = it.next();
+            String node = sh.getUid();
+            if (entries.size() > 1) {
+            	sb.append(node);
+            	do {
+            		sh = it.next();
+            		node = sh.getUid();
+            		sb.append("->");
+            		sb.append(node);
+            	} while (it.hasNext());
+            	sb.append(';');
+            }
             sb.append(node);
             sb.append("->");
             sb.append(empty);
-            sb.append(';');
+            sb.append("[minlen=1,weight=1];");
 		}
     }
 
