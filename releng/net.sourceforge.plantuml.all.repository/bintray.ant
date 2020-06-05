@@ -114,6 +114,7 @@
       <fileset dir="${local.p2.repository}">
         <include name="*"/>
         <include name="plugins/*"/>
+        <include name="features/*"/>
       </fileset>
 
       <chainedmapper>
@@ -137,6 +138,7 @@
       <fileset dir="${local.p2.repository}">
         <include name="*"/>
         <include name="plugins/*"/>
+        <include name="features/*"/>
       </fileset>
 
       <chainedmapper>
