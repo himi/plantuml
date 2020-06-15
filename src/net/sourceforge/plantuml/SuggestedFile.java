@@ -4,46 +4,45 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
-import net.sourceforge.plantuml.security.SFile;
+import java.io.File;
 
 public class SuggestedFile {
 
 	private final FileFormat fileFormat;
 	private final int initialCpt;
-	private final SFile outputFile;
+	private final File outputFile;
 
-	private SuggestedFile(SFile outputFile, FileFormat fileFormat, int initialCpt) {
+	private SuggestedFile(File outputFile, FileFormat fileFormat, int initialCpt) {
 		if (outputFile.getName().endsWith(fileFormat.getFileSuffix())) {
 			throw new IllegalArgumentException();
 		}
@@ -58,18 +57,14 @@ public class SuggestedFile {
 
 	@Override
 	public String toString() {
-		return outputFile.getPrintablePath() + "[" + initialCpt + "]";
+		return outputFile.getAbsolutePath() + "[" + initialCpt + "]";
 	}
 
-	public static SuggestedFile fromOutputFile(SFile outputFile, FileFormat fileFormat) {
+	public static SuggestedFile fromOutputFile(File outputFile, FileFormat fileFormat) {
 		return fromOutputFile(outputFile, fileFormat, 0);
 	}
 
-	public static SuggestedFile fromOutputFile(java.io.File outputFile, FileFormat fileFormat) {
-		return fromOutputFile(outputFile, fileFormat, 0);
-	}
-
-	public SFile getParentFile() {
+	public File getParentFile() {
 		return outputFile.getParentFile();
 	}
 
@@ -77,21 +72,17 @@ public class SuggestedFile {
 		return outputFile.getName();
 	}
 
-	public SFile getFile(int cpt) {
+	public File getFile(int cpt) {
 		final String newName = fileFormat.changeName(outputFile.getName(), initialCpt + cpt);
-		return outputFile.getParentFile().file(newName);
+		return new File(outputFile.getParentFile(), newName);
 	}
 
-	public static SuggestedFile fromOutputFile(SFile outputFile, FileFormat fileFormat, int initialCpt) {
+	public static SuggestedFile fromOutputFile(File outputFile, FileFormat fileFormat, int initialCpt) {
 		return new SuggestedFile(outputFile, fileFormat, initialCpt);
 	}
 
-	public static SuggestedFile fromOutputFile(java.io.File outputFile, FileFormat fileFormat, int initialCpt) {
-		return new SuggestedFile(SFile.fromFile(outputFile), fileFormat, initialCpt);
-	}
-
-	public SFile getTmpFile() {
-		return getParentFile().file(getName() + ".tmp");
+	public File getTmpFile() {
+		return new File(getParentFile(), getName() + ".tmp");
 	}
 
 }

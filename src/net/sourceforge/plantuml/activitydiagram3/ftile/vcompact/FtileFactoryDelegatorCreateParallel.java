@@ -4,66 +4,86 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
+import java.awt.geom.Dimension2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.activitydiagram3.ForkStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactoryDelegator;
+import net.sourceforge.plantuml.activitydiagram3.ftile.FtileHeightFixed;
+import net.sourceforge.plantuml.activitydiagram3.ftile.FtileUtils;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 
-public final class FtileFactoryDelegatorCreateParallel extends FtileFactoryDelegator {
+public class FtileFactoryDelegatorCreateParallel extends FtileFactoryDelegator {
+
+	private final double spaceArroundBlackBar = 20;
+	private final double xMargin = 14;
 
 	public FtileFactoryDelegatorCreateParallel(FtileFactory factory) {
 		super(factory);
 	}
 
+	private Ftile allOverlapped(Swimlane swimlane, List<Ftile> all, ForkStyle style, String label) {
+		return new FtileForkInnerOverlapped(all);
+	}
+
 	@Override
 	public Ftile createParallel(List<Ftile> all, ForkStyle style, String label, Swimlane in, Swimlane out) {
 
+		final Dimension2D dimSuper = super.createParallel(all, style, label, in, out).calculateDimension(
+				getStringBounder());
+		final double height1 = dimSuper.getHeight() + 2 * spaceArroundBlackBar;
+
+		final List<Ftile> list = new ArrayList<Ftile>();
+		for (Ftile tmp : all) {
+			list.add(new FtileHeightFixed(FtileUtils.addHorizontalMargin(tmp, xMargin), height1));
+		}
+		final Ftile inner = super.createParallel(list, style, label, in, out);
+
 		AbstractParallelFtilesBuilder builder;
+
 		if (style == ForkStyle.SPLIT) {
-			builder = new ParallelBuilderSplit(skinParam(), getStringBounder(), all);
+			builder = new ParallelBuilderSplit(skinParam(), getStringBounder(), list, inner);
 		} else if (style == ForkStyle.MERGE) {
-			builder = new ParallelBuilderMerge(skinParam(), getStringBounder(), all);
+			builder = new ParallelBuilderMerge(skinParam(), getStringBounder(), list, inner);
 		} else if (style == ForkStyle.FORK) {
-			builder = new ParallelBuilderFork(skinParam(), getStringBounder(), label, in, out, all);
+			builder = new ParallelBuilderFork(skinParam(), getStringBounder(), list, inner, label, in, out);
 		} else {
 			throw new IllegalStateException();
 		}
-		final Ftile inner = super.createParallel(builder.list99, style, label, in, out);
-		return builder.build(inner);
+		return builder.build();
 	}
 
 }

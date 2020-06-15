@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.cucadiagram;
 
@@ -53,7 +52,7 @@ import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.creole.Parser;
+import net.sourceforge.plantuml.creole.command.CommandCreoleImg;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.sprite.SpriteUtils;
@@ -122,7 +121,7 @@ public class Stereotype implements CharSequence {
 		if (label.startsWith("<<$") && label.endsWith(">>")) {
 			final RegexResult mCircleSprite = circleSprite.matcher(label);
 			this.spriteName = mCircleSprite.get("NAME", 0);
-			this.spriteScale = Parser.getScale(mCircleSprite.get("SCALE", 0), 1);
+			this.spriteScale = CommandCreoleImg.getScale(mCircleSprite.get("SCALE", 0), 1);
 		} else {
 			this.spriteName = null;
 		}
@@ -157,7 +156,7 @@ public class Stereotype implements CharSequence {
 				this.htmlColor = col == null ? HColorUtils.BLACK : col;
 				this.spriteName = mCircleSprite.get("NAME", 0);
 				this.character = '\0';
-				this.spriteScale = Parser.getScale(mCircleSprite.get("SCALE", 0), 1);
+				this.spriteScale = CommandCreoleImg.getScale(mCircleSprite.get("SCALE", 0), 1);
 			} else if (mCircleChar != null) {
 				if (StringUtils.isNotEmpty(mCircleChar.get("LABEL", 0))) {
 					local = "<<" + mCircleChar.get("LABEL", 0) + ">>";

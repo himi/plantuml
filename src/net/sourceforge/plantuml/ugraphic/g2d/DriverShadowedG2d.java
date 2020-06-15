@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.ugraphic.g2d;
 
@@ -73,6 +72,8 @@ public class DriverShadowedG2d {
 		if (dpiFactor < 1) {
 			dpiFactor = 1;
 		}
+		// dpiFactor = 1;
+		// Shadow
 		final Rectangle2D bounds = shape.getBounds2D();
 		final double ww = bounds.getMaxX() - bounds.getMinX();
 		final double hh = bounds.getMaxY() - bounds.getMinY();
@@ -105,43 +106,7 @@ public class DriverShadowedG2d {
 		if (destination != null) {
 			final AffineTransform at = g2d.getTransform();
 			g2d.scale(1 / dpiFactor, 1 / dpiFactor);
-			g2d.drawImage(destination, (int) (bounds.getMinX() * dpiFactor), (int) (bounds.getMinY() * dpiFactor),
-					null);
-			g2d.setTransform(at);
-		}
-	}
-
-	protected void drawOnlyLineShadow(Graphics2D g2d, Line2D.Double shape, double deltaShadow, double dpiFactor) {
-		if (dpiFactor < 1) {
-			dpiFactor = 1;
-		}
-		final Rectangle2D bounds = shape.getBounds2D();
-		final double ww = bounds.getMaxX() - bounds.getMinX();
-		final double hh = bounds.getMaxY() - bounds.getMinY();
-
-		final double w = (ww + deltaShadow * 2 + 6) * dpiFactor;
-		final double h = (hh + deltaShadow * 2 + 6) * dpiFactor;
-		BufferedImage destination = null;
-		try {
-			destination = new BufferedImage((int) w, (int) h, BufferedImage.TYPE_INT_ARGB);
-			final Graphics2D gg = destination.createGraphics();
-			gg.scale(dpiFactor, dpiFactor);
-			gg.translate(deltaShadow - bounds.getMinX(), deltaShadow - bounds.getMinY());
-			gg.draw(shape);
-			gg.dispose();
-
-			final ConvolveOp simpleBlur = getConvolveOp(6, dpiFactor);
-			destination = simpleBlur.filter(destination, null);
-		} catch (OutOfMemoryError error) {
-			Log.info("Warning: Cannot draw shadow, image too big.");
-		} catch (Exception e) {
-			Log.info("Warning: Cannot draw shadow: " + e);
-		}
-		if (destination != null) {
-			final AffineTransform at = g2d.getTransform();
-			g2d.scale(1 / dpiFactor, 1 / dpiFactor);
-			g2d.drawImage(destination, (int) (bounds.getMinX() * dpiFactor), (int) (bounds.getMinY() * dpiFactor),
-					null);
+			g2d.drawImage(destination, (int) (bounds.getMinX() * dpiFactor), (int) (bounds.getMinY() * dpiFactor), null);
 			g2d.setTransform(at);
 		}
 	}

@@ -4,38 +4,38 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.descdiagram.command;
 
 import net.sourceforge.plantuml.LineLocation;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -72,60 +72,62 @@ public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntity
 	}
 
 	private static IRegex getRegexConcat() {
-		return RegexConcat.build(CommandPackageWithUSymbol.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("SYMBOL",
-						"(package|rectangle|node|artifact|folder|file|frame|cloud|database|storage|component|card|together|queue|stack)"), //
-				RegexLeaf.spaceOneOrMore(), //
-				new RegexOr(//
-						new RegexConcat( //
-								new RegexLeaf("DISPLAY1", "([%g].+?[%g])"), //
-								new RegexOptional( //
-										new RegexConcat( //
-												RegexLeaf.spaceOneOrMore(), //
-												new RegexLeaf("STEREOTYPE1", "(\\<\\<.+\\>\\>)") //
-										)), //
-								RegexLeaf.spaceZeroOrMore(), //
-								new RegexLeaf("as"), //
-								RegexLeaf.spaceOneOrMore(), //
-								new RegexLeaf("CODE1", "([^#%s{}]+)") //
+		return RegexConcat
+				.build(CommandPackageWithUSymbol.class.getName(),
+						RegexLeaf.start(), //
+						new RegexLeaf("SYMBOL",
+								"(package|rectangle|node|artifact|folder|file|frame|cloud|database|storage|component|card|together|queue|stack)"), //
+						RegexLeaf.spaceOneOrMore(), //
+						new RegexOr(//
+								new RegexConcat( //
+										new RegexLeaf("DISPLAY1", "([%g].+?[%g])"), //
+										new RegexOptional( //
+												new RegexConcat( //
+														RegexLeaf.spaceOneOrMore(), //
+														new RegexLeaf("STEREOTYPE1", "(\\<\\<.+\\>\\>)") //
+												)), //
+										RegexLeaf.spaceZeroOrMore(), //
+										new RegexLeaf("as"), //
+										RegexLeaf.spaceOneOrMore(), //
+										new RegexLeaf("CODE1", "([^#%s{}]+)") //
+								), //
+								new RegexConcat( //
+										new RegexLeaf("CODE2", "([^#%s{}%g]+)"), //
+										new RegexOptional( //
+												new RegexConcat( //
+														RegexLeaf.spaceOneOrMore(), //
+														new RegexLeaf("STEREOTYPE2", "(\\<\\<.+\\>\\>)") //
+												)), //
+										RegexLeaf.spaceZeroOrMore(), //
+										new RegexLeaf("as"), //
+										RegexLeaf.spaceOneOrMore(), //
+										new RegexLeaf("DISPLAY2", "([%g].+?[%g])") //
+								), //
+								new RegexConcat( //
+										new RegexLeaf("DISPLAY3", "([^#%s{}%g]+)"), //
+										new RegexOptional( //
+												new RegexConcat( //
+														RegexLeaf.spaceOneOrMore(), //
+														new RegexLeaf("STEREOTYPE3", "(\\<\\<.+\\>\\>)") //
+												)), //
+										RegexLeaf.spaceZeroOrMore(), //
+										new RegexLeaf("as"), //
+										RegexLeaf.spaceOneOrMore(), //
+										new RegexLeaf("CODE3", "([^#%s{}%g]+)") //
+								), //
+								new RegexLeaf("CODE8", "([%g][^%g]+[%g])"), //
+								new RegexLeaf("CODE9", "([^#%s{}%g]*)") //
 						), //
-						new RegexConcat( //
-								new RegexLeaf("CODE2", "([^#%s{}%g]+)"), //
-								new RegexOptional( //
-										new RegexConcat( //
-												RegexLeaf.spaceOneOrMore(), //
-												new RegexLeaf("STEREOTYPE2", "(\\<\\<.+\\>\\>)") //
-										)), //
-								RegexLeaf.spaceZeroOrMore(), //
-								new RegexLeaf("as"), //
-								RegexLeaf.spaceOneOrMore(), //
-								new RegexLeaf("DISPLAY2", "([%g].+?[%g])") //
-						), //
-						new RegexConcat( //
-								new RegexLeaf("DISPLAY3", "([^#%s{}%g]+)"), //
-								new RegexOptional( //
-										new RegexConcat( //
-												RegexLeaf.spaceOneOrMore(), //
-												new RegexLeaf("STEREOTYPE3", "(\\<\\<.+\\>\\>)") //
-										)), //
-								RegexLeaf.spaceZeroOrMore(), //
-								new RegexLeaf("as"), //
-								RegexLeaf.spaceOneOrMore(), //
-								new RegexLeaf("CODE3", "([^#%s{}%g]+)") //
-						), //
-						new RegexLeaf("CODE8", "([%g][^%g]+[%g])"), //
-						new RegexLeaf("CODE9", "([^#%s{}%g]*)") //
-				), //
-				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
-				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("TAGS", Stereotag.pattern() + "?"), //
-				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
-				RegexLeaf.spaceZeroOrMore(), //
-				color().getRegex(), //
-				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("\\{"), RegexLeaf.end());
+						RegexLeaf.spaceZeroOrMore(), //
+						new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
+						RegexLeaf.spaceZeroOrMore(), //
+						new RegexLeaf("TAGS", Stereotag.pattern() + "?"), //
+						RegexLeaf.spaceZeroOrMore(), //
+						new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
+						RegexLeaf.spaceZeroOrMore(), //
+						color().getRegex(), //
+						RegexLeaf.spaceZeroOrMore(), //
+						new RegexLeaf("\\{"), RegexLeaf.end());
 	}
 
 	private static ColorParser color() {
@@ -156,11 +158,7 @@ public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntity
 		diagram.gotoGroup(ident, code, Display.getWithNewlines(display), GroupType.PACKAGE, currentPackage,
 				NamespaceStrategy.SINGLE);
 		final IEntity p = diagram.getCurrentGroup();
-		final String symbol = arg.get("SYMBOL", 0);
-		if ("together".equalsIgnoreCase(symbol)) {
-			p.setThisIsTogether();
-		}
-		p.setUSymbol(USymbol.getFromString(symbol, diagram.getSkinParam().getActorStyle()));
+		p.setUSymbol(USymbol.getFromString(arg.get("SYMBOL", 0), diagram.getSkinParam().getActorStyle()));
 		final String stereotype = arg.getLazzy("STEREOTYPE", 0);
 		if (stereotype != null) {
 			p.setStereotype(new Stereotype(stereotype, false));

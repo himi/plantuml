@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.project;
 
@@ -90,7 +89,6 @@ import net.sourceforge.plantuml.project.time.DayOfWeek;
 import net.sourceforge.plantuml.project.time.GCalendar;
 import net.sourceforge.plantuml.project.time.Wink;
 import net.sourceforge.plantuml.project.timescale.TimeScale;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
@@ -161,20 +159,13 @@ public class GanttDiagram extends TitledDiagram implements Subject {
 	@Override
 	protected ImageData exportDiagramNow(OutputStream os, int index, FileFormatOption fileFormatOption, long seed)
 			throws IOException {
+		final double margin = 10;
+
 		final Scale scale = getScale();
 
-		final int margin1;
-		final int margin2;
-		if (SkinParam.USE_STYLES()) {
-			margin1 = SkinParam.zeroMargin(0);
-			margin2 = SkinParam.zeroMargin(0);
-		} else {
-			margin1 = 0;
-			margin2 = 0;
-		}
 		final double dpiFactor = scale == null ? 1 : scale.getScale(100, 100);
-		final ImageBuilder imageBuilder = ImageBuilder.buildB(new ColorMapperIdentity(), false,
-				ClockwiseTopRightBottomLeft.margin1margin2(margin1, margin2), null, getMetadata(), "", dpiFactor, null);
+		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), dpiFactor, null, "", "", 0, 0,
+				null, false);
 		final SkinParam skinParam = SkinParam.create(UmlDiagramType.TIMING);
 
 		TextBlock result = getTextBlock();
@@ -228,7 +219,8 @@ public class GanttDiagram extends TitledDiagram implements Subject {
 				drawConstraints(ug, timeHeader.getTimeScale());
 				drawTasksRect(ug);
 				drawTasksTitle(ug);
-				drawResources(ug);
+				if (printStart == null)
+					drawResources(ug);
 			}
 
 			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {

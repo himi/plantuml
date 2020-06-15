@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
- *
+ * Project Info:  https://plantuml.com
+ * 
  * If you like this project or if you find it useful, you can support us at:
- *
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- *
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
  */
 package net.sourceforge.plantuml.timingdiagram.graphic;
 
@@ -58,6 +58,7 @@ import net.sourceforge.plantuml.timingdiagram.ChangeState;
 import net.sourceforge.plantuml.timingdiagram.TimeConstraint;
 import net.sourceforge.plantuml.timingdiagram.TimeTick;
 import net.sourceforge.plantuml.timingdiagram.TimingRuler;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
@@ -65,28 +66,22 @@ import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class Histogram implements PDrawing {
+public class Histogram implements PlayerDrawing {
 
 	private final List<ChangeState> changes = new ArrayList<ChangeState>();
 	private final List<TimeConstraint> constraints = new ArrayList<TimeConstraint>();
 
 	private List<String> allStates;
+	private final double stepHeight = 20;
 
 	private final ISkinParam skinParam;
 	private final TimingRuler ruler;
-	private final boolean compact;
 	private String initialState;
-	private final TextBlock title;
-	private final int suggestedHeight;
 
-	public Histogram(TimingRuler ruler, ISkinParam skinParam, Collection<String> someStates, boolean compact,
-			TextBlock title, int suggestedHeight) {
-		this.suggestedHeight = suggestedHeight;
+	public Histogram(TimingRuler ruler, ISkinParam skinParam, Collection<String> someStates) {
 		this.ruler = ruler;
 		this.skinParam = skinParam;
 		this.allStates = new ArrayList<String>(someStates);
-		this.compact = compact;
-		this.title = title;
 		Collections.reverse(allStates);
 	}
 
@@ -185,10 +180,10 @@ public class Histogram implements PDrawing {
 		return new SymbolContext(HColorUtils.COL_D7E0F2, HColorUtils.COL_038048).withStroke(new UStroke(1.5));
 	}
 
-	public TextBlock getPart1(final double fullAvailableWidth) {
+	public TextBlock getPart1() {
 		return new AbstractTextBlock() {
 			public void drawU(UGraphic ug) {
-				drawPart1(ug, fullAvailableWidth);
+				drawPart1(ug);
 			}
 
 			public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -215,43 +210,16 @@ public class Histogram implements PDrawing {
 		if (initialState != null) {
 			width += getInitialWidth();
 		}
-		if (compact) {
-			width += title.calculateDimension(stringBounder).getWidth() + 15;
-		}
 		return new Dimension2DDouble(width, getFullHeight(stringBounder));
 	}
 
-	private void drawPart1(UGraphic ug, double fullAvailableWidth) {
-		final StringBounder stringBounder = ug.getStringBounder();
-		ug = ug.apply(UTranslate.dy(getHeightForConstraints(stringBounder)));
-		if (compact) {
-			final double titleHeight = title.calculateDimension(stringBounder).getHeight();
-			final double dy = (getFullHeight(stringBounder) - titleHeight) / 2;
-			title.drawU(ug.apply(UTranslate.dy(dy)));
-		}
-		double width = getStatesWidth(stringBounder);
-		if (initialState != null) {
-			width += getInitialWidth();
-		}
-		if (fullAvailableWidth > width + 5)
-			ug = ug.apply(UTranslate.dx(fullAvailableWidth - width - 5));
-		else
-			ug = ug.apply(UTranslate.dx(fullAvailableWidth - width));
+	private void drawPart1(UGraphic ug) {
+		ug = ug.apply(UTranslate.dy(getHeightForConstraints(ug.getStringBounder())));
 		for (String state : allStates) {
 			final TextBlock label = getTextBlock(state);
-			final Dimension2D dim = label.calculateDimension(stringBounder);
+			final Dimension2D dim = label.calculateDimension(ug.getStringBounder());
 			label.drawU(ug.apply(UTranslate.dy(yOfState(state) - dim.getHeight() / 2 + 1)));
 		}
-	}
-
-	private double getStatesWidth(StringBounder stringBounder) {
-		double result = 0;
-		for (String state : allStates) {
-			final TextBlock label = getTextBlock(state);
-			final Dimension2D dim = label.calculateDimension(stringBounder);
-			result = Math.max(result, dim.getWidth());
-		}
-		return result;
 	}
 
 	private void drawPart2(UGraphic ug) {
@@ -277,7 +245,7 @@ public class Histogram implements PDrawing {
 			final double len = x2 - getPointx(i);
 			final Point2D[] points = getPoints(i);
 			if (points.length == 2) {
-				drawHBlock(ug.apply(changes.get(i).getBackColor().bg()), points[0], points[1], len);
+				drawHBlock(ug.apply(new UChangeBackColor(changes.get(i).getBackColor())), points[0], points[1], len);
 			}
 			if (i < changes.size() - 1) {
 				for (Point2D pt : points) {
@@ -339,6 +307,7 @@ public class Histogram implements PDrawing {
 			final String state2 = getStatesAt(constraint.getTick2()).get(0);
 			final double y1 = yOfState(state1);
 			final double y2 = yOfState(state2);
+			// constraint.drawU(ug.apply(UTranslate.dy(y1 - stepHeight / 2)), ruler);
 			constraint.drawU(ug.apply(UTranslate.dy(y1)), ruler);
 		}
 	}
@@ -356,7 +325,7 @@ public class Histogram implements PDrawing {
 	}
 
 	public double getFullHeight(StringBounder stringBounder) {
-		return getHeightForConstraints(stringBounder) + stepHeight() * (allStates.size() - 1) + getBottomMargin();
+		return getHeightForConstraints(stringBounder) + stepHeight * (allStates.size() - 1) + getBottomMargin();
 	}
 
 	private double getBottomMargin() {
@@ -365,14 +334,7 @@ public class Histogram implements PDrawing {
 
 	private double yOfState(String state) {
 		final int nb = allStates.size() - 1 - allStates.indexOf(state);
-		return stepHeight() * nb;
-	}
-
-	private double stepHeight() {
-		if (suggestedHeight == 0 || allStates.size() <= 1) {
-			return 20;
-		}
-		return suggestedHeight / (allStates.size() - 1);
+		return stepHeight * nb;
 	}
 
 	private FontConfiguration getFontConfiguration() {

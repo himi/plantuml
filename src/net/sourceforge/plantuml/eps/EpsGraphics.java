@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.eps;
 
@@ -97,8 +96,8 @@ public class EpsGraphics {
 				true));
 		roundrect.add(new PostScriptCommandRaw(
 				"2 index 5 index add 1 index sub 2 index 5 index add 2 index sub 2 index 0 90 arc", true));
-		roundrect.add(
-				new PostScriptCommandRaw("dup 3 index add 2 index 5 index add 2 index sub 2 index 90 180 arc", true));
+		roundrect.add(new PostScriptCommandRaw("dup 3 index add 2 index 5 index add 2 index sub 2 index 90 180 arc",
+				true));
 		roundrect.add(new PostScriptCommandRaw("pop pop pop pop pop ", true));
 	}
 
@@ -330,7 +329,7 @@ public class EpsGraphics {
 
 	public void epsPolygon(HColorGradient gr, ColorMapper mapper, double... points) {
 		assert points.length % 2 == 0;
-		setFillColor(mapper.toColor(gr.getColor1()));
+		setFillColor(mapper.getMappedColor(gr.getColor1()));
 		epsPolygon(points);
 	}
 
@@ -401,8 +400,8 @@ public class EpsGraphics {
 		}
 	}
 
-	public void epsRectangle(double x, double y, double width, double height, double rx, double ry, HColorGradient gr,
-			ColorMapper mapper) {
+	public void epsRectangle(double x, double y, double width, double height, double rx, double ry,
+			HColorGradient gr, ColorMapper mapper) {
 		checkCloseDone();
 		ensureVisible(x, y);
 		ensureVisible(x + width, y + height);
@@ -410,8 +409,8 @@ public class EpsGraphics {
 
 		if (rx == 0 && ry == 0) {
 			simplerectUsed = true;
-			appendColorShort(mapper.toColor(gr.getColor1()));
-			appendColorShort(mapper.toColor(gr.getColor2()));
+			appendColorShort(mapper.getMappedColor(gr.getColor1()));
+			appendColorShort(mapper.getMappedColor(gr.getColor2()));
 			append(format(width) + " " + format(height) + " " + format(x) + " " + format(y), true);
 			append("100 -1 1 {", true);
 			append("100 div", true);
@@ -433,8 +432,8 @@ public class EpsGraphics {
 			append("initclip", true);
 		} else {
 			roundrectUsed = true;
-			appendColorShort(mapper.toColor(gr.getColor1()));
-			appendColorShort(mapper.toColor(gr.getColor2()));
+			appendColorShort(mapper.getMappedColor(gr.getColor1()));
+			appendColorShort(mapper.getMappedColor(gr.getColor2()));
 			append(format(width) + " " + format(height) + " " + format(x) + " " + format(y) + " "
 					+ format((rx + ry) / 2), true);
 			append("100 -1 1 {", true);
@@ -482,20 +481,9 @@ public class EpsGraphics {
 			append("[" + dashSpace + " " + dashVisible + "] 0 setdash", true);
 		}
 		// if (isDashed3() || fill) {
-		append(format(width) + " " + format(height) + " " + format(x) + " " + format(y) + " simplerect", true);
-		simplerectUsed = true;
+			append(format(width) + " " + format(height) + " " + format(x) + " " + format(y) + " simplerect", true);
+			simplerectUsed = true;
 		// }
-	}
-
-	/**
-	 * Converts a counter clockwise angle to a clockwise angle. i.e. 0 -> 360, 90 ->
-	 * 270, 180 -> 180, 270 -> 90
-	 * 
-	 * @param counterClockwise counter clockwise angle in degrees
-	 * @return clockwise angle in degrees
-	 */
-	private int convertToClockwiseAngle(double counterClockwise) {
-		return (int) (360.0 - counterClockwise);
 	}
 
 	public void epsEllipse(double x, double y, double xRadius, double yRadius, double start, double extend) {
@@ -510,8 +498,7 @@ public class EpsGraphics {
 		// if (fillcolor != null) {
 		// appendColor(fillcolor);
 		// append("newpath", true);
-		// append(format(x) + " " + format(y / scale) + " " + format(xRadius) + " 0 360
-		// arc", true);
+		// append(format(x) + " " + format(y / scale) + " " + format(xRadius) + " 0 360 arc", true);
 		// append("closepath eofill", true);
 		// }
 
@@ -519,10 +506,10 @@ public class EpsGraphics {
 			append(strokeWidth + " setlinewidth", true);
 			appendColor(color);
 			append("newpath", true);
-
-			final double a1 = convertToClockwiseAngle(start + extend);
-			final double a2 = convertToClockwiseAngle(start);
-			append(format(x) + " " + format(y / scale) + " " + format(xRadius) + " " + a1 + " " + a2 + " arc", true);
+			final double a1 = -start + 180 + 5;
+			final double a2 = -start - extend + 180 - 5;
+			append(format(x) + " " + format(y / scale) + " " + format(xRadius) + " " + format(a1) + " " + format(a2)
+					+ " arc", true);
 			append("stroke", true);
 		}
 
@@ -629,8 +616,8 @@ public class EpsGraphics {
 	}
 
 	final public void curvetoNoMacro(double x1, double y1, double x2, double y2, double x3, double y3) {
-		append(format(x1) + " " + format(y1) + " " + format(x2) + " " + format(y2) + " " + format(x3) + " " + format(y3)
-				+ " curveto", true);
+		append(format(x1) + " " + format(y1) + " " + format(x2) + " " + format(y2) + " " + format(x3) + " "
+				+ format(y3) + " curveto", true);
 		ensureVisible(x1, y1);
 		ensureVisible(x2, y2);
 		ensureVisible(x3, y3);
@@ -648,16 +635,16 @@ public class EpsGraphics {
 	}
 
 	public void curveto(double x1, double y1, double x2, double y2, double x3, double y3) {
-		append(format(x1) + " " + format(y1) + " " + format(x2) + " " + format(y2) + " " + format(x3) + " " + format(y3)
-				+ " curveto", true);
+		append(format(x1) + " " + format(y1) + " " + format(x2) + " " + format(y2) + " " + format(x3) + " "
+				+ format(y3) + " curveto", true);
 		ensureVisible(x1, y1);
 		ensureVisible(x2, y2);
 		ensureVisible(x3, y3);
 	}
 
 	public void quadto(double x1, double y1, double x2, double y2) {
-		append(format(x1) + " " + format(y1) + " " + format(x1) + " " + format(y1) + " " + format(x2) + " " + format(y2)
-				+ " curveto", true);
+		append(format(x1) + " " + format(y1) + " " + format(x1) + " " + format(y1) + " " + format(x2) + " "
+				+ format(y2) + " curveto", true);
 		ensureVisible(x1, y1);
 		ensureVisible(x2, y2);
 	}

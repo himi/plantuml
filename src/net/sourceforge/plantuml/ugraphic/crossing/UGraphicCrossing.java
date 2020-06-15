@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Adrian Vogt
- *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.ugraphic.crossing;
 
@@ -38,23 +38,29 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cute.Balloon;
 import net.sourceforge.plantuml.cute.CrossingSegment;
 import net.sourceforge.plantuml.geom.LineSegmentDouble;
-import net.sourceforge.plantuml.graphic.UGraphicDelegator;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.posimo.DotPath;
 import net.sourceforge.plantuml.ugraphic.UChange;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class UGraphicCrossing extends UGraphicDelegator implements UGraphic {
+public class UGraphicCrossing implements UGraphic {
 
+	private final UGraphic ug;
 	private final List<Pending> lines;
 	private final UTranslate translate;
-
+	
 	static class Pending {
 		final UGraphic ug;
 		final LineSegmentDouble segment;
@@ -70,7 +76,7 @@ public class UGraphicCrossing extends UGraphicDelegator implements UGraphic {
 			if (color == null) {
 				segment.draw(ug);
 			} else {
-				segment.draw(ug.apply(color));
+				segment.draw(ug.apply(new UChangeColor(color)));
 			}
 		}
 
@@ -100,35 +106,55 @@ public class UGraphicCrossing extends UGraphicDelegator implements UGraphic {
 	}
 
 	private UGraphicCrossing(UGraphic ug, UTranslate translate, List<Pending> lines) {
-		super(ug);
+		this.ug = ug;
 		this.translate = translate;
 		this.lines = lines;
+	}
+
+	public StringBounder getStringBounder() {
+		return ug.getStringBounder();
+	}
+
+	public UParam getParam() {
+		return ug.getParam();
 	}
 
 	public void draw(UShape shape) {
 		if (shape instanceof DotPath) {
 			drawDotPath((DotPath) shape);
 		} else {
-			getUg().draw(shape);
+			ug.draw(shape);
 		}
 	}
 
 	private void drawDotPath(DotPath dotPath) {
 		if (dotPath.isLine()) {
 			for (LineSegmentDouble seg : dotPath.getLineSegments()) {
-				lines.add(new Pending(getUg().apply(translate.reverse()), translate, seg.translate(translate)));
+				lines.add(new Pending(ug.apply(translate.reverse()), translate, seg.translate(translate)));
 			}
 		} else {
-			getUg().draw(dotPath);
+			ug.draw(dotPath);
 		}
 	}
 
 	public UGraphic apply(UChange change) {
 		if (change instanceof UTranslate) {
-			return new UGraphicCrossing(getUg().apply(change), translate.compose((UTranslate) change), lines);
+			return new UGraphicCrossing(ug.apply(change), translate.compose((UTranslate) change), lines);
 		} else {
-			return new UGraphicCrossing(getUg().apply(change), translate, lines);
+			return new UGraphicCrossing(ug.apply(change), translate, lines);
 		}
+	}
+
+	public ColorMapper getColorMapper() {
+		return ug.getColorMapper();
+	}
+
+	public void startUrl(Url url) {
+		ug.startUrl(url);
+	}
+
+	public void closeAction() {
+		ug.closeAction();
 	}
 
 	public void flushUg() {
@@ -146,18 +172,22 @@ public class UGraphicCrossing extends UGraphicDelegator implements UGraphic {
 			// }
 		}
 		for (Balloon b : balloons) {
-			b.drawU(getUg().apply(HColorUtils.GREEN.bg()).apply(HColorUtils.GREEN));
+			b.drawU(ug.apply(new UChangeBackColor(HColorUtils.GREEN)).apply(new UChangeColor(HColorUtils.GREEN)));
 		}
 		for (Pending p : lines) {
 			for (Balloon b : balloons) {
 				List<Point2D> pts = new CrossingSegment(b, p.segment).intersection();
 				for (Point2D pt : pts) {
 					final Balloon s2 = new Balloon(pt, 2);
-					s2.drawU(getUg().apply(HColorUtils.BLUE.bg()).apply(HColorUtils.BLUE));
+					s2.drawU(ug.apply(new UChangeBackColor(HColorUtils.BLUE)).apply(new UChangeColor(HColorUtils.BLUE)));
 				}
 			}
 		}
-		getUg().flushUg();
+		ug.flushUg();
+	}
+
+	public boolean matchesProperty(String propertyName) {
+		return ug.matchesProperty(propertyName);
 	}
 
 }

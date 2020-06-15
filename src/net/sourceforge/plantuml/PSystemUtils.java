@@ -4,37 +4,39 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -49,7 +51,6 @@ import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.html.CucaDiagramHtmlMaker;
 import net.sourceforge.plantuml.png.PngSplitter;
 import net.sourceforge.plantuml.project.GanttDiagram;
-import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
@@ -63,7 +64,7 @@ public class PSystemUtils {
 	public static List<FileImageData> exportDiagrams(Diagram system, SuggestedFile suggestedFile,
 			FileFormatOption fileFormatOption, boolean checkMetadata) throws IOException {
 
-		final SFile existingFile = suggestedFile.getFile(0);
+		final File existingFile = suggestedFile.getFile(0);
 		if (checkMetadata && fileFormatOption.getFileFormat().doesSupportMetadata() && existingFile.exists()
 				&& system.getNbImages() == 1) {
 			// final String version = Version.versionString();
@@ -74,7 +75,7 @@ public class PSystemUtils {
 			final boolean sameMetadata = fileFormatOption.getFileFormat().equalsMetadata(system.getMetadata(),
 					existingFile);
 			if (sameMetadata) {
-				Log.info("Skipping " + existingFile.getPrintablePath() + " because metadata has not changed.");
+				Log.info("Skipping " + existingFile.getAbsolutePath() + " because metadata has not changed.");
 				return Arrays.asList(new FileImageData(existingFile, null));
 			}
 		}
@@ -103,11 +104,11 @@ public class PSystemUtils {
 		final int nbImages = system.getNbImages();
 		for (int i = 0; i < nbImages; i++) {
 
-			final SFile f = suggestedFile.getFile(i);
+			final File f = suggestedFile.getFile(i);
 			if (canFileBeWritten(f) == false) {
 				return result;
 			}
-			final OutputStream fos = f.createBufferedOutputStream();
+			final OutputStream fos = new BufferedOutputStream(new FileOutputStream(f));
 			ImageData cmap = null;
 			try {
 				system.exportDiagram(fos, i, fileFormat);
@@ -123,8 +124,8 @@ public class PSystemUtils {
 		return result;
 	}
 
-	public static boolean canFileBeWritten(final SFile f) {
-		Log.info("Creating file: " + f.getAbsolutePath());
+	public static boolean canFileBeWritten(final File f) {
+		Log.info("Creating file: " + f);
 		if (f.exists() && f.canWrite() == false) {
 			if (OptionFlags.getInstance().isOverwrite()) {
 				Log.info("Overwrite " + f);
@@ -132,7 +133,7 @@ public class PSystemUtils {
 				f.delete();
 				return true;
 			}
-			Log.error("Cannot write to file " + f.getAbsolutePath());
+			Log.error("Cannot write to file " + f);
 			return false;
 		}
 		return true;
@@ -149,7 +150,7 @@ public class PSystemUtils {
 			if (PSystemUtils.canFileBeWritten(suggestedFile.getFile(0)) == false) {
 				return Collections.emptyList();
 			}
-			os = suggestedFile.getFile(0).createBufferedOutputStream();
+			os = new BufferedOutputStream(new FileOutputStream(suggestedFile.getFile(0)));
 			// system.exportDiagram(os, null, 0, fileFormat);
 			imageData = system.exportDiagram(os, 0, fileFormat);
 		} finally {
@@ -172,7 +173,7 @@ public class PSystemUtils {
 			if (PSystemUtils.canFileBeWritten(suggestedFile.getFile(0)) == false) {
 				return Collections.emptyList();
 			}
-			os = suggestedFile.getFile(0).createBufferedOutputStream();
+			os = new BufferedOutputStream(new FileOutputStream(suggestedFile.getFile(0)));
 			imageData = cmap = system.exportDiagram(os, 0, fileFormat);
 		} finally {
 			if (os != null) {
@@ -191,11 +192,11 @@ public class PSystemUtils {
 		final int nbImages = system.getNbImages();
 		for (int i = 0; i < nbImages; i++) {
 
-			final SFile f = suggestedFile.getFile(i);
+			final File f = suggestedFile.getFile(i);
 			if (PSystemUtils.canFileBeWritten(suggestedFile.getFile(i)) == false) {
 				return result;
 			}
-			final OutputStream fos = f.createBufferedOutputStream();
+			final OutputStream fos = new BufferedOutputStream(new FileOutputStream(f));
 			ImageData cmap = null;
 			try {
 				cmap = system.exportDiagram(fos, i, fileFormat);
@@ -228,7 +229,7 @@ public class PSystemUtils {
 				return Collections.emptyList();
 			}
 			// System.err.println("FOO11=" + suggestedFile);
-			// os = SecurityUtils.BufferedOutputStream(suggestedFile));
+			// os = new BufferedOutputStream(new FileOutputStream(suggestedFile));
 			os = new NamedOutputStream(suggestedFile.getFile(0));
 			cmap = system.exportDiagram(os, 0, fileFormat);
 		} finally {
@@ -236,7 +237,7 @@ public class PSystemUtils {
 				os.close();
 			}
 		}
-		List<SFile> result = Arrays.asList(suggestedFile.getFile(0));
+		List<File> result = Arrays.asList(suggestedFile.getFile(0));
 
 		if (cmap != null && cmap.containsCMapData()) {
 			system.exportCmap(suggestedFile, 0, cmap);
@@ -248,18 +249,16 @@ public class PSystemUtils {
 					system.getSkinParam().getSplitParam()).getFiles();
 		}
 		final List<FileImageData> result2 = new ArrayList<FileImageData>();
-		for (SFile f : result) {
+		for (File f : result) {
 			result2.add(new FileImageData(f, cmap));
 		}
 		return result2;
 
 	}
 
-	// static private List<FileImageData> exportDiagramsGantt1(GanttDiagram system,
-	// SuggestedFile suggestedFile,
+	// static private List<FileImageData> exportDiagramsGantt1(GanttDiagram system, SuggestedFile suggestedFile,
 	// FileFormatOption fileFormat) throws IOException {
-	// if (suggestedFile.getFile(0).exists() &&
-	// suggestedFile.getFile(0).isDirectory()) {
+	// if (suggestedFile.getFile(0).exists() && suggestedFile.getFile(0).isDirectory()) {
 	// throw new IllegalArgumentException("File is a directory " + suggestedFile);
 	// }
 	// OutputStream os = null;
@@ -268,7 +267,7 @@ public class PSystemUtils {
 	// if (PSystemUtils.canFileBeWritten(suggestedFile.getFile(0)) == false) {
 	// return Collections.emptyList();
 	// }
-	// os = SecurityUtils.BufferedOutputStream(suggestedFile.getFile(0)));
+	// os = new BufferedOutputStream(new FileOutputStream(suggestedFile.getFile(0)));
 	// imageData = system.exportDiagram(os, 0, fileFormat);
 	// } finally {
 	// if (os != null) {
@@ -297,16 +296,16 @@ public class PSystemUtils {
 				os.close();
 			}
 		}
-		List<SFile> result = Arrays.asList(suggestedFile.getFile(0));
+		List<File> result = Arrays.asList(suggestedFile.getFile(0));
 
 		if (fileFormat.getFileFormat() == FileFormat.PNG) {
 			final SplitParam splitParam = new SplitParam(HColorUtils.BLACK, null, 5);
 			result = new PngSplitter(suggestedFile, system.getHorizontalPages(), system.getVerticalPages(),
 					system.getMetadata(), system.getDpi(fileFormat), fileFormat.isWithMetadata(), splitParam)
-							.getFiles();
+					.getFiles();
 		}
 		final List<FileImageData> result2 = new ArrayList<FileImageData>();
-		for (SFile f : result) {
+		for (File f : result) {
 			result2.add(new FileImageData(f, cmap));
 		}
 		return result2;
@@ -317,7 +316,7 @@ public class PSystemUtils {
 			throws IOException {
 		final String name = suggestedFile.getName();
 		final int idx = name.lastIndexOf('.');
-		final SFile dir = suggestedFile.getParentFile().file(name.substring(0, idx));
+		final File dir = new File(suggestedFile.getParentFile(), name.substring(0, idx));
 		final CucaDiagramHtmlMaker maker = new CucaDiagramHtmlMaker(system, dir);
 		return maker.create();
 	}

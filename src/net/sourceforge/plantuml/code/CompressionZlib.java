@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.code;
 
@@ -53,14 +52,14 @@ public class CompressionZlib implements Compression {
 			return null;
 		}
 		int len = in.length * 2;
-		if (len < 1000) {
-			len = 1000;
+		if (len < 100) {
+			len = 100;
 		}
 		byte[] result = null;
-//		while (result == null) {
-		result = tryCompress(in, len);
-//			len *= 2;
-//		}
+		while (result == null) {
+			result = tryCompress(in, len);
+			len *= 2;
+		}
 		return result;
 	}
 
@@ -79,33 +78,20 @@ public class CompressionZlib implements Compression {
 		return result;
 	}
 
-	public ByteArray decompress(byte[] in) throws NoPlantumlCompressionException {
-		try {
-			final byte in2[] = new byte[in.length + 256];
-			System.arraycopy(in, 0, in2, 0, in.length);
-//		for (int i = 0; i < in.length; i++) {
-//			in2[i] = in[i];
-//		}
+	public byte[] decompress(byte[] in) throws IOException {
 
-			int len = 100000;
-			byte[] result = null;
-			result = tryDecompress(in2, len);
-			if (result == null) {
-				throw new NoPlantumlCompressionException("Too big?");
-
-			}
-//		int len = in.length * 5;
-//		byte[] result = null;
-//		while (result == null) {
-//			result = tryDecompress(in2, len);
-//			len *= 2;
-//		}
-			return ByteArray.from(result);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new NoPlantumlCompressionException(e);
+		final byte in2[] = new byte[in.length + 256];
+		for (int i = 0; i < in.length; i++) {
+			in2[i] = in[i];
 		}
 
+		int len = in.length * 5;
+		byte[] result = null;
+		while (result == null) {
+			result = tryDecompress(in2, len);
+			len *= 2;
+		}
+		return result;
 	}
 
 	private byte[] tryDecompress(byte[] in, final int len) throws IOException {
@@ -133,10 +119,9 @@ public class CompressionZlib implements Compression {
 
 	private byte[] copyArray(final byte[] data, final int len) {
 		final byte[] result = new byte[len];
-		System.arraycopy(data, 0, result, 0, len);
-//		for (int i = 0; i < result.length; i++) {
-//			result[i] = data[i];
-//		}
+		for (int i = 0; i < result.length; i++) {
+			result[i] = data[i];
+		}
 		return result;
 	}
 

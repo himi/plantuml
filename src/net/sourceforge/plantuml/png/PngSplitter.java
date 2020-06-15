@@ -4,53 +4,53 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.png;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.SplitParam;
 import net.sourceforge.plantuml.SuggestedFile;
-import net.sourceforge.plantuml.security.ImageIO;
-import net.sourceforge.plantuml.security.SFile;
 
 public class PngSplitter {
 
-	private final List<SFile> files = new ArrayList<SFile>();
+	private final List<File> files = new ArrayList<File>();
 
 	public PngSplitter(SuggestedFile pngFile, int horizontalPages, int verticalPages, String source, int dpi,
 			boolean isWithMetadata, SplitParam splitParam) throws IOException {
@@ -60,7 +60,7 @@ public class PngSplitter {
 		}
 
 		Log.info("Splitting " + horizontalPages + " x " + verticalPages);
-		final SFile full = pngFile.getTmpFile(); // SecurityUtils.File(pngFile.getParentFile(), pngFile.getName() + ".tmp");
+		final File full = pngFile.getTmpFile(); // new File(pngFile.getParentFile(), pngFile.getName() + ".tmp");
 		// Thread.yield();
 		full.delete();
 		// Thread.yield();
@@ -79,7 +79,7 @@ public class PngSplitter {
 		int x = 0;
 		for (int i = 0; i < horizontalPages; i++) {
 			for (int j = 0; j < verticalPages; j++) {
-				final SFile f = pngFile.getFile(x++);
+				final File f = pngFile.getFile(x++);
 				this.files.add(f);
 				final int width = horizontalSegment.getLen(i);
 				final int height = verticalSegment.getLen(j);
@@ -115,7 +115,7 @@ public class PngSplitter {
 		Log.info("End of splitting");
 	}
 
-	public List<SFile> getFiles() {
+	public List<File> getFiles() {
 		return Collections.unmodifiableList(files);
 	}
 

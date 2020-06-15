@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.svek;
 
@@ -46,7 +45,6 @@ import net.sourceforge.plantuml.BaseFile;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.NamedOutputStream;
 import net.sourceforge.plantuml.Scale;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.api.ImageDataAbstract;
 import net.sourceforge.plantuml.core.ImageData;
@@ -56,12 +54,7 @@ import net.sourceforge.plantuml.cucadiagram.dot.CucaDiagramSimplifierActivity;
 import net.sourceforge.plantuml.cucadiagram.dot.CucaDiagramSimplifierState;
 import net.sourceforge.plantuml.cucadiagram.dot.DotData;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
-import net.sourceforge.plantuml.style.SName;
-import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public final class CucaDiagramFileMakerSvek implements CucaDiagramFileMaker {
 
@@ -88,9 +81,10 @@ public final class CucaDiagramFileMakerSvek implements CucaDiagramFileMaker {
 				diagram.getNamespaceSeparator(), diagram.getPragma());
 		final boolean intricated = diagram.mergeIntricated();
 		return new GeneralImageBuilder(intricated, dotData, diagram.getEntityFactory(), diagram.getSource(),
-				diagram.getPragma(), stringBounder, diagram.getUmlDiagramType().getStyleName());
+				diagram.getPragma(), stringBounder);
 
 	}
+
 
 	private ImageData createFileInternal(OutputStream os, List<String> dotStrings, FileFormatOption fileFormatOption)
 			throws IOException, InterruptedException {
@@ -127,17 +121,9 @@ public final class CucaDiagramFileMakerSvek implements CucaDiagramFileMaker {
 		final Dimension2D dim = result.calculateDimension(fileFormatOption.getDefaultStringBounder());
 		final double scale = getScale(fileFormatOption, dim);
 
-		final HColor backcolor = result.getBackcolor();
-		final ClockwiseTopRightBottomLeft margins;
-		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.document)
-					.getMergedStyle(diagram.getSkinParam().getCurrentStyleBuilder());
-			margins = style.getMargin();
-		} else {
-			margins = ClockwiseTopRightBottomLeft.margin1margin2(0, 10);
-		}
-		final ImageBuilder imageBuilder = ImageBuilder.buildC(diagram.getSkinParam(), margins, diagram.getAnimation(),
-				fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null, warningOrError, scale, backcolor);
+		final ImageBuilder imageBuilder = new ImageBuilder(diagram.getSkinParam(), scale,
+				fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null, warningOrError, 0, 10,
+				diagram.getAnimation(), result.getBackcolor());
 		imageBuilder.setUDrawable(result);
 		final ImageData imageData = imageBuilder.writeImageTOBEMOVED(fileFormatOption, diagram.seed(), os);
 		if (isGraphvizCrash) {

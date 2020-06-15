@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.cucadiagram;
 
@@ -44,7 +43,6 @@ import java.util.Map;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -59,9 +57,6 @@ import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.TextBlockWithUrl;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.skin.rose.Rose;
-import net.sourceforge.plantuml.style.SName;
-import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategy;
@@ -81,9 +76,9 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 
 	private final FontParam fontParam;
 	private final ISkinParam skinParam;
-//	private final HColor color;
-//	private final HColor hyperlinkColor;
-//	private final boolean useUnderlineForHyperlink;
+	private final HColor color;
+	private final HColor hyperlinkColor;
+	private final boolean useUnderlineForHyperlink;
 	private final Rose rose = new Rose();
 	private final List<Member> members = new ArrayList<Member>();
 	private final HorizontalAlignment align;
@@ -102,9 +97,9 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		this.align = align;
 		this.skinParam = skinParam;
 		this.fontParam = fontParam;
-//		this.color = rose.getFontColor(skinParam, fontParam);
-//		this.hyperlinkColor = skinParam.getHyperlinkColor();
-//		this.useUnderlineForHyperlink = skinParam.useUnderlineForHyperlink();
+		this.color = rose.getFontColor(skinParam, fontParam);
+		this.hyperlinkColor = skinParam.getHyperlinkColor();
+		this.useUnderlineForHyperlink = skinParam.useUnderlineForHyperlink();
 		this.members.addAll(members);
 	}
 
@@ -163,21 +158,13 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		if (withVisibilityChar && s.startsWith("#")) {
 			s = CharHidder.addTileAtBegin(s);
 		}
-		FontConfiguration config;
-		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component)
-					.getMergedStyle(skinParam.getCurrentStyleBuilder());
-			config = new FontConfiguration(style, skinParam, stereotype, fontParam);
-		} else {
-			config = new FontConfiguration(skinParam, fontParam, stereotype);
-		}
+		FontConfiguration config = new FontConfiguration(skinParam, fontParam, stereotype);
 		if (m.isAbstract()) {
 			config = config.italic();
 		}
 		if (m.isStatic()) {
 			config = config.underline();
 		}
-
 		TextBlock bloc = Display.getWithNewlines(s).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
 				skinParam.wrapWidth());
 		bloc = TextBlockUtils.fullInnerPosition(bloc, m.getDisplay(false));
@@ -200,7 +187,7 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 			}
 			bloc.drawU(ug);
 			if (url != null) {
-				ug.closeUrl();
+				ug.closeAction();
 			}
 		}
 
@@ -222,10 +209,9 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 
 				public void drawU(UGraphic ug) {
 				}
-
+				
 				@Override
-				public Rectangle2D getInnerPosition(String member, StringBounder stringBounder,
-						InnerStrategy strategy) {
+				public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
 					return null;
 				}
 
@@ -234,8 +220,8 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 				}
 			};
 		}
-		final HColor back = modifier.getBackground() == null ? null
-				: rose.getHtmlColor(skinParam, modifier.getBackground());
+		final HColor back = modifier.getBackground() == null ? null : rose.getHtmlColor(skinParam,
+				modifier.getBackground());
 		final HColor fore = rose.getHtmlColor(skinParam, modifier.getForeground());
 
 		final TextBlock uBlock = modifier.getUBlock(skinParam.classAttributeIconSize(), fore, back, url != null);
@@ -265,8 +251,8 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 	private ULayoutGroup getLayout(final StringBounder stringBounder) {
 		final ULayoutGroup group;
 		if (hasSmallIcon()) {
-			group = new ULayoutGroup(
-					new PlacementStrategyVisibility(stringBounder, skinParam.getCircledCharacterRadius() + 3));
+			group = new ULayoutGroup(new PlacementStrategyVisibility(stringBounder,
+					skinParam.getCircledCharacterRadius() + 3));
 			for (Member att : members) {
 				final TextBlock bloc = createTextBlock(att);
 				final VisibilityModifier modifier = att.getVisibilityModifier();

@@ -4,45 +4,44 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
-import net.sourceforge.plantuml.security.SFile;
-import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 
 public class OptionFlags {
@@ -129,7 +128,7 @@ public class OptionFlags {
 	private boolean clipboard;
 	private String fileSeparator = "_";
 	private long timeoutMs = 15 * 60 * 1000L; // 15 minutes
-	private SFile logData;
+	private File logData;
 
 	public static OptionFlags getInstance() {
 		return singleton;
@@ -193,7 +192,7 @@ public class OptionFlags {
 
 	private final AtomicBoolean logDataInitized = new AtomicBoolean(false);
 
-	public void logData(final SFile file, Diagram system) {
+	public void logData(File file, Diagram system) {
 		final String warnOrError = system.getWarningOrError();
 		if (warnOrError == null) {
 			return;
@@ -202,7 +201,7 @@ public class OptionFlags {
 			if (logData == null && logDataInitized.get() == false) {
 				final String s = GraphvizUtils.getenvLogData();
 				if (s != null) {
-					setLogData(new SFile(s));
+					setLogData(new File(s));
 				}
 				logDataInitized.set(true);
 			}
@@ -213,7 +212,7 @@ public class OptionFlags {
 			// final PSystemError systemError = (PSystemError) system;
 			PrintStream ps = null;
 			try {
-				ps = SecurityUtils.createPrintStream(logData.createFileOutputStream(true));
+				ps = new PrintStream(new FileOutputStream(logData, true));
 				ps.println("Start of " + file.getName());
 				ps.println(warnOrError);
 				ps.println("End of " + file.getName());
@@ -229,12 +228,12 @@ public class OptionFlags {
 		}
 	}
 
-	public final void setLogData(SFile logData) {
+	public final void setLogData(File logData) {
 		this.logData = logData;
 		logData.delete();
 		PrintStream ps = null;
 		try {
-			ps = SecurityUtils.createPrintStream(logData.createFileOutputStream());
+			ps = new PrintStream(new FileOutputStream(logData));
 			ps.println();
 		} catch (FileNotFoundException e) {
 			Log.error("Cannot open " + logData);

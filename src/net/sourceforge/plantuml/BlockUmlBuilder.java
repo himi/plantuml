@@ -4,37 +4,37 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- * 
- * 
  */
 package net.sourceforge.plantuml;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -50,7 +50,6 @@ import net.sourceforge.plantuml.preproc.ReadLineNumbered;
 import net.sourceforge.plantuml.preproc.ReadLineReader;
 import net.sourceforge.plantuml.preproc.UncommentReadLine;
 import net.sourceforge.plantuml.preproc2.Preprocessor;
-import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.utils.StartUtils;
 
 public final class BlockUmlBuilder implements DefinitionsContainer {
@@ -62,7 +61,7 @@ public final class BlockUmlBuilder implements DefinitionsContainer {
 	private final ImportedFiles importedFiles;
 	private final String charset;
 
-	public BlockUmlBuilder(List<String> config, String charset, Defines defines, Reader readerInit, SFile newCurrentDir,
+	public BlockUmlBuilder(List<String> config, String charset, Defines defines, Reader readerInit, File newCurrentDir,
 			String desc) throws IOException {
 		ReadLineNumbered includer = null;
 		this.defines = defines;
@@ -87,12 +86,12 @@ public final class BlockUmlBuilder implements DefinitionsContainer {
 
 	private void init(ReadLineNumbered includer) throws IOException {
 		StringLocated s = null;
-		List<StringLocated> current = null;
+		List<StringLocated> current2 = null;
 		boolean paused = false;
 
 		while ((s = includer.readLine()) != null) {
 			if (StartUtils.isArobaseStartDiagram(s.getString())) {
-				current = new ArrayList<StringLocated>();
+				current2 = new ArrayList<StringLocated>();
 				paused = false;
 			}
 			if (StartUtils.isArobasePauseDiagram(s.getString())) {
@@ -103,12 +102,12 @@ public final class BlockUmlBuilder implements DefinitionsContainer {
 				paused = true;
 				reader.setPaused(true);
 			}
-			if (current != null && paused == false) {
-				current.add(s);
+			if (current2 != null && paused == false) {
+				current2.add(s);
 			} else if (paused) {
 				final StringLocated append = StartUtils.getPossibleAppend(s);
 				if (append != null) {
-					current.add(append);
+					current2.add(append);
 				}
 			}
 
@@ -116,14 +115,14 @@ public final class BlockUmlBuilder implements DefinitionsContainer {
 				paused = false;
 				reader.setPaused(false);
 			}
-			if (StartUtils.isArobaseEndDiagram(s.getString()) && current != null) {
+			if (StartUtils.isArobaseEndDiagram(s.getString()) && current2 != null) {
 				if (paused) {
-					current.add(s);
+					current2.add(s);
 				}
-				final BlockUml uml = new BlockUml(current, defines.cloneMe(), null, this);
+				final BlockUml uml = new BlockUml(current2, defines.cloneMe(), null, this);
 				usedFiles.addAll(uml.getIncluded());
 				blocks.add(uml);
-				current = null;
+				current2 = null;
 				reader.setPaused(false);
 			}
 		}

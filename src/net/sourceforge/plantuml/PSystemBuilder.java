@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- * 
- * 
  */
 package net.sourceforge.plantuml;
 
@@ -39,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sourceforge.plantuml.acearth.PSystemXearthFactory;
 import net.sourceforge.plantuml.activitydiagram.ActivityDiagramFactory;
 import net.sourceforge.plantuml.activitydiagram3.ActivityDiagramFactory3;
 import net.sourceforge.plantuml.api.PSystemFactory;
@@ -49,7 +47,7 @@ import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
-import net.sourceforge.plantuml.creole.legacy.PSystemCreoleFactory;
+import net.sourceforge.plantuml.creole.PSystemCreoleFactory;
 import net.sourceforge.plantuml.dedication.PSystemDedicationFactory;
 import net.sourceforge.plantuml.definition.PSystemDefinitionFactory;
 import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
@@ -61,7 +59,6 @@ import net.sourceforge.plantuml.eggs.PSystemAppleTwoFactory;
 import net.sourceforge.plantuml.eggs.PSystemCharlieFactory;
 import net.sourceforge.plantuml.eggs.PSystemColorsFactory;
 import net.sourceforge.plantuml.eggs.PSystemEggFactory;
-import net.sourceforge.plantuml.eggs.PSystemPathFactory;
 import net.sourceforge.plantuml.eggs.PSystemRIPFactory;
 import net.sourceforge.plantuml.eggs.PSystemWelcomeFactory;
 import net.sourceforge.plantuml.error.PSystemError;
@@ -69,7 +66,6 @@ import net.sourceforge.plantuml.error.PSystemErrorUtils;
 import net.sourceforge.plantuml.flowdiagram.FlowDiagramFactory;
 import net.sourceforge.plantuml.font.PSystemListFontsFactory;
 import net.sourceforge.plantuml.help.HelpFactory;
-import net.sourceforge.plantuml.jcckit.PSystemJcckitFactory;
 import net.sourceforge.plantuml.math.PSystemLatexFactory;
 import net.sourceforge.plantuml.math.PSystemMathFactory;
 import net.sourceforge.plantuml.mindmap.MindMapDiagramFactory;
@@ -79,15 +75,12 @@ import net.sourceforge.plantuml.openiconic.PSystemOpenIconicFactory;
 import net.sourceforge.plantuml.oregon.PSystemOregonFactory;
 import net.sourceforge.plantuml.project.GanttDiagramFactory;
 import net.sourceforge.plantuml.salt.PSystemSaltFactory;
-import net.sourceforge.plantuml.security.SecurityProfile;
-import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
 import net.sourceforge.plantuml.sprite.ListSpriteDiagramFactory;
 import net.sourceforge.plantuml.sprite.PSystemListInternalSpritesFactory;
 import net.sourceforge.plantuml.sprite.StdlibDiagramFactory;
 import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.stats.StatsUtilsIncrement;
-import net.sourceforge.plantuml.sudoku.PSystemSudokuFactory;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagramFactory;
 import net.sourceforge.plantuml.version.License;
 import net.sourceforge.plantuml.version.PSystemLicenseFactory;
@@ -99,24 +92,24 @@ public class PSystemBuilder {
 
 	public static final long startTime = System.currentTimeMillis();
 
-	final public Diagram createPSystem(ISkinSimple skinParam, List<StringLocated> source,
-			List<StringLocated> rawSource) {
+	final public Diagram createPSystem(ISkinSimple skinParam, final List<StringLocated> strings2) {
 
 		final long now = System.currentTimeMillis();
 
 		Diagram result = null;
 		try {
-			final DiagramType type = DiagramType.getTypeFromArobaseStart(source.get(0).getString());
-			final UmlSource umlSource = new UmlSource(source, type == DiagramType.UML, rawSource);
+			final DiagramType type = DiagramType.getTypeFromArobaseStart(strings2.get(0).getString());
+			final UmlSource umlSource = new UmlSource(strings2, type == DiagramType.UML);
 
-			for (StringLocated s : source) {
+			for (StringLocated s : strings2) {
 				if (s.getPreprocessorError() != null) {
 					// Dead code : should not append
-					assert false;
 					Log.error("Preprocessor Error: " + s.getPreprocessorError());
 					final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, s.getPreprocessorError(), /* cpt */
 							s.getLocation());
-					return PSystemErrorUtils.buildV2(umlSource, err, Collections.<String>emptyList(), source);
+					// return PSystemErrorUtils.buildV1(umlSource, err, Collections.<String>
+					// emptyList());
+					return PSystemErrorUtils.buildV2(umlSource, err, Collections.<String>emptyList(), strings2);
 				}
 			}
 
@@ -177,12 +170,6 @@ public class PSystemBuilder {
 		factories.add(new WBSDiagramFactory());
 		factories.add(new PSystemDitaaFactory(DiagramType.DITAA));
 		factories.add(new PSystemDitaaFactory(DiagramType.UML));
-		if (License.getCurrent() == License.GPL || License.getCurrent() == License.GPLV2) {
-			factories.add(new PSystemJcckitFactory(DiagramType.JCCKIT));
-			factories.add(new PSystemJcckitFactory(DiagramType.UML));
-			// factories.add(new PSystemLogoFactory());
-			factories.add(new PSystemSudokuFactory());
-		}
 		factories.add(new PSystemDefinitionFactory());
 		factories.add(new ListSpriteDiagramFactory(skinParam));
 		factories.add(new StdlibDiagramFactory(skinParam));
@@ -194,14 +181,9 @@ public class PSystemBuilder {
 		factories.add(new PSystemAppleTwoFactory());
 		factories.add(new PSystemRIPFactory());
 		// factories.add(new PSystemLostFactory());
-		if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
-			factories.add(new PSystemPathFactory());
-		}
+		// factories.add(new PSystemPathFactory());
 		factories.add(new PSystemOregonFactory());
 		factories.add(new PSystemCharlieFactory());
-		if (License.getCurrent() == License.GPL || License.getCurrent() == License.GPLV2) {
-			factories.add(new PSystemXearthFactory());
-		}
 		factories.add(new GanttDiagramFactory(DiagramType.GANTT));
 		factories.add(new GanttDiagramFactory(DiagramType.UML));
 		factories.add(new FlowDiagramFactory());

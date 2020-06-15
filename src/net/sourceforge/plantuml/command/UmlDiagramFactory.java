@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.command;
 
@@ -128,7 +127,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		final CommandExecutionResult result = sys.executeCommand(step.command, step.blocLines);
 		if (result.isOk() == false) {
 			final ErrorUml err = new ErrorUml(ErrorUmlType.EXECUTION_ERROR, result.getError(),
-					((StringLocated) step.blocLines.getFirst()).getLocation());
+					((StringLocated) step.blocLines.getFirst499()).getLocation());
 			sys = PSystemErrorUtils.buildV2(source, err, result.getDebugLines(), it.getTrace());
 		}
 		if (result.getNewDiagram() != null) {
@@ -150,7 +149,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 	}
 
 	private Step getCandidate(final IteratorCounter2 it) {
-		final BlocLines single = BlocLines.single(it.peek());
+		final BlocLines single = BlocLines.single2(it.peek());
 		if (cmds == null) {
 			cmds = createCommands();
 		}
@@ -196,11 +195,11 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 
 	private BlocLines addOneSingleLineManageEmbedded2(IteratorCounter2 it, BlocLines lines) {
 		final StringLocated linetoBeAdded = it.next();
-		lines = lines.add(linetoBeAdded);
+		lines = lines.add2(linetoBeAdded);
 		if (linetoBeAdded.getTrimmed().getString().equals("{{")) {
 			while (it.hasNext()) {
 				final StringLocated s = it.next();
-				lines = lines.add(s);
+				lines = lines.add2(s);
 				if (s.getTrimmed().getString().equals("}}")) {
 					return lines;
 				}
@@ -258,7 +257,6 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		cmds.add(new CommandTitle());
 		cmds.add(new CommandMainframe());
 		cmds.add(new CommandCaption());
-		cmds.add(new CommandMultilinesCaption());
 		cmds.add(new CommandMultilinesTitle());
 		cmds.add(new CommandMultilinesLegend());
 

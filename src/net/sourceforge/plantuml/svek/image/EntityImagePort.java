@@ -2,38 +2,25 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
- *
- * Project Info:  http://plantuml.com
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
- * If you like this project or if you find it useful, you can support us at:
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * You may obtain a copy of the License at
  * 
- * This file is part of PlantUML.
- *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Creator:  Hisashi Miyashita
- *
- * 
  */
-
 package net.sourceforge.plantuml.svek.image;
 
 import java.awt.geom.Dimension2D;
@@ -53,6 +40,8 @@ import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -60,7 +49,8 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class EntityImagePort extends AbstractEntityImageBorder {
-	public EntityImagePort(ILeaf leaf, ISkinParam skinParam, Cluster parent, final Bibliotekon bibliotekon) {
+	public EntityImagePort(ILeaf leaf, ISkinParam skinParam,
+                           Cluster parent, final Bibliotekon bibliotekon) {
 		super(leaf, skinParam, parent, bibliotekon, FontParam.BOUNDARY);
 	}
 
@@ -71,8 +61,8 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
-		double sp = EntityPosition.RADIUS * 2;
-		return new Dimension2DDouble(sp, sp);
+        double sp = EntityPosition.RADIUS * 2;
+        return new Dimension2DDouble(sp, sp);
 	}
 
 	public double getMaxWidthFromLabelForEntryExit(StringBounder stringBounder) {
@@ -80,10 +70,11 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 		return dimDesc.getWidth();
 	}
 
-	private void drawSymbol(UGraphic ug) {
-		final Shadowable rect = new URectangle(EntityPosition.RADIUS * 2, EntityPosition.RADIUS * 2);
-		ug.draw(rect);
-	}
+    private void drawSymbol(UGraphic ug) {
+        final Shadowable rect = new URectangle(EntityPosition.RADIUS * 2,
+                                               EntityPosition.RADIUS * 2);
+        ug.draw(rect);
+    }
 
 	final public void drawU(UGraphic ug) {
 		double y = 0;
@@ -97,13 +88,13 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 		}
 		desc.drawU(ug.apply(new UTranslate(x, y)));
 
-		ug = ug.apply(new UStroke(1.5))
-				.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder).bg());
+		ug = ug.apply(new UStroke(1.5)).apply(
+				new UChangeColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder)));
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBackground);
 		}
-		ug = ug.apply(backcolor);
+		ug = ug.apply(new UChangeBackColor(backcolor));
 
 		drawSymbol(ug);
 	}

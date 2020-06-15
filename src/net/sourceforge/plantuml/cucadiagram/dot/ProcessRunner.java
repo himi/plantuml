@@ -4,37 +4,37 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.cucadiagram.dot;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,7 +44,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.api.MyRunnable;
 import net.sourceforge.plantuml.api.TimeoutExecutor;
-import net.sourceforge.plantuml.security.SFile;
 
 public class ProcessRunner {
 
@@ -64,7 +63,7 @@ public class ProcessRunner {
 		return run(in, redirection, null);
 	}
 
-	public ProcessState run(byte in[], OutputStream redirection, SFile dir) {
+	public ProcessState run(byte in[], OutputStream redirection, File dir) {
 		if (this.state.differs(ProcessState.INIT())) {
 			throw new IllegalStateException();
 		}
@@ -96,14 +95,14 @@ public class ProcessRunner {
 	class MainThread implements MyRunnable {
 
 		private final String[] cmd;
-		private final SFile dir;
+		private final File dir;
 		private final OutputStream redirection;
 		private final byte[] in;
 		private volatile Process process;
 		private volatile ThreadStream errorStream;
 		private volatile ThreadStream outStream;
 
-		public MainThread(String[] cmd, SFile dir, OutputStream redirection, byte[] in) {
+		public MainThread(String[] cmd, File dir, OutputStream redirection, byte[] in) {
 			this.cmd = cmd;
 			this.dir = dir;
 			this.redirection = redirection;
@@ -160,7 +159,7 @@ public class ProcessRunner {
 
 		private void startThreads() {
 			try {
-				process = Runtime.getRuntime().exec(cmd, null, dir == null ? null : dir.conv());
+				process = Runtime.getRuntime().exec(cmd, null, dir);
 			} catch (IOException e) {
 				e.printStackTrace();
 				changeState.lock();

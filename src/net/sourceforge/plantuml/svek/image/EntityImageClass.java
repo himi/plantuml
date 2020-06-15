@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.svek.image;
 
@@ -63,6 +62,8 @@ import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
@@ -70,13 +71,12 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 public class EntityImageClass extends AbstractEntityImage implements Stencil, WithPorts {
 
 	final private TextBlock body;
 	final private Margins shield;
-	final private EntityImageClassHeader header;
+	final private EntityImageClassHeader2 header;
 	final private Url url;
 	final private double roundCorner;
 	final private LeafType leafType;
@@ -95,9 +95,11 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		this.body = entity.getBodier().getBody(FontParam.CLASS_ATTRIBUTE, getSkinParam(), showMethods, showFields,
 				entity.getStereotype());
 
-		header = new EntityImageClassHeader(entity, getSkinParam(), portionShower);
+		header = new EntityImageClassHeader2(entity, getSkinParam(), portionShower);
 		this.url = entity.getUrl99();
 	}
+
+	// private int marginEmptyFieldsOrMethod = 13;
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		final Dimension2D dimHeader = header.calculateDimension(stringBounder);
@@ -129,7 +131,7 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		drawInternal(ug);
 
 		if (url != null) {
-			ug.closeUrl();
+			ug.closeAction();
 		}
 	}
 
@@ -150,7 +152,7 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		if (classBorder == null) {
 			classBorder = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBorder);
 		}
-		ug = ug.apply(classBorder);
+		ug = ug.apply(new UChangeColor(classBorder));
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
 			if (leafType == LeafType.ENUM) {
@@ -160,34 +162,20 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 				backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBackground);
 			}
 		}
-		ug = ug.apply(backcolor.bg());
+		ug = ug.apply(new UChangeBackColor(backcolor));
 
 		final UStroke stroke = getStroke();
+		ug.apply(stroke).draw(rect);
 
 		HColor headerBackcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.HEADER);
 		if (headerBackcolor == null) {
 			headerBackcolor = getSkinParam().getHtmlColor(ColorParam.classHeaderBackground, getStereo(), false);
 		}
 		UGraphic ugHeader = ug;
-		if (roundCorner == 0 && headerBackcolor != null && backcolor.equals(headerBackcolor) == false) {
-			ug.apply(stroke).draw(rect);
-			final Shadowable rect2 = new URectangle(widthTotal, dimHeader.getHeight());
-			rect2.setDeltaShadow(0);
-			ugHeader = ugHeader.apply(headerBackcolor.bg());
-			ugHeader.apply(stroke).draw(rect2);
-		} else if (roundCorner != 0 && headerBackcolor != null && backcolor.equals(headerBackcolor) == false) {
-			ug.apply(stroke).draw(rect);
+		if (headerBackcolor != null && roundCorner == 0) {
 			final Shadowable rect2 = new URectangle(widthTotal, dimHeader.getHeight()).rounded(roundCorner);
-			final URectangle rect3 = new URectangle(widthTotal, roundCorner / 2);
-			rect2.setDeltaShadow(0);
-			rect3.setDeltaShadow(0);
-			ugHeader = ugHeader.apply(headerBackcolor.bg()).apply(headerBackcolor);
+			ugHeader = ugHeader.apply(new UChangeBackColor(headerBackcolor));
 			ugHeader.apply(stroke).draw(rect2);
-			ugHeader.apply(stroke).apply(UTranslate.dy(dimHeader.getHeight() - rect3.getHeight())).draw(rect3);
-			rect.setDeltaShadow(0);
-			ug.apply(stroke).apply(new HColorNone().bg()).draw(rect);
-		} else {
-			ug.apply(stroke).draw(rect);
 		}
 		header.drawU(ugHeader, dimTotal.getWidth(), dimHeader.getHeight());
 

@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.wbs;
 
@@ -58,7 +57,7 @@ class ITFComposed extends WBSTextBlock implements ITF {
 	private final TextBlock main;
 
 	final private double delta1x = 10;
-	final private double marginBottom;// = 15;
+	final private double deltay;// = 15;
 
 	private ITFComposed(ISkinParam skinParam, WElement idea, List<ITF> left, List<ITF> right) {
 		super(skinParam, idea.getStyleBuilder(), idea.getLevel());
@@ -66,7 +65,7 @@ class ITFComposed extends WBSTextBlock implements ITF {
 		this.right = right;
 		this.main = buildMain(idea);
 		final Style style = idea.getStyle();
-		this.marginBottom = style.getMargin().getBottom();
+		this.deltay = style.getMargin().asDouble();
 	}
 
 	public static ITF build2(ISkinParam skinParam, WElement idea) {
@@ -121,7 +120,7 @@ class ITFComposed extends WBSTextBlock implements ITF {
 		final Dimension2D mainDim = main.calculateDimension(stringBounder);
 		final double mainWidth = mainDim.getWidth();
 		final double height = mainDim.getHeight()
-				+ Math.max(getCollHeight(stringBounder, left, marginBottom), getCollHeight(stringBounder, right, marginBottom));
+				+ Math.max(getCollHeight(stringBounder, left, deltay), getCollHeight(stringBounder, right, deltay));
 		final double width = Math.max(mainWidth / 2, delta1x + getCollWidth(stringBounder, left))
 				+ Math.max(mainWidth / 2, delta1x + getCollWidth(stringBounder, right));
 		return new Dimension2DDouble(width, height);
@@ -136,7 +135,7 @@ class ITFComposed extends WBSTextBlock implements ITF {
 		double y = mainDim.getHeight();
 		double lastY1 = y;
 		for (ITF child : left) {
-			y += marginBottom;
+			y += deltay;
 			final Dimension2D childDim = child.calculateDimension(stringBounder);
 			lastY1 = y + child.getF2(stringBounder).getY();
 			drawLine(ug, x - childDim.getWidth() - delta1x + child.getF2(stringBounder).getX(), lastY1, x, lastY1);
@@ -147,7 +146,7 @@ class ITFComposed extends WBSTextBlock implements ITF {
 		y = mainDim.getHeight();
 		double lastY2 = y;
 		for (ITF child : right) {
-			y += marginBottom;
+			y += deltay;
 			final Dimension2D childDim = child.calculateDimension(stringBounder);
 			lastY2 = y + child.getF1(stringBounder).getY();
 			drawLine(ug, x, lastY2, x + delta1x + child.getF1(stringBounder).getX(), lastY2);

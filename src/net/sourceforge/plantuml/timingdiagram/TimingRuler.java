@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
  */
 package net.sourceforge.plantuml.timingdiagram;
 
@@ -47,6 +47,7 @@ import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -66,10 +67,10 @@ public class TimingRuler {
 
 	private TimingFormat format = TimingFormat.DECIMAL;
 
-	static UGraphic applyForVLines(UGraphic ug) {
+	private UGraphic applyForVLines(UGraphic ug) {
 		final UStroke stroke = new UStroke(3, 5, 0.5);
 		final HColor color = HColorSet.instance().getColorIfValid("#AAA");
-		return ug.apply(stroke).apply(color);
+		return ug.apply(stroke).apply(new UChangeColor(color));
 	}
 
 	public void ensureNotEmpty() {
@@ -135,10 +136,6 @@ public class TimingRuler {
 		return time / tickUnitary() * tickIntervalInPixels;
 	}
 
-	private long tickToTime(int i) {
-		return tickUnitary * i + getMin().getTime().longValue();
-	}
-
 	public void addTime(TimeTick time) {
 		this.highestCommonFactorInternal = -1;
 		times.add(time);
@@ -157,7 +154,7 @@ public class TimingRuler {
 	}
 
 	public void drawTimeAxis(UGraphic ug) {
-		ug = ug.apply(new UStroke(2.0)).apply(HColorUtils.BLACK);
+		ug = ug.apply(new UStroke(2.0)).apply(new UChangeColor(HColorUtils.BLACK));
 		final double tickHeight = 5;
 		final ULine line = ULine.vline(tickHeight);
 		final int nb = getNbTick(true);
@@ -183,7 +180,7 @@ public class TimingRuler {
 		} else {
 			final int nb = getNbTick(true);
 			for (int i = 0; i <= nb; i++) {
-				final long round = tickToTime(i);
+				final long round = tickUnitary * i;
 				result.add(round);
 			}
 		}
@@ -193,7 +190,7 @@ public class TimingRuler {
 		return result;
 	}
 
-	public void drawVlines(UGraphic ug, double height) {
+	public void draw0(UGraphic ug, double height) {
 		ug = applyForVLines(ug);
 		final ULine line = ULine.vline(height);
 		final int nb = getNbTick(true);

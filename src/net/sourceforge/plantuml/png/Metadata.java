@@ -4,40 +4,41 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.png;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
@@ -45,20 +46,17 @@ import javax.imageio.stream.ImageInputStream;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import net.sourceforge.plantuml.security.ImageIO;
-import net.sourceforge.plantuml.security.SFile;
-
 public class Metadata {
 
 	public static void main(String[] args) throws IOException {
 		final Metadata meta = new Metadata();
 		final int length = args.length;
 		for (int i = 0; i < length; i++) {
-			meta.readAndDisplayMetadata(new SFile(args[i]));
+			meta.readAndDisplayMetadata(new File(args[i]));
 		}
 	}
 
-	public void readAndDisplayMetadata(SFile file) throws IOException {
+	public void readAndDisplayMetadata(File file) throws IOException {
 		final ImageInputStream iis = ImageIO.createImageInputStream(file);
 		final Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
 

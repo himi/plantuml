@@ -4,40 +4,39 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- * Contribution :  Hisashi Miyashita
- *
- *
  */
 package net.sourceforge.plantuml.classdiagram.command;
 
 import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.LineLocation;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.Url;
@@ -45,6 +44,9 @@ import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.Matcher2;
+import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
@@ -55,10 +57,10 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.Link;
+import net.sourceforge.plantuml.cucadiagram.LinkArrow;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.descdiagram.command.CommandLinkElement;
-import net.sourceforge.plantuml.descdiagram.command.Labels;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.objectdiagram.AbstractClassOrObjectDiagram;
@@ -88,16 +90,14 @@ final public class CommandLinkClass extends SingleLineCommand2<AbstractClassOrOb
 
 				new RegexConcat(
 						//
-						new RegexLeaf("ARROW_HEAD1",
-								"([%s]+[ox]|[)#\\[<*+^}]|\\<\\|[\\:\\|]|[<\\[]\\||\\}o|\\}\\||\\|o|\\|\\|)?"), //
+						new RegexLeaf("ARROW_HEAD1", "([%s]+[ox]|[)#\\[<*+^}]|\\<\\|[\\:\\|]|[<\\[]\\||\\}o|\\}\\||\\|o|\\|\\|)?"), //
 						new RegexLeaf("ARROW_BODY1", "([-=.]+)"), //
 						new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 						new RegexLeaf("ARROW_DIRECTION", "(left|right|up|down|le?|ri?|up?|do?)?"), //
 						new RegexOptional(new RegexLeaf("INSIDE", "(0|\\(0\\)|\\(0|0\\))(?=[-=.~])")), //
 						new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 						new RegexLeaf("ARROW_BODY2", "([-=.]*)"), //
-						new RegexLeaf("ARROW_HEAD2",
-								"([ox][%s]+|:\\>\\>?|[(#\\]>*+^\\{]|[\\|\\:]\\|\\>|\\|[>\\]]|o\\{|\\|\\{|o\\||\\|\\|)?")), //
+						new RegexLeaf("ARROW_HEAD2", "([ox][%s]+|:\\>\\>?|[(#\\]>*+^\\{]|[\\|\\:]\\|\\>|\\|[>\\]]|o\\{|\\|\\{|o\\||\\|\\|)?")), //
 				RegexLeaf.spaceZeroOrMore(), new RegexOptional(new RegexLeaf("SECOND_LABEL", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOr( //
@@ -195,11 +195,67 @@ final public class CommandLinkClass extends SingleLineCommand2<AbstractClassOrOb
 			queue = getQueueLength(arg);
 		}
 
-		final Labels labels = new Labels(arg);
+		String firstLabel = arg.get("FIRST_LABEL", 0);
+		String secondLabel = arg.get("SECOND_LABEL", 0);
 
-		Link link = new Link(cl1, cl2, linkType, labels.getDisplay(), queue, labels.getFirstLabel(),
-				labels.getSecondLabel(), diagram.getLabeldistance(), diagram.getLabelangle(),
-				diagram.getSkinParam().getCurrentStyleBuilder());
+		String labelLink = null;
+
+		if (arg.get("LABEL_LINK", 0) != null) {
+			labelLink = arg.get("LABEL_LINK", 0);
+			if (firstLabel == null && secondLabel == null) {
+				final Pattern2 p1 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)[%g]([^%g]+)[%g]$");
+				final Matcher2 m1 = p1.matcher(labelLink);
+				if (m1.matches()) {
+					firstLabel = m1.group(1);
+					labelLink = StringUtils.trin(StringUtils
+							.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils.trin(m1.group(2)), "\""));
+					secondLabel = m1.group(3);
+				} else {
+					final Pattern2 p2 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)$");
+					final Matcher2 m2 = p2.matcher(labelLink);
+					if (m2.matches()) {
+						firstLabel = m2.group(1);
+						labelLink = StringUtils.trin(StringUtils
+								.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils.trin(m2.group(2)), "\""));
+						secondLabel = null;
+					} else {
+						final Pattern2 p3 = MyPattern.cmpile("^([^%g]+)[%g]([^%g]+)[%g]$");
+						final Matcher2 m3 = p3.matcher(labelLink);
+						if (m3.matches()) {
+							firstLabel = null;
+							labelLink = StringUtils.trin(StringUtils
+									.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils.trin(m3.group(1)), "\""));
+							secondLabel = m3.group(2);
+						}
+					}
+				}
+			}
+			labelLink = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(labelLink, "\"");
+		}
+
+		LinkArrow linkArrow = LinkArrow.NONE;
+		if ("<".equals(labelLink)) {
+			linkArrow = LinkArrow.BACKWARD;
+			labelLink = null;
+		} else if (">".equals(labelLink)) {
+			linkArrow = LinkArrow.DIRECT_NORMAL;
+			labelLink = null;
+		} else if (labelLink != null && labelLink.startsWith("< ")) {
+			linkArrow = LinkArrow.BACKWARD;
+			labelLink = StringUtils.trin(labelLink.substring(2));
+		} else if (labelLink != null && labelLink.startsWith("> ")) {
+			linkArrow = LinkArrow.DIRECT_NORMAL;
+			labelLink = StringUtils.trin(labelLink.substring(2));
+		} else if (labelLink != null && labelLink.endsWith(" >")) {
+			linkArrow = LinkArrow.DIRECT_NORMAL;
+			labelLink = StringUtils.trin(labelLink.substring(0, labelLink.length() - 2));
+		} else if (labelLink != null && labelLink.endsWith(" <")) {
+			linkArrow = LinkArrow.BACKWARD;
+			labelLink = StringUtils.trin(labelLink.substring(0, labelLink.length() - 2));
+		}
+
+		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labelLink), queue, firstLabel, secondLabel,
+				diagram.getLabeldistance(), diagram.getLabelangle(), diagram.getSkinParam().getCurrentStyleBuilder());
 		if (arg.get("URL", 0) != null) {
 			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
 			final Url url = urlBuilder.getUrl(arg.get("URL", 0));
@@ -210,7 +266,7 @@ final public class CommandLinkClass extends SingleLineCommand2<AbstractClassOrOb
 		if (dir == Direction.LEFT || dir == Direction.UP) {
 			link = link.getInv();
 		}
-		link.setLinkArrow(labels.getLinkArrow());
+		link.setLinkArrow(linkArrow);
 		link.setColors(color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet()));
 		link.applyStyle(arg.getLazzy("ARROW_STYLE", 0));
 

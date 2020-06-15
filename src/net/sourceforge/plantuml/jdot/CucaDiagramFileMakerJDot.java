@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.jdot;
 
@@ -42,19 +41,6 @@ import static gen.lib.cgraph.node__c.agnode;
 import static gen.lib.cgraph.subg__c.agsubg;
 import static gen.lib.gvc.gvc__c.gvContext;
 import static gen.lib.gvc.gvlayout__c.gvLayoutJobs;
-
-import java.awt.geom.Dimension2D;
-import java.awt.geom.Point2D;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import h.ST_Agedge_s;
 import h.ST_Agnode_s;
 import h.ST_Agnodeinfo_t;
@@ -62,10 +48,24 @@ import h.ST_Agraph_s;
 import h.ST_Agraphinfo_t;
 import h.ST_GVC_s;
 import h.ST_boxf;
+
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.api.ImageDataSimple;
@@ -77,6 +77,7 @@ import net.sourceforge.plantuml.cucadiagram.GroupType;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
+import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.Member;
 import net.sourceforge.plantuml.cucadiagram.MethodsOrFieldsArea;
@@ -92,7 +93,7 @@ import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.USymbol;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
+import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.svek.Bibliotekon;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.CucaDiagramFileMaker;
@@ -105,6 +106,7 @@ import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 import smetana.core.CString;
 import smetana.core.JUtils;
 import smetana.core.JUtilsDebug;
@@ -418,17 +420,9 @@ public class CucaDiagramFileMakerJDot implements CucaDiagramFileMaker {
 
 			final double scale = 1;
 
-			final int margin1;
-			final int margin2;
-			if (SkinParam.USE_STYLES()) {
-				margin1 = SkinParam.zeroMargin(0);
-				margin2 = SkinParam.zeroMargin(10);
-			} else {
-				margin1 = 0;
-				margin2 = 10;
-			}
-			final ImageBuilder imageBuilder = ImageBuilder.buildD(diagram.getSkinParam(), ClockwiseTopRightBottomLeft.margin1margin2((double) margin1, (double) margin2), diagram.getAnimation(), fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null,
-			null, scale);
+			final ImageBuilder imageBuilder = new ImageBuilder(diagram.getSkinParam(), scale,
+					fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null, null, 0, 10,
+					diagram.getAnimation());
 
 			imageBuilder.setUDrawable(new Drawing(null));
 			final Dimension2D dim = imageBuilder.getFinalDimension(stringBounder);

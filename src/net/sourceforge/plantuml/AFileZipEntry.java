@@ -4,91 +4,90 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.sourceforge.plantuml.security.SFile;
-
 public class AFileZipEntry implements AFile {
 
-	private final SFile zipFile;
+	private final File zipFile;
 	private final String entry;
 
-	public AFileZipEntry(SFile file, String entry) {
+	public AFileZipEntry(File file, String entry) {
 		this.zipFile = file;
 		this.entry = entry;
 	}
 
 	@Override
 	public String toString() {
-		return "AFileZipEntry::" + zipFile.getAbsolutePath() + " " + entry;
+		return "AFileZipEntry::" + zipFile + " " + entry;
 	}
 
-	public InputStream openFile() {
-		final InputStream tmp = zipFile.openFile();
-		if (tmp != null)
-			try {
-				final ZipInputStream zis = new ZipInputStream(tmp);
-				ZipEntry ze = zis.getNextEntry();
+	public InputStream open() throws IOException {
+		final ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+		ZipEntry ze = zis.getNextEntry();
 
-				while (ze != null) {
-					final String fileName = ze.getName();
-					if (ze.isDirectory()) {
-					} else if (fileName.trim().equalsIgnoreCase(entry.trim())) {
-						return zis;
-					}
-					ze = zis.getNextEntry();
-				}
-				zis.closeEntry();
-				zis.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+		while (ze != null) {
+			final String fileName = ze.getName();
+			if (ze.isDirectory()) {
+			} else if (fileName.trim().equalsIgnoreCase(entry.trim())) {
+				return zis;
 			}
-		return null;
+			ze = zis.getNextEntry();
+		}
+		zis.closeEntry();
+		zis.close();
+		throw new IOException();
 	}
 
 	public boolean isOk() {
 		if (zipFile.exists() && zipFile.isDirectory() == false) {
-			final InputStream is = openFile();
-			if (is != null) {
+			InputStream is = null;
+			try {
+				is = open();
+				return true;
+			} catch (IOException e) {
+				// e.printStackTrace();
+			} finally {
 				try {
-					is.close();
-					return true;
-				} catch (IOException e) {
-					e.printStackTrace();
+					if (is != null) {
+						is.close();
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
 			}
 		}
@@ -113,11 +112,11 @@ public class AFileZipEntry implements AFile {
 		return new AParentFolderZip(zipFile, entry);
 	}
 
-	public SFile getUnderlyingFile() {
+	public File getUnderlyingFile() {
 		return zipFile;
 	}
 
-	public SFile getSystemFolder() throws IOException {
+	public File getSystemFolder() throws IOException {
 		return zipFile.getParentFile().getCanonicalFile();
 	}
 

@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.project.draw;
 
@@ -44,12 +43,13 @@ import net.sourceforge.plantuml.project.time.GCalendar;
 import net.sourceforge.plantuml.project.time.MonthYear;
 import net.sourceforge.plantuml.project.time.Wink;
 import net.sourceforge.plantuml.project.timescale.TimeScaleDaily;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
@@ -102,7 +102,7 @@ public class TimeHeaderDaily extends TimeHeader {
 			if (defaultPlan.getLoadAt(wink) > 0) {
 				final HColor back = colorDays.get(day);
 				if (back != null) {
-					drawRectangle(ug.apply(back.bg()), height, x1, x2);
+					drawRectangle(ug.apply(new UChangeBackColor(back)), height, x1, x2);
 				}
 				printCentered(ug.apply(UTranslate.dy(Y_POS_ROW16)),
 						getTextBlock(day.getDayOfWeek().shortName(), 10, false), x1, x2);
@@ -138,7 +138,7 @@ public class TimeHeaderDaily extends TimeHeader {
 			final double x1 = getTimeScale().getStartingPosition(wink);
 			final double x2 = getTimeScale().getEndingPosition(wink);
 			if (defaultPlan.getLoadAt(wink) == 0) {
-				drawRectangle(ug.apply(veryLightGray.bg()), height, x1, x2);
+				drawRectangle(ug.apply(new UChangeBackColor(veryLightGray)), height, x1, x2);
 			}
 		}
 	}
@@ -147,7 +147,7 @@ public class TimeHeaderDaily extends TimeHeader {
 		if (height == 0) {
 			return;
 		}
-		ug = ug.apply(new HColorNone());
+		ug = ug.apply(new UChangeColor(null));
 		ug = ug.apply(new UTranslate(x1 + 1, getFullHeaderHeight()));
 		ug.draw(new URectangle(x2 - x1 - 1, height));
 	}
@@ -174,7 +174,7 @@ public class TimeHeaderDaily extends TimeHeader {
 
 	private void drawVbar(UGraphic ug, double x, double y1, double y2) {
 		final ULine vbar = ULine.vline(y2 - y1);
-		ug.apply(HColorUtils.LIGHT_GRAY).apply(new UTranslate(x, y1)).draw(vbar);
+		ug.apply(new UChangeColor(HColorUtils.LIGHT_GRAY)).apply(new UTranslate(x, y1)).draw(vbar);
 	}
 
 	private void printNamedDays(final UGraphic ug) {

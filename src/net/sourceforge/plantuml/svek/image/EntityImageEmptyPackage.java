@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.svek.image;
 
@@ -57,7 +56,6 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.color.ColorType;
-import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.ClusterDecoration;
@@ -75,11 +73,9 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 	private final Stereotype stereotype;
 	private final TextBlock stereoBlock;
 	private final Url url;
-	private final SName styleName;
 
-	public EntityImageEmptyPackage(ILeaf entity, ISkinParam skinParam, PortionShower portionShower, SName styleName) {
+	public EntityImageEmptyPackage(ILeaf entity, ISkinParam skinParam, PortionShower portionShower) {
 		super(entity, skinParam);
-		this.styleName = styleName;
 		this.skinParam = skinParam;
 		this.specificBackColor = entity.getColors(skinParam).getColor(ColorType.BACK);
 		this.stereotype = entity.getStereotype();
@@ -91,17 +87,18 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 				|| portionShower.showPortion(EntityPortion.STEREOTYPE, entity) == false) {
 			stereoBlock = TextBlockUtils.empty(0, 0);
 		} else {
-			stereoBlock = TextBlockUtils.withMargin(Display.create(stereotype.getLabels(skinParam.guillemet())).create(
-					new FontConfiguration(getSkinParam(), FontParam.PACKAGE_STEREOTYPE, stereotype),
-					HorizontalAlignment.CENTER, skinParam), 1, 0);
+			stereoBlock = TextBlockUtils.withMargin(
+					Display.create(stereotype.getLabels(skinParam.guillemet())).create(
+							new FontConfiguration(getSkinParam(), FontParam.PACKAGE_STEREOTYPE, stereotype),
+							HorizontalAlignment.CENTER, skinParam), 1, 0);
 		}
 
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		final Dimension2D dimDesc = desc.calculateDimension(stringBounder);
-		Dimension2D dim = TextBlockUtils.mergeTB(desc, stereoBlock, HorizontalAlignment.LEFT)
-				.calculateDimension(stringBounder);
+		Dimension2D dim = TextBlockUtils.mergeTB(desc, stereoBlock, HorizontalAlignment.LEFT).calculateDimension(
+				stringBounder);
 		dim = Dimension2DDouble.atLeast(dim, 0, 2 * dimDesc.getHeight());
 		return Dimension2DDouble.delta(dim, MARGIN * 2, MARGIN * 2);
 	}
@@ -125,7 +122,7 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 		final double widthTotal = dimTotal.getWidth();
 		final double heightTotal = dimTotal.getHeight();
 
-		final HColor back = Cluster.getBackColor(specificBackColor, skinParam, stereotype, styleName);
+		final HColor back = Cluster.getBackColor(specificBackColor, skinParam, stereotype);
 		final double roundCorner = 0;
 
 		final ClusterDecoration decoration = new ClusterDecoration(getSkinParam().getPackageStyle(), null, desc,
@@ -138,7 +135,7 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 				getSkinParam().getStereotypeAlignment());
 
 		if (url != null) {
-			ug.closeUrl();
+			ug.closeAction();
 		}
 
 	}

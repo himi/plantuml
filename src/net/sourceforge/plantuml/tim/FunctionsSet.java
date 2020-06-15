@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
- *
+ * Project Info:  https://plantuml.com
+ * 
  * If you like this project or if you find it useful, you can support us at:
- *
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- *
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
  */
 package net.sourceforge.plantuml.tim;
 
@@ -55,10 +55,10 @@ public class FunctionsSet {
 			return func;
 		}
 		for (TFunction candidate : this.functions.values()) {
-			if (candidate.getSignature().sameFunctionNameAs(searched) == false) {
+			if (candidate.getSignature().sameNameAs(searched) == false) {
 				continue;
 			}
-			if (candidate.canCover(searched.getNbArg(), searched.getNamedArguments())) {
+			if (candidate.canCover(searched.getNbArg())) {
 				return candidate;
 			}
 		}
@@ -94,10 +94,9 @@ public class FunctionsSet {
 		this.pendingFunction = null;
 	}
 
-	public void executeLegacyDefine(TContext context, TMemory memory, StringLocated s)
-			throws EaterException, EaterExceptionLocated {
+	public void executeLegacyDefine(TContext context, TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
 		if (this.pendingFunction != null) {
-			throw EaterException.located("already0048");
+			throw EaterException.located("already0048", s);
 		}
 		final EaterLegacyDefine legacyDefine = new EaterLegacyDefine(s);
 		legacyDefine.analyze(context, memory);
@@ -106,51 +105,26 @@ public class FunctionsSet {
 		this.functions3.add(function.getSignature().getFunctionName() + "(");
 	}
 
-	public void executeLegacyDefineLong(TContext context, TMemory memory, StringLocated s)
-			throws EaterException, EaterExceptionLocated {
+	public void executeLegacyDefineLong(TContext context, TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
 		if (this.pendingFunction != null) {
-			throw EaterException.located("already0068");
+			throw EaterException.located("already0068", s);
 		}
 		final EaterLegacyDefineLong legacyDefineLong = new EaterLegacyDefineLong(s);
 		legacyDefineLong.analyze(context, memory);
 		this.pendingFunction = legacyDefineLong.getFunction();
 	}
 
-	public void executeDeclareReturnFunction(TContext context, TMemory memory, StringLocated s)
-			throws EaterException, EaterExceptionLocated {
+	public void executeDeclareFunction(TContext context, TMemory memory, StringLocated s) throws EaterException, EaterExceptionLocated {
 		if (this.pendingFunction != null) {
-			throw EaterException.located("already0068");
+			throw EaterException.located("already0068", s);
 		}
-		final EaterDeclareReturnFunction declareFunction = new EaterDeclareReturnFunction(s);
+		final EaterDeclareFunction declareFunction = new EaterDeclareFunction(s);
 		declareFunction.analyze(context, memory);
 		final boolean finalFlag = declareFunction.getFinalFlag();
 		final TFunctionSignature declaredSignature = declareFunction.getFunction().getSignature();
 		final TFunction previous = this.functions.get(declaredSignature);
 		if (previous != null && (finalFlag || this.functionsFinal.contains(declaredSignature))) {
-			throw EaterException.located("This function is already defined");
-		}
-		if (finalFlag) {
-			this.functionsFinal.add(declaredSignature);
-		}
-		if (declareFunction.getFunction().hasBody()) {
-			this.addFunction(declareFunction.getFunction());
-		} else {
-			this.pendingFunction = declareFunction.getFunction();
-		}
-	}
-
-	public void executeDeclareProcedure(TContext context, TMemory memory, StringLocated s)
-			throws EaterException, EaterExceptionLocated {
-		if (this.pendingFunction != null) {
-			throw EaterException.located("already0068");
-		}
-		final EaterDeclareProcedure declareFunction = new EaterDeclareProcedure(s);
-		declareFunction.analyze(context, memory);
-		final boolean finalFlag = declareFunction.getFinalFlag();
-		final TFunctionSignature declaredSignature = declareFunction.getFunction().getSignature();
-		final TFunction previous = this.functions.get(declaredSignature);
-		if (previous != null && (finalFlag || this.functionsFinal.contains(declaredSignature))) {
-			throw EaterException.located("This function is already defined");
+			throw EaterException.located("This function is already defined", s);
 		}
 		if (finalFlag) {
 			this.functionsFinal.add(declaredSignature);

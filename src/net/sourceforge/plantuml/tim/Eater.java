@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
- *
+ * Project Info:  https://plantuml.com
+ * 
  * If you like this project or if you find it useful, you can support us at:
- *
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- *
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
  */
 package net.sourceforge.plantuml.tim;
 
@@ -50,19 +50,25 @@ public abstract class Eater {
 
 	private int i = 0;
 	private final String s;
-	private final LineLocation lineLocation;
+	private final StringLocated sl;
 
 	public Eater(StringLocated sl) {
-		this(sl.getString(), sl.getLocation());
+		this.s = sl.getString();
+		this.sl = sl;
 	}
 
-	protected Eater(String s, LineLocation lineLocation) {
-		this.s = s;
-		this.lineLocation = lineLocation;
+	public final StringLocated getStringLocated() {
+		if (sl == null) {
+			throw new UnsupportedOperationException();
+		}
+		return sl;
 	}
 
 	public final LineLocation getLineLocation() {
-		return lineLocation;
+		if (sl == null) {
+			throw new UnsupportedOperationException();
+		}
+		return sl.getLocation();
 	}
 
 	public abstract void analyze(TContext context, TMemory memory) throws EaterException, EaterExceptionLocated;
@@ -77,8 +83,7 @@ public abstract class Eater {
 		return result;
 	}
 
-	final protected TValue eatExpression(TContext context, TMemory memory)
-			throws EaterException, EaterExceptionLocated {
+	final protected TValue eatExpression(TContext context, TMemory memory) throws EaterException, EaterExceptionLocated {
 		if (peekChar() == '{') {
 			String data = eatAllToEnd();
 			// System.err.println("data=" + data);
@@ -94,13 +99,12 @@ public abstract class Eater {
 		final TokenStack tokenStack = new TokenStack();
 		addIntoTokenStack(tokenStack, false);
 		if (tokenStack.size() == 0) {
-			throw EaterException.located("Missing expression");
+			throw EaterException.located("Missing expression", getStringLocated());
 		}
 		return tokenStack;
 	}
 
-	final protected TValue eatExpressionStopAtColon(TContext context, TMemory memory)
-			throws EaterException, EaterExceptionLocated {
+	final protected TValue eatExpressionStopAtColon(TContext context, TMemory memory) throws EaterException, EaterExceptionLocated {
 		final TokenStack tokenStack = new TokenStack();
 		addIntoTokenStack(tokenStack, true);
 		return tokenStack.getResult(getLineLocation(), context, memory);
@@ -120,7 +124,7 @@ public abstract class Eater {
 	final public String eatAndGetQuotedString() throws EaterException {
 		final char separator = peekChar();
 		if (TLineType.isQuote(separator) == false) {
-			throw EaterException.located("quote10");
+			throw EaterException.located("quote10", getStringLocated());
 		}
 		checkAndEatChar(separator);
 		final StringBuilder value = new StringBuilder();
@@ -141,7 +145,7 @@ public abstract class Eater {
 		while (true) {
 			char ch = peekChar();
 			if (ch == 0) {
-				throw EaterException.located("until001");
+				throw EaterException.located("until001", getStringLocated());
 			}
 			if (level == 0 && (ch == ',' || ch == ')')) {
 				return value.toString().trim();
@@ -184,7 +188,7 @@ public abstract class Eater {
 	final protected String eatAndGetVarname() throws EaterException {
 		final StringBuilder varname = new StringBuilder("" + eatOneChar());
 		if (TLineType.isLetterOrUnderscoreOrDollar(varname.charAt(0)) == false) {
-			throw EaterException.located("a002");
+			throw EaterException.located("a002", getStringLocated());
 		}
 		addUpToLastLetterOrUnderscoreOrDigit(varname);
 		return varname.toString();
@@ -193,7 +197,7 @@ public abstract class Eater {
 	final protected String eatAndGetFunctionName() throws EaterException {
 		final StringBuilder varname = new StringBuilder("" + eatOneChar());
 		if (TLineType.isLetterOrUnderscoreOrDollar(varname.charAt(0)) == false) {
-			throw EaterException.located("a003");
+			throw EaterException.located("a003", getStringLocated());
 		}
 		addUpToLastLetterOrUnderscoreOrDigit(varname);
 		return varname.toString();
@@ -237,7 +241,7 @@ public abstract class Eater {
 
 	final protected void checkAndEatChar(char ch) throws EaterException {
 		if (i >= s.length() || s.charAt(i) != ch) {
-			throw EaterException.located("a001");
+			throw EaterException.located("a001", getStringLocated());
 		}
 		i++;
 	}
@@ -299,16 +303,15 @@ public abstract class Eater {
 	// }
 
 	final protected TFunctionImpl eatDeclareFunction(TContext context, TMemory memory, boolean unquoted,
-			LineLocation location, boolean allowNoParenthesis, TFunctionType type)
-			throws EaterException, EaterExceptionLocated {
+			LineLocation location, boolean allowNoParenthesis) throws EaterException, EaterExceptionLocated {
 		final List<TFunctionArgument> args = new ArrayList<TFunctionArgument>();
 		final String functionName = eatAndGetFunctionName();
 		skipSpaces();
 		if (safeCheckAndEatChar('(') == false) {
 			if (allowNoParenthesis) {
-				return new TFunctionImpl(functionName, args, unquoted, type);
+				return new TFunctionImpl(functionName, args, unquoted);
 			}
-			throw EaterException.located("Missing opening parenthesis");
+			throw EaterException.located("Missing opening parenthesis", getStringLocated());
 		}
 		while (true) {
 			skipSpaces();
@@ -333,17 +336,16 @@ public abstract class Eater {
 				checkAndEatChar(")");
 				break;
 			} else {
-				throw EaterException.located("Error in function definition");
+				throw EaterException.located("Error in function definition", getStringLocated());
 			}
 		}
 		skipSpaces();
-		return new TFunctionImpl(functionName, args, unquoted, type);
+		return new TFunctionImpl(functionName, args, unquoted);
 	}
 
-	final protected TFunctionImpl eatDeclareReturnFunctionWithOptionalReturn(TContext context, TMemory memory,
+	final protected TFunctionImpl eatDeclareFunctionWithOptionalReturn(TContext context, TMemory memory,
 			boolean unquoted, LineLocation location) throws EaterException, EaterExceptionLocated {
-		final TFunctionImpl result = eatDeclareFunction(context, memory, unquoted, location, false,
-				TFunctionType.RETURN_FUNCTION);
+		final TFunctionImpl result = eatDeclareFunction(context, memory, unquoted, location, false);
 		if (peekChar() == 'r') {
 			checkAndEatChar("return");
 			skipSpaces();
@@ -355,13 +357,6 @@ public abstract class Eater {
 			final String line = "!return " + eatAllToEnd();
 			result.addBody(new StringLocated(line, location));
 		}
-		return result;
-	}
-
-	final protected TFunctionImpl eatDeclareProcedure(TContext context, TMemory memory, boolean unquoted,
-			LineLocation location) throws EaterException, EaterExceptionLocated {
-		final TFunctionImpl result = eatDeclareFunction(context, memory, unquoted, location, false,
-				TFunctionType.PROCEDURE);
 		return result;
 	}
 

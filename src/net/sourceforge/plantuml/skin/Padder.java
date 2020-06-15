@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.skin;
 
@@ -41,11 +40,12 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 public class Padder {
 
@@ -62,7 +62,8 @@ public class Padder {
 		return "" + margin + "/" + padding + "/" + borderColor + "/" + backgroundColor;
 	}
 
-	private Padder(double margin, double padding, HColor backgroundColor, HColor borderColor, double roundCorner) {
+	private Padder(double margin, double padding, HColor backgroundColor, HColor borderColor,
+			double roundCorner) {
 		this.margin = margin;
 		this.padding = padding;
 		this.borderColor = borderColor;
@@ -117,17 +118,8 @@ public class Padder {
 
 			public void drawU(UGraphic ug) {
 				ug = ug.apply(new UTranslate(margin, margin));
-				UGraphic ug2 = ug;
-				if (borderColor == null) {
-					ug2 = ug2.apply(new HColorNone());
-				} else {
-					ug2 = ug2.apply(borderColor);
-				}
-				if (backgroundColor == null) {
-					ug2 = ug2.apply(new HColorNone().bg());
-				} else {
-					ug2 = ug2.apply(backgroundColor.bg());
-				}
+				final UGraphic ug2 = ug.apply(new UChangeBackColor(backgroundColor))
+						.apply(new UChangeColor(borderColor));
 				final Dimension2D originalDim = orig.calculateDimension(ug.getStringBounder());
 				final URectangle rect = new URectangle(Dimension2DDouble.delta(originalDim, 2 * padding))
 						.rounded(roundCorner);

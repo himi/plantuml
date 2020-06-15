@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vertical;
 
@@ -55,7 +54,7 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.creole.CreoleMode;
-import net.sourceforge.plantuml.creole.Parser;
+import net.sourceforge.plantuml.creole.CreoleParser;
 import net.sourceforge.plantuml.creole.Sheet;
 import net.sourceforge.plantuml.creole.SheetBlock1;
 import net.sourceforge.plantuml.creole.SheetBlock2;
@@ -73,18 +72,20 @@ import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 public class FtileBox extends AbstractFtile {
 
-	private double padding1 = 10;
-	private double padding2 = 10;
-	private double paddingTop = 10;
-	private double paddingBottom = 10;
+	private double padding() {
+		return padding;
+	}
+
+	private double padding = 10;
 	private final TextBlock tb;
 	private double roundCorner = 25;
 	private final double shadowing;
@@ -129,12 +130,12 @@ public class FtileBox extends AbstractFtile {
 	class MyStencil implements Stencil {
 
 		public double getStartingX(StringBounder stringBounder, double y) {
-			return -padding1;
+			return -padding();
 		}
 
 		public double getEndingX(StringBounder stringBounder, double y) {
 			final Dimension2D dim = calculateDimension(stringBounder);
-			return dim.getWidth() - padding2;
+			return dim.getWidth() - padding();
 		}
 
 	}
@@ -198,10 +199,7 @@ public class FtileBox extends AbstractFtile {
 			this.backColor = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
 			fc = style.getFontConfiguration(getIHtmlColorSet());
 			horizontalAlignment = style.getHorizontalAlignment();
-			this.padding1 = style.getPadding().getLeft();
-			this.padding2 = style.getPadding().getRight();
-			this.paddingTop = style.getPadding().getTop();
-			this.paddingBottom = style.getPadding().getBottom();
+			this.padding = style.getPadding().asDouble();
 			this.roundCorner = style.value(PName.RoundCorner).asDouble();
 			this.shadowing = style.value(PName.Shadowing).asDouble();
 			wrapWidth = style.wrapWidth();
@@ -216,9 +214,8 @@ public class FtileBox extends AbstractFtile {
 			wrapWidth = skinParam.wrapWidth();
 
 		}
-		final Sheet sheet = Parser
-				.build(fc, skinParam.getDefaultTextAlignment(horizontalAlignment), skinParam, CreoleMode.FULL)
-				.createSheet(label);
+		final Sheet sheet = new CreoleParser(fc, skinParam.getDefaultTextAlignment(horizontalAlignment), skinParam,
+				CreoleMode.FULL).createSheet(label);
 		this.tb = new SheetBlock2(new SheetBlock1(sheet, wrapWidth, skinParam.getPadding()), new MyStencil(),
 				new UStroke(1));
 		this.print = label.toString();
@@ -245,35 +242,24 @@ public class FtileBox extends AbstractFtile {
 			thickness = getThickness();
 		}
 
-		if (borderColor == null) {
-			ug = ug.apply(new HColorNone());
-		} else {
-			ug = ug.apply(borderColor);
-		}
-		if (backColor == null) {
-			ug = ug.apply(new HColorNone().bg());
-		} else {
-			ug = ug.apply(backColor.bg());
-		}
-
-		ug = ug.apply(thickness);
+		ug = ug.apply(new UChangeColor(borderColor)).apply(new UChangeBackColor(backColor)).apply(thickness);
 		rect.drawU(ug);
 
 		if (horizontalAlignment == HorizontalAlignment.LEFT) {
-			tb.drawU(ug.apply(new UTranslate(padding1, paddingTop)));
+			tb.drawU(ug.apply(new UTranslate(padding(), padding())));
 		} else if (horizontalAlignment == HorizontalAlignment.RIGHT) {
 			final Dimension2D dimTb = tb.calculateDimension(ug.getStringBounder());
-			tb.drawU(ug.apply(new UTranslate(dimTotal.getWidth() - dimTb.getWidth() - padding2, paddingBottom)));
+			tb.drawU(ug.apply(new UTranslate(dimTotal.getWidth() - dimTb.getWidth() - padding(), padding())));
 		} else if (horizontalAlignment == HorizontalAlignment.CENTER) {
 			final Dimension2D dimTb = tb.calculateDimension(ug.getStringBounder());
-			tb.drawU(ug.apply(new UTranslate((dimTotal.getWidth() - dimTb.getWidth()) / 2, paddingBottom)));
+			tb.drawU(ug.apply(new UTranslate((dimTotal.getWidth() - dimTb.getWidth()) / 2, padding())));
 		}
 	}
 
 	@Override
 	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		Dimension2D dim = tb.calculateDimension(stringBounder);
-		dim = Dimension2DDouble.delta(dim, padding1 + padding2, paddingBottom + paddingTop);
+		dim = Dimension2DDouble.delta(dim, 2 * padding(), 2 * padding());
 		dim = Dimension2DDouble.atLeast(dim, minimumWidth, 0);
 		return new FtileGeometry(dim, dim.getWidth() / 2, 0, dim.getHeight());
 	}

@@ -4,36 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
- * Contribution :  Hisashi Miyashita
- * Contribution :  Serge Wenger
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.svek;
 
@@ -112,7 +109,6 @@ import net.sourceforge.plantuml.svek.image.EntityImageBranch;
 import net.sourceforge.plantuml.svek.image.EntityImageCircleEnd;
 import net.sourceforge.plantuml.svek.image.EntityImageCircleStart;
 import net.sourceforge.plantuml.svek.image.EntityImageClass;
-import net.sourceforge.plantuml.svek.image.EntityImageDeepHistory;
 import net.sourceforge.plantuml.svek.image.EntityImageDescription;
 import net.sourceforge.plantuml.svek.image.EntityImageEmptyPackage;
 import net.sourceforge.plantuml.svek.image.EntityImageGroup;
@@ -158,8 +154,9 @@ public final class GeneralImageBuilder {
 		if (leaf.getLeafType() == LeafType.ACTIVITY) {
 			return new EntityImageActivity(leaf, skinParam, bibliotekon);
 		}
-		if ((leaf.getLeafType() == LeafType.PORT) || (leaf.getLeafType() == LeafType.PORTIN)
-				|| (leaf.getLeafType() == LeafType.PORTOUT)) {
+		if ((leaf.getLeafType() == LeafType.PORT)
+            || (leaf.getLeafType() == LeafType.PORTIN)
+            || (leaf.getLeafType() == LeafType.PORTOUT)) {
 			final Cluster parent = bibliotekon.getCluster(leaf.getParentContainer());
 			return new EntityImagePort(leaf, skinParam, parent, bibliotekon);
 		}
@@ -199,7 +196,7 @@ public final class GeneralImageBuilder {
 			return new EntityImageLollipopInterface(leaf, skinParam);
 		}
 		if (leaf.getLeafType() == LeafType.CIRCLE) {
-			return new EntityImageDescription(leaf, skinParam, portionShower, links, umlDiagramType.getStyleName());
+			return new EntityImageDescription(leaf, skinParam, portionShower, links);
 		}
 
 		if (leaf.getLeafType() == LeafType.DESCRIPTION) {
@@ -208,7 +205,7 @@ public final class GeneralImageBuilder {
 			} else if (OptionFlags.USE_INTERFACE_EYE2 && leaf.getUSymbol() instanceof USymbolInterface) {
 				return new EntityImageLollipopInterfaceEye2(leaf, skinParam, portionShower);
 			} else {
-				return new EntityImageDescription(leaf, skinParam, portionShower, links, umlDiagramType.getStyleName());
+				return new EntityImageDescription(leaf, skinParam, portionShower, links);
 			}
 		}
 		if (leaf.getLeafType() == LeafType.USECASE) {
@@ -241,9 +238,9 @@ public final class GeneralImageBuilder {
 				final HColor black = SkinParamUtils.getColor(skinParam, leaf.getStereotype(),
 						leaf.getUSymbol().getColorParamBorder());
 				return new EntityImageDescription(leaf, new SkinParamForecolored(skinParam, black), portionShower,
-						links, umlDiagramType.getStyleName());
+						links);
 			}
-			return new EntityImageEmptyPackage(leaf, skinParam, portionShower, umlDiagramType.getStyleName());
+			return new EntityImageEmptyPackage(leaf, skinParam, portionShower);
 		}
 		if (leaf.getLeafType() == LeafType.ASSOCIATION) {
 			return new EntityImageAssociation(leaf, skinParam);
@@ -251,10 +248,6 @@ public final class GeneralImageBuilder {
 		if (leaf.getLeafType() == LeafType.PSEUDO_STATE) {
 			return new EntityImagePseudoState(leaf, skinParam);
 		}
-		if (leaf.getLeafType() == LeafType.DEEP_HISTORY) {
-			return new EntityImageDeepHistory(leaf, skinParam);
-		}
-
 		if (leaf.getLeafType() == LeafType.TIPS) {
 			return new EntityImageTips(leaf, skinParam, bibliotekon);
 		}
@@ -291,12 +284,10 @@ public final class GeneralImageBuilder {
 
 	private final StringBounder stringBounder;
 	private final boolean mergeIntricated;
-	private final SName styleName;
 
 	public GeneralImageBuilder(boolean mergeIntricated, DotData dotData, EntityFactory entityFactory, UmlSource source,
-			Pragma pragma, StringBounder stringBounder, SName styleName) {
+			Pragma pragma, StringBounder stringBounder) {
 		this.dotData = dotData;
-		this.styleName = styleName;
 		this.entityFactory = entityFactory;
 		this.source = source;
 		this.pragma = pragma;
@@ -306,7 +297,7 @@ public final class GeneralImageBuilder {
 	}
 
 	final public StyleSignature getDefaultStyleDefinitionArrow() {
-		return StyleSignature.of(SName.root, SName.element, styleName, SName.arrow);
+		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.arrow);
 	}
 
 	private boolean isOpalisable(IEntity entity) {
@@ -316,20 +307,14 @@ public final class GeneralImageBuilder {
 		return entity.isGroup() == false && entity.getLeafType() == LeafType.NOTE && onlyOneLink(entity);
 	}
 
-	static class EntityImageSimpleEmpty implements IEntityImage {
-
-		private final HColor backColor;
-
-		EntityImageSimpleEmpty(HColor backColor) {
-			this.backColor = backColor;
-		}
+	static class IEntityImageEmpty implements IEntityImage {
 
 		public boolean isHidden() {
 			return false;
 		}
 
 		public HColor getBackcolor() {
-			return backColor;
+			return null;
 		}
 
 		public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -363,7 +348,7 @@ public final class GeneralImageBuilder {
 
 	public IEntityImage buildImage(BaseFile basefile, String dotStrings[]) {
 		if (dotData.isDegeneratedWithFewEntities(0)) {
-			return new EntityImageSimpleEmpty(dotData.getSkinParam().getBackgroundColor(false));
+			return new IEntityImageEmpty();
 		}
 		if (dotData.isDegeneratedWithFewEntities(1) && dotData.getUmlDiagramType() != UmlDiagramType.STATE) {
 			final ILeaf single = dotData.getLeafs().iterator().next();
@@ -520,8 +505,7 @@ public final class GeneralImageBuilder {
 			throw new IllegalStateException();
 		}
 		final IEntityImage image = printEntityInternal(dotStringFactory, ent);
-		final Node node = dotStringFactory.getBibliotekon().createNode(ent, image, dotStringFactory.getColorSequence(),
-				stringBounder);
+		final Node node = dotStringFactory.getBibliotekon().createNode(ent, image, dotStringFactory.getColorSequence(), stringBounder);
 		dotStringFactory.addNode(node);
 	}
 

@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
@@ -39,14 +38,18 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.script.ScriptException;
 
 import net.sourceforge.plantuml.anim.Animation;
@@ -69,9 +72,6 @@ import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.mjpeg.MJPEGGenerator;
 import net.sourceforge.plantuml.pdf.PdfConverter;
-import net.sourceforge.plantuml.security.ImageIO;
-import net.sourceforge.plantuml.security.SFile;
-import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.svek.EmptySvgException;
 import net.sourceforge.plantuml.svek.GraphvizCrash;
@@ -188,7 +188,8 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		fileFormatOption = fileFormatOption.withPreserveAspectRatio(getSkinParam().getPreserveAspectRatio());
 		fileFormatOption = fileFormatOption.withTikzFontDistortion(getSkinParam().getTikzFontDistortion());
 		if (hover != null) {
-			fileFormatOption = fileFormatOption.withHoverColor(getSkinParam().getColorMapper().toHtml(hover));
+			fileFormatOption = fileFormatOption.withHoverColor(StringUtils.getAsHtml(getSkinParam().getColorMapper()
+					.getMappedColor(hover)));
 		}
 
 		if (fileFormatOption.getFileFormat() == FileFormat.PDF) {
@@ -203,9 +204,6 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 			e.printStackTrace();
 			exportDiagramError(os, e.getCause(), fileFormatOption, seed, e.getGraphvizVersion());
 		} catch (Exception e) {
-			e.printStackTrace();
-			exportDiagramError(os, e, fileFormatOption, seed, null);
-		} catch (Error e) {
 			e.printStackTrace();
 			exportDiagramError(os, e, fileFormatOption, seed, null);
 		}
@@ -228,19 +226,15 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 
 		strings.addAll(CommandExecutionResult.getStackTrace(exception));
 
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, metadata, null,
-				1.0, HColorUtils.WHITE);
+		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, HColorUtils.WHITE,
+				metadata, null, 0, 0, null, false);
 
-		final BufferedImage im;
-		if (flash == null) {
-			im = null;
-		} else {
-			final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
-			im = utils.exportFlashcode(flash, Color.BLACK, Color.WHITE);
-			if (im != null) {
-				GraphvizCrash.addDecodeHint(strings);
-			}
+		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
+		final BufferedImage im = utils.exportFlashcode(flash, Color.BLACK, Color.WHITE);
+		if (im != null) {
+			GraphvizCrash.addDecodeHint(strings);
 		}
+
 		final TextBlockBackcolored graphicStrings = GraphicStrings.createBlackOnWhite(strings, IconLoader.getRandom(),
 				GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT);
 
@@ -260,7 +254,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 	}
 
 	private static void exportDiagramErrorText(OutputStream os, Throwable exception, List<String> strings) {
-		final PrintWriter pw = SecurityUtils.createPrintWriter(os);
+		final PrintWriter pw = new PrintWriter(os);
 		exception.printStackTrace(pw);
 		pw.println();
 		pw.println();
@@ -311,7 +305,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 	}
 
 	private void exportDiagramInternalMjpeg(OutputStream os) throws IOException {
-		final SFile f = new SFile("c:/test.avi");
+		final File f = new File("c:/test.avi");
 		final int nb = 150;
 		final double framerate = 30;
 		final MJPEGGenerator m = new MJPEGGenerator(f, 640, 480, framerate, nb);
@@ -321,8 +315,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 			final double coef = (nb - 1 - i) * 1.0 / nb;
 			at.setToShear(coef, coef);
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			// exportDiagramTOxxBEREMOVED(baos, null, 0, new
-			// FileFormatOption(FileFormat.PNG, at));
+			// exportDiagramTOxxBEREMOVED(baos, null, 0, new FileFormatOption(FileFormat.PNG, at));
 			baos.close();
 			final BufferedImage im = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
 			m.addImage(im);
@@ -334,9 +327,9 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 	private Dimension2D lastInfo;
 
 	private ImageData exportDiagramInternalPdf(OutputStream os, int index) throws IOException {
-		final SFile svg = FileUtils.createTempFile("pdf", ".svf");
-		final SFile pdfFile = FileUtils.createTempFile("pdf", ".pdf");
-		final OutputStream fos = svg.createBufferedOutputStream();
+		final File svg = FileUtils.createTempFile("pdf", ".svf");
+		final File pdfFile = FileUtils.createTempFile("pdf", ".pdf");
+		final OutputStream fos = new BufferedOutputStream(new FileOutputStream(svg));
 		final ImageData result = exportDiagram(fos, index, new FileFormatOption(FileFormat.SVG));
 		fos.close();
 		PdfConverter.convert(svg, pdfFile);
@@ -350,13 +343,13 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 	final protected void exportCmap(SuggestedFile suggestedFile, int index, final ImageData cmapdata)
 			throws FileNotFoundException {
 		final String name = changeName(suggestedFile.getFile(index).getAbsolutePath());
-		final SFile cmapFile = new SFile(name);
+		final File cmapFile = new File(name);
 		PrintWriter pw = null;
 		try {
 			if (PSystemUtils.canFileBeWritten(cmapFile) == false) {
 				return;
 			}
-			pw = cmapFile.createPrintWriter();
+			pw = new PrintWriter(cmapFile);
 			pw.print(cmapdata.getCMapData(cmapFile.getName().substring(0, cmapFile.getName().length() - 6)));
 			pw.close();
 		} finally {
@@ -417,8 +410,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		// final String res = "/skin/" + filename + ".skin";
 		// final InputStream internalIs = UmlDiagram.class.getResourceAsStream(res);
 		// if (internalIs != null) {
-		// final BlocLines lines2 = BlocLines.load(internalIs, new
-		// LineLocationImpl(filename, null));
+		// final BlocLines lines2 = BlocLines.load(internalIs, new LineLocationImpl(filename, null));
 		// return loadSkinInternal(lines2);
 		// }
 		// if (OptionFlags.ALLOW_INCLUDE == false) {
@@ -428,8 +420,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		// if (f == null || f.exists() == false || f.canRead() == false) {
 		// return CommandExecutionResult.error("Cannot load skin from " + filename);
 		// }
-		// final BlocLines lines = BlocLines.load(f, new LineLocationImpl(f.getName(),
-		// null));
+		// final BlocLines lines = BlocLines.load(f, new LineLocationImpl(f.getName(), null));
 		// return loadSkinInternal(lines);
 	}
 

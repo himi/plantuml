@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
@@ -45,12 +44,13 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.Scale;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.activitydiagram3.ftile.BoxStyle;
-import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlanes;
+import net.sourceforge.plantuml.activitydiagram3.ftile.ISwimlanesA;
+import net.sourceforge.plantuml.activitydiagram3.ftile.SwimlanesAAA;
+import net.sourceforge.plantuml.activitydiagram3.ftile.SwimlanesC;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
@@ -62,7 +62,6 @@ import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.comp.CompressionMode;
@@ -76,7 +75,36 @@ public class ActivityDiagram3 extends UmlDiagram {
 
 	private SwimlaneStrategy swimlaneStrategy;
 
-	private final Swimlanes swinlanes = new Swimlanes(getSkinParam(), getPragma());
+	private final ISwimlanesA swinlanes = new SwimlanesAAA(getSkinParam(), getPragma());
+	// private final ISwimlanesA swinlanes = new SwimlanesC(getSkinParam(),
+	// getPragma());
+
+	private ImageData exportDiagramInternalAAA(OutputStream os, int index, FileFormatOption fileFormatOption)
+			throws IOException {
+		// BUG42
+		// COMPRESSION
+		swinlanes.computeSize(fileFormatOption.getDefaultStringBounder());
+		TextBlock result = swinlanes;
+
+		result = CompressionXorYBuilder.build(CompressionMode.ON_X, result, fileFormatOption.getDefaultStringBounder());
+		result = CompressionXorYBuilder.build(CompressionMode.ON_Y, result, fileFormatOption.getDefaultStringBounder());
+
+		result = new TextBlockRecentred(result);
+		final ISkinParam skinParam = getSkinParam();
+		result = new AnnotatedWorker(this, skinParam, fileFormatOption.getDefaultStringBounder()).addAdd(result);
+
+		final Dimension2D dim = result.getMinMax(fileFormatOption.getDefaultStringBounder()).getDimension();
+		final double margin = 10;
+		final double dpiFactor = getDpiFactor(fileFormatOption, Dimension2DDouble.delta(dim, 2 * margin, 0));
+
+		final ImageBuilder imageBuilder = new ImageBuilder(getSkinParam(), dpiFactor,
+				fileFormatOption.isWithMetadata() ? getMetadata() : null, getWarningOrError(), margin, margin,
+				getAnimation());
+		imageBuilder.setUDrawable(result);
+
+		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed(), os);
+
+	}
 
 	public ActivityDiagram3(ISkinSimple skinParam) {
 		super(skinParam);
@@ -204,6 +232,9 @@ public class ActivityDiagram3 extends UmlDiagram {
 	@Override
 	protected ImageData exportDiagramInternal(OutputStream os, int index, FileFormatOption fileFormatOption)
 			throws IOException {
+		if (swinlanes instanceof SwimlanesC == false || swinlanes instanceof SwimlanesAAA) {
+			return exportDiagramInternalAAA(os, index, fileFormatOption);
+		}
 		// BUG42
 		// COMPRESSION
 		swinlanes.computeSize(fileFormatOption.getDefaultStringBounder());
@@ -217,18 +248,12 @@ public class ActivityDiagram3 extends UmlDiagram {
 		result = new AnnotatedWorker(this, skinParam, fileFormatOption.getDefaultStringBounder()).addAdd(result);
 
 		final Dimension2D dim = result.getMinMax(fileFormatOption.getDefaultStringBounder()).getDimension();
-		final ClockwiseTopRightBottomLeft margins;
-		if (SkinParam.USE_STYLES()) {
-			margins = ClockwiseTopRightBottomLeft.marginForDocument(skinParam.getCurrentStyleBuilder());
-		} else {
-			margins = ClockwiseTopRightBottomLeft.margin1margin2(10, 10);
-		}
+		final double margin = 10;
+		final double dpiFactor = getDpiFactor(fileFormatOption, Dimension2DDouble.delta(dim, 2 * margin, 0));
 
-		final double dpiFactor = getDpiFactor(fileFormatOption,
-				Dimension2DDouble.delta(dim, margins.getLeft() + margins.getRight(), 0));
-
-		final ImageBuilder imageBuilder = ImageBuilder.buildD(getSkinParam(), margins, getAnimation(),
-				fileFormatOption.isWithMetadata() ? getMetadata() : null, getWarningOrError(), dpiFactor);
+		final ImageBuilder imageBuilder = new ImageBuilder(getSkinParam(), dpiFactor,
+				fileFormatOption.isWithMetadata() ? getMetadata() : null, getWarningOrError(), margin, margin,
+				getAnimation());
 		imageBuilder.setUDrawable(result);
 
 		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed(), os);
@@ -410,12 +435,11 @@ public class ActivityDiagram3 extends UmlDiagram {
 		manageSwimlaneStrategy();
 		if (current() instanceof InstructionRepeat) {
 			final InstructionRepeat instructionRepeat = (InstructionRepeat) current();
+			// final LinkRendering back = new
+			// LinkRendering(linkColor).withDisplay(linkLabel);
 			instructionRepeat.setBackward(label, swinlanes.getCurrentSwimlane(), boxStyle);
-			return CommandExecutionResult.ok();
-		}
-		if (current() instanceof InstructionWhile) {
-			final InstructionWhile instructionWhile = (InstructionWhile) current();
-			instructionWhile.setBackward(label, swinlanes.getCurrentSwimlane(), boxStyle);
+			// setCurrent(instructionRepeat.getParent());
+			// this.setNextLinkRendererInternal(LinkRendering.none());
 			return CommandExecutionResult.ok();
 		}
 		return CommandExecutionResult.error("Cannot find repeat");

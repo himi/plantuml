@@ -4,38 +4,38 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- * Contribution   :  Serge Wenger 
- *
  */
 package net.sourceforge.plantuml.statediagram;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.cucadiagram.Code;
@@ -66,8 +66,7 @@ public class StateDiagram extends AbstractEntityDiagram {
 			return checkConcurrentStateOkInternal1972(ident);
 		}
 		final boolean result = checkConcurrentStateOkInternal(code);
-		// System.err.println("checkConcurrentStateOk " + code + " " + ident + " " +
-		// result);
+		// System.err.println("checkConcurrentStateOk " + code + " " + ident + " " + result);
 		return result;
 	}
 
@@ -186,34 +185,6 @@ public class StateDiagram extends AbstractEntityDiagram {
 		final Ident ident = buildLeafIdent(tmp);
 		final Code code = this.V1972() ? ident : buildCode(tmp);
 		final IEntity result = getOrCreateLeaf(ident, code, LeafType.PSEUDO_STATE, null);
-		endGroup();
-		return result;
-	}
-
-	public IEntity getDeepHistory() {
-		final IGroup g = getCurrentGroup();
-		if (EntityUtils.groupRoot(g)) {
-			final Ident ident = buildLeafIdent("*deephistory");
-			final Code code = buildCode("*deephistory");
-			return getOrCreateLeaf(ident, code, LeafType.DEEP_HISTORY, null);
-		}
-
-		final String idShort = "*deephistory*" + g.getCodeGetName();
-		final Ident ident = buildLeafIdent(idShort);
-		final Code code = this.V1972() ? ident : buildCode(idShort);
-		return getOrCreateLeaf(ident, code, LeafType.DEEP_HISTORY, null);
-	}
-
-	public IEntity getDeepHistory(String idShort) {
-		final Ident idNewLong = buildLeafIdent(idShort);
-		final Code codeGroup = this.V1972() ? idNewLong : buildCode(idShort);
-		gotoGroup(idNewLong, codeGroup, Display.getWithNewlines(codeGroup), GroupType.STATE, getRootGroup(),
-				NamespaceStrategy.SINGLE);
-		final IEntity g = getCurrentGroup();
-		final String tmp = "*deephistory*" + g.getCodeGetName();
-		final Ident ident = buildLeafIdent(tmp);
-		final Code code = this.V1972() ? ident : buildCode(tmp);
-		final IEntity result = getOrCreateLeaf(ident, code, LeafType.DEEP_HISTORY, null);
 		endGroup();
 		return result;
 	}

@@ -4,38 +4,38 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -48,19 +48,17 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import net.sourceforge.plantuml.code.AsciiEncoder;
-import net.sourceforge.plantuml.security.SFile;
 
 public class SignatureUtils {
 
-	// private static byte[] salting(String pass, byte[] salt) throws
-	// NoSuchAlgorithmException, InvalidKeySpecException,
+	// private static byte[] salting(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException,
 	// UnsupportedEncodingException {
 	// final byte[] tmp = salting2(pass, salt);
 	// return SignatureUtils.getSHA512raw(tmp);
 	// }
 
-	public static synchronized byte[] salting(String pass, byte[] salt)
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
+	public static synchronized byte[] salting(String pass, byte[] salt) throws NoSuchAlgorithmException,
+			InvalidKeySpecException {
 		final int iterations = 500;
 		final int keyLength = 512;
 		final SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -124,8 +122,7 @@ public class SignatureUtils {
 		}
 	}
 
-	public static synchronized byte[] getMD5raw(String s)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static synchronized byte[] getMD5raw(String s) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		final MessageDigest msgDigest = MessageDigest.getInstance("MD5");
 		msgDigest.update(s.getBytes("UTF-8"));
 		return msgDigest.digest();
@@ -135,15 +132,15 @@ public class SignatureUtils {
 		return getSHA512raw(s.getBytes("UTF-8"));
 	}
 
-	public static synchronized byte[] getSHA512raw(byte data[])
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static synchronized byte[] getSHA512raw(byte data[]) throws NoSuchAlgorithmException,
+			UnsupportedEncodingException {
 		final MessageDigest msgDigest = MessageDigest.getInstance("SHA-512");
 		msgDigest.update(data);
 		return msgDigest.digest();
 	}
 
-	public static String getSignatureSha512(SFile f) throws IOException {
-		final InputStream is = f.openFile();
+	public static String getSignatureSha512(File f) throws IOException {
+		final InputStream is = new FileInputStream(f);
 		try {
 			return getSignatureSha512(is);
 		} finally {
@@ -182,13 +179,10 @@ public class SignatureUtils {
 		return s;
 	}
 
-	public static synchronized String getSignature(SFile f) throws IOException {
+	public static synchronized String getSignature(File f) throws IOException {
 		try {
 			final MessageDigest msgDigest = MessageDigest.getInstance("MD5");
-			final InputStream is = f.openFile();
-			if (is == null) {
-				throw new FileNotFoundException();
-			}
+			final FileInputStream is = new FileInputStream(f);
 			int read = -1;
 			while ((read = is.read()) != -1) {
 				msgDigest.update((byte) read);

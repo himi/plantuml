@@ -14,7 +14,8 @@ plantuml.jar
 # Maven target folder
 target/
 
-# Eclipse Project files
-.settings/
-.classpath
-.project
+# Eclipse build
+bin/
+
+# Emacs backups
+*~

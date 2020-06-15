@@ -2,37 +2,26 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
- *
- * Project Info:  http://plantuml.com
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
- * If you like this project or if you find it useful, you can support us at:
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * You may obtain a copy of the License at
  * 
- * This file is part of PlantUML.
- *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Creator:  Hisashi Miyashita
- *
- * 
  */
+
 package net.sourceforge.plantuml.svek.extremity;
 
 import java.awt.geom.Point2D;
@@ -45,28 +34,28 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 public class ExtremityFactoryExtendsLike extends AbstractExtremityFactory implements ExtremityFactory {
 
 	private final HColor backgroundColor;
-	private final boolean definedBy;
+    private final boolean definedBy;
 
 	public ExtremityFactoryExtendsLike(HColor backgroundColor, boolean definedBy) {
 		this.backgroundColor = backgroundColor;
-		this.definedBy = definedBy;
+        this.definedBy = definedBy;
 	}
 
 	@Override
 	public UDrawable createUDrawable(Point2D p0, double angle, Side side) {
-		if (definedBy) {
-			return new ExtremityExtendsLike.DefinedBy(p0, angle, backgroundColor);
-		} else {
-			return new ExtremityExtendsLike.Redefines(p0, angle, backgroundColor);
-		}
+        if (definedBy) {
+            return new ExtremityExtendsLike.DefinedBy(p0, angle, backgroundColor);
+        } else {
+            return new ExtremityExtendsLike.Redefines(p0, angle, backgroundColor);
+        }
 	}
 
 	public UDrawable createUDrawable(Point2D p0, Point2D p1, Point2D p2, Side side) {
 		final double ortho = atan2(p0, p2) + (Math.PI / 2.0);
-		if (definedBy) {
-			return new ExtremityExtendsLike.DefinedBy(p1, ortho, backgroundColor);
-		} else {
-			return new ExtremityExtendsLike.Redefines(p1, ortho, backgroundColor);
-		}
+        if (definedBy) {
+            return new ExtremityExtendsLike.DefinedBy(p1, ortho, backgroundColor);
+        } else {
+            return new ExtremityExtendsLike.Redefines(p1, ortho, backgroundColor);
+        }
 	}
 }

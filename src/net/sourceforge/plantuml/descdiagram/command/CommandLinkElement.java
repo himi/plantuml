@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- * Contribution :  Hisashi Miyashita
- *
  */
 package net.sourceforge.plantuml.descdiagram.command;
 
@@ -42,6 +41,9 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
+import net.sourceforge.plantuml.command.regex.Matcher2;
+import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
@@ -53,6 +55,7 @@ import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
+import net.sourceforge.plantuml.cucadiagram.LinkArrow;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -78,7 +81,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		return RegexConcat.build(CommandLinkElement.class.getName(), RegexLeaf.start(), //
 				getGroup("ENT1"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexOptional(new RegexLeaf("FIRST_LABEL", "[%g]([^%g]+)[%g]")), //
+				new RegexOptional(new RegexLeaf("LABEL1", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0@)]|<\\|[\\|\\:]?|[%s]+o)?"), //
 				new RegexLeaf("BODY1", "([-=.~]+)"), //
@@ -89,7 +92,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				new RegexLeaf("BODY2", "([-=.~]*)"), //
 				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0@(]|[\\:\\|]?\\|>|\\\\\\\\|o[%s]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexOptional(new RegexLeaf("SECOND_LABEL", "[%g]([^%g]+)[%g]")), //
+				new RegexOptional(new RegexLeaf("LABEL2", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				getGroup("ENT2"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -140,6 +143,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		} else if (head1.equals("|>")) {
 			d1 = LinkDecor.EXTENDS;
 		}
+
+
 
 		if (head2.equals("0)")) {
 			d2 = LinkDecor.CIRCLE_CONNECT;
@@ -215,8 +220,81 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 	}
 
 	private static RegexLeaf getGroup(String name) {
-		return new RegexLeaf(name,
+		return new RegexLeaf(
+				name,
 				"([\\p{L}0-9_.]+|\\(\\)[%s]*[\\p{L}0-9_.]+|\\(\\)[%s]*[%g][^%g]+[%g]|:[^:]+:|(?!\\[\\*\\])\\[[^\\[\\]]+\\]|\\((?!\\*\\))[^)]+\\))");
+	}
+
+	static class Labels {
+		private String firstLabel;
+		private String secondLabel;
+		private String labelLink;
+		private LinkArrow linkArrow = LinkArrow.NONE;
+
+		Labels(RegexResult arg) {
+			firstLabel = arg.get("LABEL1", 0);
+			secondLabel = arg.get("LABEL2", 0);
+			labelLink = arg.get("LABEL_LINK", 0);
+
+			if (labelLink != null) {
+				if (firstLabel == null && secondLabel == null) {
+					init();
+				}
+				labelLink = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(labelLink, "\"");
+
+				if ("<".equals(labelLink)) {
+					linkArrow = LinkArrow.BACKWARD;
+					labelLink = null;
+				} else if (">".equals(labelLink)) {
+					linkArrow = LinkArrow.DIRECT_NORMAL;
+					labelLink = null;
+				} else if (labelLink != null && labelLink.startsWith("< ")) {
+					linkArrow = LinkArrow.BACKWARD;
+					labelLink = StringUtils.trin(labelLink.substring(2));
+				} else if (labelLink != null && labelLink.startsWith("> ")) {
+					linkArrow = LinkArrow.DIRECT_NORMAL;
+					labelLink = StringUtils.trin(labelLink.substring(2));
+				} else if (labelLink != null && labelLink.endsWith(" >")) {
+					linkArrow = LinkArrow.DIRECT_NORMAL;
+					labelLink = StringUtils.trin(labelLink.substring(0, labelLink.length() - 2));
+				} else if (labelLink != null && labelLink.endsWith(" <")) {
+					linkArrow = LinkArrow.BACKWARD;
+					labelLink = StringUtils.trin(labelLink.substring(0, labelLink.length() - 2));
+				}
+
+			}
+
+		}
+
+		private void init() {
+			final Pattern2 p1 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)[%g]([^%g]+)[%g]$");
+			final Matcher2 m1 = p1.matcher(labelLink);
+			if (m1.matches()) {
+				firstLabel = m1.group(1);
+				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
+						.trin(m1.group(2))));
+				secondLabel = m1.group(3);
+				return;
+			}
+			final Pattern2 p2 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)$");
+			final Matcher2 m2 = p2.matcher(labelLink);
+			if (m2.matches()) {
+				firstLabel = m2.group(1);
+				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
+						.trin(m2.group(2))));
+				secondLabel = null;
+				return;
+			}
+			final Pattern2 p3 = MyPattern.cmpile("^([^%g]+)[%g]([^%g]+)[%g]$");
+			final Matcher2 m3 = p3.matcher(labelLink);
+			if (m3.matches()) {
+				firstLabel = null;
+				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
+						.trin(m3.group(1))));
+				secondLabel = m3.group(2);
+			}
+		}
+
 	}
 
 	@Override
@@ -243,18 +321,18 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		final IEntity cl1;
 		final IEntity cl2;
 		if (diagram.isGroup(code1) && diagram.isGroup(code2)) {
-			cl1 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent1String))
-					: diagram.getGroup(diagram.buildCode(ent1String));
-			cl2 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent2String))
-					: diagram.getGroup(diagram.buildCode(ent2String));
+			cl1 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent1String)) : diagram
+					.getGroup(diagram.buildCode(ent1String));
+			cl2 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent2String)) : diagram
+					.getGroup(diagram.buildCode(ent2String));
 		} else {
 			cl1 = getFoo1(diagram, code1, ident1, ident1pure);
 			cl2 = getFoo1(diagram, code2, ident2, ident2pure);
 		}
-		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labels.getLabelLink()), queue.length(),
-				labels.getFirstLabel(), labels.getSecondLabel(), diagram.getLabeldistance(), diagram.getLabelangle(),
-				diagram.getSkinParam().getCurrentStyleBuilder());
-		link.setLinkArrow(labels.getLinkArrow());
+		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labels.labelLink), queue.length(),
+				labels.firstLabel, labels.secondLabel, diagram.getLabeldistance(), diagram.getLabelangle(), diagram
+						.getSkinParam().getCurrentStyleBuilder());
+		link.setLinkArrow(labels.linkArrow);
 		if (dir == Direction.LEFT || dir == Direction.UP) {
 			link = link.getInv();
 		}
@@ -288,8 +366,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		if (codeChar == '(') {
 			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.USECASE, USymbol.USECASE, pure);
 		} else if (codeChar == ':') {
-			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION,
-					diagram.getSkinParam().getActorStyle().getUSymbol(), pure);
+			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION, diagram.getSkinParam()
+					.getActorStyle().getUSymbol(), pure);
 		} else if (codeChar == '[') {
 			final USymbol sym = diagram.getSkinParam().useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
 			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION, sym, pure);
@@ -298,8 +376,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		return getOrCreateLeaf1972(diagram, ident, code, null, null, pure);
 	}
 
-	private ILeaf getOrCreateLeaf1972(DescriptionDiagram diagram, Ident ident, Code code, LeafType type, USymbol symbol,
-			Ident pure) {
+	private ILeaf getOrCreateLeaf1972(DescriptionDiagram diagram, Ident ident, Code code, LeafType type,
+			USymbol symbol, Ident pure) {
 		if (diagram.V1972()) {
 			final ILeaf result = pure.size() == 1 ? diagram.getLeafVerySmart(ident) : diagram.getLeafStrict(ident);
 			// final ILeaf result = diagram.getLeafSmart(ident);

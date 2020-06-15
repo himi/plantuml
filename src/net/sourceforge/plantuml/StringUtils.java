@@ -4,37 +4,38 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
+import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,9 +48,16 @@ import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
 
 // Do not move
 public class StringUtils {
+
+	public static String getPlateformDependentAbsolutePath(File file) {
+		return file.getAbsolutePath();
+	}
 
 	final static public List<String> getSplit(Pattern2 pattern, String line) {
 		final Matcher2 m = pattern.matcher(line);
@@ -61,6 +69,7 @@ public class StringUtils {
 			result.add(m.group(i));
 		}
 		return result;
+
 	}
 
 	public static boolean isNotEmpty(String input) {
@@ -327,9 +336,9 @@ public class StringUtils {
 		if (uml.startsWith("@startuml\ndonors\n")) {
 			return false;
 		}
-//		if (uml.startsWith("@startuml\ncheckversion")) {
-//			return false;
-//		}
+		if (uml.startsWith("@startuml\ncheckversion")) {
+			return false;
+		}
 		if (uml.startsWith("@startuml\ntestdot\n")) {
 			return false;
 		}
@@ -373,6 +382,30 @@ public class StringUtils {
 			result.add(eventuallyRemoveStartingAndEndingDoubleQuote(m.group(0)));
 		}
 		return Collections.unmodifiableList(result);
+	}
+
+	public static String getAsHtml(Color color) {
+		if (color == null) {
+			return null;
+		}
+		return getAsHtml(color.getRGB());
+	}
+
+	public static String getAsSvg(ColorMapper mapper, HColor color) {
+		if (color == null) {
+			return "none";
+		}
+		if (color instanceof HColorBackground) {
+			return ((HColorBackground) color).getSvg(mapper);
+		}
+		return getAsHtml(mapper.getMappedColor(color));
+	}
+
+	public static String getAsHtml(int color) {
+		final int v = 0xFFFFFF & color;
+		String s = "000000" + Integer.toHexString(v).toUpperCase();
+		s = s.substring(s.length() - 6);
+		return "#" + s;
 	}
 
 	public static String getUid(String uid1, int uid2) {
@@ -445,33 +478,18 @@ public class StringUtils {
 		if (arg.length() == 0) {
 			return arg;
 		}
-		return trinEndingInternal(arg, getPositionStartNonSpace(arg));
-	}
-
-	private static int getPositionStartNonSpace(String arg) {
 		int i = 0;
 		while (i < arg.length() && isSpaceOrTabOrNull(arg.charAt(i))) {
 			i++;
 		}
-		return i;
-	}
-
-	private static String trinEnding(String arg) {
-		if (arg.length() == 0) {
-			return arg;
-		}
-		return trinEndingInternal(arg, 0);
-	}
-
-	private static String trinEndingInternal(String arg, int from) {
 		int j = arg.length() - 1;
-		while (j >= from && isSpaceOrTabOrNull(arg.charAt(j))) {
+		while (j >= i && isSpaceOrTabOrNull(arg.charAt(j))) {
 			j--;
 		}
-		if (from == 0 && j == arg.length() - 1) {
+		if (i == 0 && j == arg.length() - 1) {
 			return arg;
 		}
-		return arg.substring(from, j + 1);
+		return arg.substring(i, j + 1);
 	}
 
 	private static boolean isSpaceOrTabOrNull(char c) {

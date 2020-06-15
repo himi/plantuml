@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
  */
 package net.sourceforge.plantuml.timingdiagram.graphic;
 
@@ -64,7 +64,7 @@ import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class Ribbon implements PDrawing {
+public class Ribbon implements PlayerDrawing {
 
 	private final List<ChangeState> changes = new ArrayList<ChangeState>();
 	private final List<TimeConstraint> constraints = new ArrayList<TimeConstraint>();
@@ -74,18 +74,11 @@ public class Ribbon implements PDrawing {
 	private String initialState;
 	private Colors initialColors;
 	private final List<TimingNote> notes;
-	private final boolean compact;
-	private final TextBlock title;
-	private final int suggestedHeight;
 
-	public Ribbon(TimingRuler ruler, ISkinParam skinParam, List<TimingNote> notes, boolean compact, TextBlock title,
-			int suggestedHeight) {
-		this.suggestedHeight = suggestedHeight == 0 ? 24 : suggestedHeight;
-		this.compact = compact;
+	public Ribbon(TimingRuler ruler, ISkinParam skinParam, List<TimingNote> notes) {
 		this.ruler = ruler;
 		this.skinParam = skinParam;
 		this.notes = notes;
-		this.title = title;
 	}
 
 	public IntricatedPoint getTimeProjection(StringBounder stringBounder, TimeTick tick) {
@@ -117,22 +110,16 @@ public class Ribbon implements PDrawing {
 		return display.create(getFontConfiguration(), HorizontalAlignment.LEFT, skinParam);
 	}
 
-	public TextBlock getPart1(double fullAvailableWidth) {
+	public TextBlock getPart1() {
+		if (initialState == null) {
+			return TextBlockUtils.empty(0, 0);
+		}
 		return new AbstractTextBlock() {
 			public void drawU(UGraphic ug) {
-				if (compact) {
-					final double titleHeight = title.calculateDimension(ug.getStringBounder()).getHeight();
-					final double dy = (getRibbonHeight() - titleHeight) / 2;
-					title.drawU(ug.apply(UTranslate.dy(dy)));
-				}
 			}
 
 			public Dimension2D calculateDimension(StringBounder stringBounder) {
-				double width = getInitialWidth(stringBounder);
-				if (compact) {
-					width += title.calculateDimension(stringBounder).getWidth() + 10;
-				}
-				return new Dimension2DDouble(width, getRibbonHeight());
+				return new Dimension2DDouble(getInitialWidth(stringBounder), getRibbonHeight());
 			}
 		};
 	}
@@ -155,10 +142,7 @@ public class Ribbon implements PDrawing {
 	}
 
 	private double getInitialWidth(final StringBounder stringBounder) {
-		if (initialState == null) {
-			return 0;
-		}
-		return createTextBlock(initialState).calculateDimension(stringBounder).getWidth() + 24;
+		return createTextBlock(initialState).calculateDimension(stringBounder).getWidth() + getRibbonHeight();
 	}
 
 	private void drawHexa(UGraphic ug, double len, ChangeState change) {
@@ -172,7 +156,7 @@ public class Ribbon implements PDrawing {
 	}
 
 	private double getRibbonHeight() {
-		return suggestedHeight;
+		return 24;
 	}
 
 	private void drawPentaB(UGraphic ug, double len, ChangeState change) {

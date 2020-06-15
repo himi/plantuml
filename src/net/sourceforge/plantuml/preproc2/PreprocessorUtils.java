@@ -4,41 +4,40 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
- * Modified by: Nicolas Jouanin
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.preproc2;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +49,6 @@ import net.sourceforge.plantuml.preproc.ReadLineReader;
 import net.sourceforge.plantuml.preproc.ReadLineSimple;
 import net.sourceforge.plantuml.preproc.StartDiagramExtractReader;
 import net.sourceforge.plantuml.preproc.Stdlib;
-import net.sourceforge.plantuml.security.SURL;
 import net.sourceforge.plantuml.tim.EaterException;
 
 public class PreprocessorUtils {
@@ -113,16 +111,13 @@ public class PreprocessorUtils {
 		}
 	}
 
-	public static ReadLine getReaderIncludeUrl2(final SURL url, StringLocated s, String suf, String charset)
+	public static ReadLine getReaderIncludeUrl2(final URL url, StringLocated s, String suf, String charset)
 			throws EaterException {
 		try {
 			if (StartDiagramExtractReader.containsStartDiagram(url, s, charset)) {
 				return StartDiagramExtractReader.build(url, s, suf, charset);
 			}
 			final InputStream is = url.openStream();
-			if (is == null) {
-				throw EaterException.located("Cannot open URL");
-			}
 			if (charset == null) {
 				Log.info("Using default charset");
 				return ReadLineReader.create(new InputStreamReader(is), url.toString(), s.getLocation());
@@ -131,7 +126,7 @@ public class PreprocessorUtils {
 			return ReadLineReader.create(new InputStreamReader(is, charset), url.toString(), s.getLocation());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw EaterException.located("Cannot open URL " + e.getMessage());
+			throw EaterException.located("Cannot open URL", s);
 		}
 
 	}

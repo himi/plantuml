@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- *
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.swing;
 
@@ -57,6 +56,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.prefs.Preferences;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -73,8 +73,6 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.GeneratedImage;
 import net.sourceforge.plantuml.ImageSelection;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.security.ImageIO;
-import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
@@ -310,7 +308,7 @@ class ImageWindow2 extends JFrame {
 		final File png = generatedImage.getPngFile();
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new SFile(png.getAbsolutePath()));
+			image = ImageIO.read(new File(png.getAbsolutePath()));
 			if (sizeMode == SizeMode.ZOOM_FIT) {
 				final Dimension imageDim = new Dimension(image.getWidth(), image.getHeight());
 				final Dimension newImgDim = ImageHelper
@@ -329,8 +327,8 @@ class ImageWindow2 extends JFrame {
 		} catch (IOException ex) {
 			final String msg = "Error reading file: " + ex.toString();
 			final TextBlockBackcolored error = GraphicStrings.createForError(Arrays.asList(msg), false);
-			final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
-					false, null, null, null, 1.0, error.getBackcolor());
+			final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, error.getBackcolor(),
+					null, null, 0, 0, null, false);
 			imageBuilder.setUDrawable(error);
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try {

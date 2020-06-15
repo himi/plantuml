@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.graphic;
 
@@ -39,10 +38,8 @@ import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolCard extends USymbol {
@@ -80,7 +77,6 @@ class USymbolCard extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
 				ug = symbolContext.apply(ug);
 				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(), 0,
 						symbolContext.getRoundCorner());
@@ -99,8 +95,7 @@ class USymbolCard extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext,
-			final HorizontalAlignment stereoAlignment) {
+			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
@@ -108,8 +103,8 @@ class USymbolCard extends USymbol {
 				ug = symbolContext.apply(ug);
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final Dimension2D dimTitle = title.calculateDimension(ug.getStringBounder());
-				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
-						dimTitle.getHeight() + dimStereo.getHeight() + 4, symbolContext.getRoundCorner());
+				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(), dimTitle.getHeight()
+						+ dimStereo.getHeight() + 4, symbolContext.getRoundCorner());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;
 				stereotype.drawU(ug.apply(new UTranslate(posStereo, 2)));
 				final double posTitle = (width - dimTitle.getWidth()) / 2;
@@ -120,11 +115,6 @@ class USymbolCard extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

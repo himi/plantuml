@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.svg;
 
@@ -45,9 +44,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,23 +56,24 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Comment;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import net.sourceforge.plantuml.Log;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.SignatureUtils;
+import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.SvgString;
 import net.sourceforge.plantuml.code.Base64Coder;
-import net.sourceforge.plantuml.security.ImageIO;
-import net.sourceforge.plantuml.security.SecurityUtils;
+import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 import net.sourceforge.plantuml.tikz.TikzGraphics;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.USegment;
 import net.sourceforge.plantuml.ugraphic.USegmentType;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
+
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class SvgGraphics {
 
@@ -176,8 +175,8 @@ public class SvgGraphics {
 	private Element pendingBackground;
 
 	public void paintBackcolorGradient(ColorMapper mapper, HColorGradient gr) {
-		final String id = createSvgGradient(mapper.toHtml(gr.getColor1()), mapper.toHtml(gr.getColor2()),
-				gr.getPolicy());
+		final String id = createSvgGradient(StringUtils.getAsHtml(mapper.getMappedColor(gr.getColor1())),
+				StringUtils.getAsHtml(mapper.getMappedColor(gr.getColor2())), gr.getPolicy());
 		setFillColor("url(#" + id + ")");
 		setStrokeColor(null);
 		pendingBackground = createRectangleInternal(0, 0, 0, 0);
@@ -310,7 +309,48 @@ public class SvgGraphics {
 		this.strokeDasharray = strokeDasharray;
 	}
 
+	public void closeLink() {
+		if (pendingAction.size() > 0) {
+			final Element element = pendingAction.get(0);
+			pendingAction.remove(0);
+			if (element.getFirstChild() != null) {
+				// Empty link
+				getG().appendChild(element);
+			}
+		}
+	}
+
 	private final List<Element> pendingAction = new ArrayList<Element>();
+
+	public void openLink(String url, String title, String target) {
+		if (url == null) {
+			throw new IllegalArgumentException();
+		}
+		// javascript: security issue
+		if (GraphvizUtils.getJavascriptUnsecure() == false && url.toLowerCase().startsWith("javascript")) {
+			return;
+		}
+
+		if (pendingAction.size() > 0) {
+			closeLink();
+		}
+
+		pendingAction.add(0, (Element) document.createElement("a"));
+		pendingAction.get(0).setAttribute("target", target);
+		pendingAction.get(0).setAttribute(XLINK_HREF1, url);
+		pendingAction.get(0).setAttribute(XLINK_HREF2, url);
+		pendingAction.get(0).setAttribute("xlink:type", "simple");
+		pendingAction.get(0).setAttribute("xlink:actuate", "onRequest");
+		pendingAction.get(0).setAttribute("xlink:show", "new");
+		if (title == null) {
+			pendingAction.get(0).setAttribute(XLINK_TITLE1, url);
+			pendingAction.get(0).setAttribute(XLINK_TITLE2, url);
+		} else {
+			title = title.replaceAll("\\\\n", "\n");
+			pendingAction.get(0).setAttribute(XLINK_TITLE1, title);
+			pendingAction.get(0).setAttribute(XLINK_TITLE2, title);
+		}
+	}
 
 	public final Element getG() {
 		if (pendingAction.size() == 0) {
@@ -790,71 +830,6 @@ public class SvgGraphics {
 		comment = "MD5=[" + signature + "]\n" + comment;
 		final Comment commentElement = document.createComment(comment);
 		getG().appendChild(commentElement);
-	}
-
-	public void openLink(String url, String title, String target) {
-		if (url == null) {
-			throw new IllegalArgumentException();
-		}
-		// javascript: security issue
-		if (SecurityUtils.getJavascriptUnsecure() == false && url.toLowerCase().startsWith("javascript")) {
-			return;
-		}
-
-//		if (pendingAction.size() > 0) {
-//			closeLink();
-//		}
-
-		pendingAction.add(0, (Element) document.createElement("a"));
-		pendingAction.get(0).setAttribute("target", target);
-		pendingAction.get(0).setAttribute(XLINK_HREF1, url);
-		pendingAction.get(0).setAttribute(XLINK_HREF2, url);
-		pendingAction.get(0).setAttribute("xlink:type", "simple");
-		pendingAction.get(0).setAttribute("xlink:actuate", "onRequest");
-		pendingAction.get(0).setAttribute("xlink:show", "new");
-		if (title == null) {
-			pendingAction.get(0).setAttribute(XLINK_TITLE1, url);
-			pendingAction.get(0).setAttribute(XLINK_TITLE2, url);
-		} else {
-			title = formatTitle(title);
-			pendingAction.get(0).setAttribute(XLINK_TITLE1, title);
-			pendingAction.get(0).setAttribute(XLINK_TITLE2, title);
-		}
-	}
-
-	private String formatTitle(String title) {
-		final Pattern p = Pattern.compile("\\<U\\+([0-9A-Fa-f]+)\\>");
-		final Matcher m = p.matcher(title);
-		final StringBuffer sb = new StringBuffer();
-		while (m.find()) {
-			final String num = m.group(1);
-			final char c = (char) Integer.parseInt(num, 16);
-			m.appendReplacement(sb, "" + c);
-		}
-		m.appendTail(sb);
-
-		title = sb.toString().replaceAll("\\\\n", "\n");
-		return title;
-	}
-
-	public void closeLink() {
-		if (pendingAction.size() > 0) {
-			final Element element = pendingAction.get(0);
-			pendingAction.remove(0);
-			if (element.getFirstChild() != null) {
-				// Empty link
-				getG().appendChild(element);
-			}
-		}
-	}
-
-	public void startGroup(String groupId) {
-		pendingAction.add(0, (Element) document.createElement("g"));
-		pendingAction.get(0).setAttribute("id", groupId);
-	}
-
-	public void closeGroup() {
-		closeLink();
 	}
 
 }

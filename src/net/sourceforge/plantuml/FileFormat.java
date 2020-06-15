@@ -4,51 +4,49 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml;
 
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 import net.sourceforge.plantuml.braille.BrailleCharFactory;
 import net.sourceforge.plantuml.braille.UGraphicBraille;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.png.MetadataTag;
-import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.svg.SvgGraphics;
 import net.sourceforge.plantuml.ugraphic.UFont;
 
@@ -59,8 +57,7 @@ import net.sourceforge.plantuml.ugraphic.UFont;
  * 
  */
 public enum FileFormat {
-	PNG, SVG, EPS, EPS_TEXT, ATXT, UTXT, XMI_STANDARD, XMI_STAR, XMI_ARGO, SCXML, PDF, MJPEG, ANIMATED_GIF, HTML, HTML5,
-	VDX, LATEX, LATEX_NO_PREAMBLE, BASE64, BRAILLE_PNG, PREPROC;
+	PNG, SVG, EPS, EPS_TEXT, ATXT, UTXT, XMI_STANDARD, XMI_STAR, XMI_ARGO, SCXML, PDF, MJPEG, ANIMATED_GIF, HTML, HTML5, VDX, LATEX, LATEX_NO_PREAMBLE, BASE64, BRAILLE_PNG, PREPROC;
 
 	/**
 	 * Returns the file format to be used for that format.
@@ -90,11 +87,7 @@ public enum FileFormat {
 	}
 
 	final static private BufferedImage imDummy = new BufferedImage(800, 100, BufferedImage.TYPE_INT_RGB);
-	final static public Graphics2D gg = imDummy.createGraphics();
-	static {
-		// KEY_FRACTIONALMETRICS
-		gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	}
+	final static private Graphics2D gg = imDummy.createGraphics();
 
 	public StringBounder getDefaultStringBounder(TikzFontDistortion tikzFontDistortion) {
 		if (this == LATEX || this == LATEX_NO_PREAMBLE) {
@@ -184,16 +177,16 @@ public enum FileFormat {
 		if (cpt == 0) {
 			return changeName(fileName, getFileSuffix());
 		}
-		return changeName(fileName,
-				OptionFlags.getInstance().getFileSeparator() + String.format("%03d", cpt) + getFileSuffix());
+		return changeName(fileName, OptionFlags.getInstance().getFileSeparator() + String.format("%03d", cpt)
+				+ getFileSuffix());
 	}
 
-	private SFile computeFilename(SFile pngFile, int i) {
+	private File computeFilename(File pngFile, int i) {
 		if (i == 0) {
 			return pngFile;
 		}
-		final SFile dir = pngFile.getParentFile();
-		return dir.file(computeFilenameInternal(pngFile.getName(), i));
+		final File dir = pngFile.getParentFile();
+		return new File(dir, computeFilenameInternal(pngFile.getName(), i));
 	}
 
 	private String changeName(String fileName, String replacement) {
@@ -216,7 +209,7 @@ public enum FileFormat {
 		return this == PNG || this == SVG;
 	}
 
-	public boolean equalsMetadata(String currentMetadata, SFile existingFile) {
+	public boolean equalsMetadata(String currentMetadata, File existingFile) {
 		try {
 			if (this == PNG) {
 				final MetadataTag tag = new MetadataTag(existingFile, "plantuml");
@@ -226,9 +219,6 @@ public enum FileFormat {
 			}
 			if (this == SVG) {
 				final String svg = FileUtils.readSvg(existingFile);
-				if (svg == null) {
-					return false;
-				}
 				final String currentSignature = SvgGraphics.getMD5Hex(currentMetadata);
 				final int idx = svg.lastIndexOf(SvgGraphics.MD5_HEADER);
 				if (idx != -1) {
@@ -242,5 +232,4 @@ public enum FileFormat {
 		}
 		return false;
 	}
-
 }

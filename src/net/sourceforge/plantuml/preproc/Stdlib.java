@@ -1,8 +1,43 @@
+/* ========================================================================
+ * PlantUML : a free UML diagram generator
+ * ========================================================================
+ *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ *
+ * Original Author:  Arnaud Roques
+ */
 package net.sourceforge.plantuml.preproc;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,7 +57,6 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.brotli.BrotliInputStream;
-import net.sourceforge.plantuml.security.SFile;
 
 public class Stdlib {
 
@@ -250,9 +284,9 @@ public class Stdlib {
 				if (filename.equals(SEPARATOR)) {
 					return;
 				}
-				final SFile f = new SFile("stdlib/" + name + "/" + filename + ".puml");
+				final File f = new File("stdlib/" + name + "/" + filename + ".puml");
 				f.getParentFile().mkdirs();
-				final PrintWriter fos = f.createPrintWriter();
+				final PrintWriter fos = new PrintWriter(f);
 				while (true) {
 					final String s = dataStream.readUTF();
 					if (s.equals(SEPARATOR)) {

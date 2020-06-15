@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.graphic;
 
@@ -47,34 +46,28 @@ import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public class HtmlColorAndStyle {
 
-	private final HColor arrowHeadColor;
-	private final HColor arrowColor;
+	private final HColor color;
 	private final LinkStyle style;
 
 	@Override
 	public String toString() {
-		return arrowColor + " " + style;
+		return color + " " + style;
 	}
 
-	public HtmlColorAndStyle(HColor color, HColor arrowHeadColor) {
-		this(color, LinkStyle.NORMAL(), arrowHeadColor);
+	public HtmlColorAndStyle(HColor color) {
+		this(color, LinkStyle.NORMAL());
 	}
 
-	public HtmlColorAndStyle(HColor arrowColor, LinkStyle style, HColor arrowHeadColor) {
-		if (arrowColor == null) {
+	public HtmlColorAndStyle(HColor color, LinkStyle style) {
+		if (color == null) {
 			throw new IllegalArgumentException();
 		}
-		this.arrowColor = arrowColor;
-		this.arrowHeadColor = arrowHeadColor == null ? arrowColor : arrowHeadColor;
+		this.color = color;
 		this.style = style;
 	}
 
-	public HColor getArrowColor() {
-		return arrowColor;
-	}
-
-	public HColor getArrowHeadColor() {
-		return arrowHeadColor;
+	public HColor getColor() {
+		return color;
 	}
 
 	public LinkStyle getStyle() {
@@ -86,14 +79,12 @@ public class HtmlColorAndStyle {
 	}
 
 	public static HtmlColorAndStyle build(ISkinParam skinParam, String definition) {
-		HColor arrowColor;
-		HColor arrowHeadColor = null;
+		HColor color;
 		if (SkinParam.USE_STYLES()) {
 			final Style style = getDefaultStyleDefinitionArrow().getMergedStyle(skinParam.getCurrentStyleBuilder());
-			arrowColor = style.value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
+			color = style.value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
 		} else {
-			arrowColor = Rainbow.build(skinParam).getColors().get(0).arrowColor;
-			arrowColor = Rainbow.build(skinParam).getColors().get(0).arrowHeadColor;
+			color = Rainbow.build(skinParam).getColors().get(0).color;
 		}
 		LinkStyle style = LinkStyle.NORMAL();
 		final HColorSet set = skinParam.getIHtmlColorSet();
@@ -105,10 +96,10 @@ public class HtmlColorAndStyle {
 			}
 			final HColor tmpColor = set.getColorIfValid(s);
 			if (tmpColor != null) {
-				arrowColor = tmpColor;
+				color = tmpColor;
 			}
 		}
-		return new HtmlColorAndStyle(arrowColor, style, arrowHeadColor);
+		return new HtmlColorAndStyle(color, style);
 	}
 
 }

@@ -4,33 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
  */
 package net.sourceforge.plantuml.version;
 
@@ -46,7 +46,7 @@ public enum License {
 	GPL, GPLV2, LGPL, APACHE, EPL, MIT, BSD;
 
 	public static License getCurrent() {
-		return GPL;
+		return EPL;
 	}
 
 	private void addMit(final LicenseInfo licenseInfo, final List<String> text) {
@@ -305,7 +305,7 @@ public enum License {
 		text.add(" ");
 		text.add("Project Info:  https://plantuml.com");
 		text.add(" ");
-
+		
 		if (licenseInfo.isValid() == false) {
 			text.add("If you like this project or if you find it useful, you can support us at:");
 			text.add(" ");
@@ -313,8 +313,7 @@ public enum License {
 			text.add("https://plantuml.com/liberapay (only 1\u20ac per month!)");
 			text.add("https://plantuml.com/paypal");
 			if (withQrcode) {
-				text.add(
-						"\t<qrcode:http://plantuml.com/patreon>\t\t<qrcode:http://plantuml.com/lp>\t\t<qrcode:http://plantuml.com/paypal>");
+				text.add("\t<qrcode:http://plantuml.com/patreon>\t\t<qrcode:http://plantuml.com/lp>\t\t<qrcode:http://plantuml.com/paypal>");
 			} else {
 				text.add("");
 				text.add(" ");
@@ -326,8 +325,7 @@ public enum License {
 		if (licenseInfo.getLicenseType() == LicenseType.NAMED) {
 			text.add("| ");
 			text.add("|      LICENSED TO : " + licenseInfo.getOwner());
-			text.add(
-					"|      EXPIRATION DATE : " + DateFormat.getDateInstance().format(licenseInfo.getExpirationDate()));
+			text.add("|      EXPIRATION DATE : " + DateFormat.getDateInstance().format(licenseInfo.getExpirationDate()));
 			text.add("|  ");
 		} else if (licenseInfo.getLicenseType() == LicenseType.DISTRIBUTOR) {
 			text.add("|  ");
@@ -340,7 +338,7 @@ public enum License {
 		}
 	}
 
-	public List<String> getJavaHeader(List<String> contributors) {
+	public List<String> getJavaHeader() {
 		final List<String> h = new ArrayList<String>();
 		h.add("/* ========================================================================");
 		h.add(" * PlantUML : a free UML diagram generator");
@@ -470,7 +468,6 @@ public enum License {
 		}
 		h.add(" *");
 		h.add(" * Original Author:  Arnaud Roques");
-		h.addAll(contributors);
 		h.add(" */");
 		return Collections.unmodifiableList(h);
 	}

@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.skin.rose;
 
@@ -52,6 +51,8 @@ import net.sourceforge.plantuml.skin.ArrowDressing;
 import net.sourceforge.plantuml.skin.ArrowHead;
 import net.sourceforge.plantuml.skin.ArrowPart;
 import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -92,7 +93,7 @@ public class ComponentRoseArrow extends AbstractComponentRoseArrow {
 		}
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
 		final StringBounder stringBounder = ug.getStringBounder();
-		ug = ug.apply(getForegroundColor());
+		ug = ug.apply(new UChangeColor(getForegroundColor()));
 
 		final ArrowDressing dressing1 = getArrowConfiguration().getDressing1();
 		final ArrowDressing dressing2 = getArrowConfiguration().getDressing2();
@@ -175,7 +176,7 @@ public class ComponentRoseArrow extends AbstractComponentRoseArrow {
 
 		if (decoration == ArrowDecoration.CIRCLE) {
 			final UEllipse circle = new UEllipse(diamCircle, diamCircle);
-			ug.apply(new UStroke(thinCircle)).apply(getForegroundColor())
+			ug.apply(new UStroke(thinCircle)).apply(new UChangeColor(getForegroundColor()))
 					.apply(new UTranslate(x - diamCircle / 2 - thinCircle, -diamCircle / 2 - thinCircle / 2))
 					.draw(circle);
 			x += diamCircle / 2 + thinCircle;
@@ -198,7 +199,7 @@ public class ComponentRoseArrow extends AbstractComponentRoseArrow {
 					new ULine(getArrowDeltaX(), -getArrowDeltaX()));
 		} else if (dressing.getHead() == ArrowHead.NORMAL) {
 			final UPolygon polygon = getPolygonReverse(dressing.getPart());
-			ug.apply(getForegroundColor().bg()).apply(UTranslate.dx(x)).draw(polygon);
+			ug.apply(new UChangeBackColor(getForegroundColor())).apply(UTranslate.dx(x)).draw(polygon);
 		}
 
 	}
@@ -206,7 +207,7 @@ public class ComponentRoseArrow extends AbstractComponentRoseArrow {
 	private void drawDressing2(UGraphic ug, double x, ArrowDressing dressing, ArrowDecoration decoration) {
 
 		if (decoration == ArrowDecoration.CIRCLE) {
-			ug = ug.apply(new UStroke(thinCircle)).apply(getForegroundColor());
+			ug = ug.apply(new UStroke(thinCircle)).apply(new UChangeColor(getForegroundColor()));
 			final UEllipse circle = new UEllipse(diamCircle, diamCircle);
 			ug.apply(new UTranslate(x - diamCircle / 2 + thinCircle, -diamCircle / 2 - thinCircle / 2)).draw(circle);
 			ug = ug.apply(new UStroke());
@@ -231,7 +232,7 @@ public class ComponentRoseArrow extends AbstractComponentRoseArrow {
 			ug = ug.apply(new UStroke());
 		} else if (dressing.getHead() == ArrowHead.NORMAL) {
 			final UPolygon polygon = getPolygonNormal(dressing.getPart(), x);
-			ug.apply(getForegroundColor().bg()).draw(polygon);
+			ug.apply(new UChangeBackColor(getForegroundColor())).draw(polygon);
 		}
 
 	}

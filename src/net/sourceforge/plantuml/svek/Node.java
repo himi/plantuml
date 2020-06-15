@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- * 
  */
 package net.sourceforge.plantuml.svek;
 
@@ -42,6 +41,7 @@ import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Hideable;
+import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
@@ -154,7 +154,7 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		sb.append(",");
 		sb.append("height=" + SvekUtils.pixelToInches(getHeight()));
 		sb.append(",");
-		sb.append("color=\"" + DotStringFactory.sharp000000(color) + "\"");
+		sb.append("color=\"" + StringUtils.getAsHtml(color) + "\"");
 		sb.append("];");
 		SvekUtils.println(sb);
 	}
@@ -181,7 +181,7 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		sb.append("</TR>");
 		sb.append("<TR>");
 		appendTd(sb, shield.getX1(), 1);
-		sb.append("<TD BGCOLOR=\"" + DotStringFactory.sharp000000(color) + "\"");
+		sb.append("<TD BGCOLOR=\"" + StringUtils.getAsHtml(color) + "\"");
 		sb.append(" FIXEDSIZE=\"TRUE\" WIDTH=\"" + getWidth() + "\" HEIGHT=\"" + getHeight() + "\"");
 		sb.append(" PORT=\"h\">");
 		sb.append("</TD>");
@@ -203,15 +203,15 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		sb.append("shape=plaintext,");
 		// sb.append("color=\"" + StringUtils.getAsHtml(color) + "\",");
 		sb.append("label=<");
-		sb.append("<TABLE BGCOLOR=\"" + DotStringFactory.sharp000000(color)
+		sb.append("<TABLE BGCOLOR=\"" + StringUtils.getAsHtml(color)
 				+ "\" BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\">");
 		double position = 0;
-		for (Map.Entry<String, PortGeometry> ent : ports.getAllWithEncodedPortId().entrySet()) {
-			final String portId = ent.getKey();
+		for (Map.Entry<String, PortGeometry> ent : ports.getAll().entrySet()) {
+			final String portName = ent.getKey();
 			final PortGeometry geom = ent.getValue();
 			final double missing = geom.getPosition() - position;
 			appendTr(sb, null, missing);
-			appendTr(sb, portId, geom.getHeight());
+			appendTr(sb, portName, geom.getHeight());
 			position = geom.getLastY();
 		}
 		appendTr(sb, null, getHeight() - position);
@@ -221,15 +221,15 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		SvekUtils.println(sb);
 	}
 
-	private void appendTr(StringBuilder sb, String portId, double height) {
+	private void appendTr(StringBuilder sb, final String portName, final double height) {
 		if (height <= 0) {
 			return;
 		}
 		sb.append("<TR>");
 		sb.append("<TD ");
 		sb.append(" FIXEDSIZE=\"TRUE\" WIDTH=\"" + getWidth() + "\" HEIGHT=\"" + height + "\"");
-		if (portId != null) {
-			sb.append(" PORT=\"" + portId + "\"");
+		if (portName != null) {
+			sb.append(" PORT=\"" + portName + "\"");
 		}
 		sb.append(">");
 		sb.append("</TD>");
@@ -322,7 +322,7 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 			final AbstractEntityImageBorder im = (AbstractEntityImageBorder) image;
 			return im.getMaxWidthFromLabelForEntryExit(stringBounder);
 		} else {
-			final Dimension2D dim = image.calculateDimension(stringBounder);
+			Dimension2D dim = image.calculateDimension(stringBounder);
 			return dim.getWidth();
 		}
 	}

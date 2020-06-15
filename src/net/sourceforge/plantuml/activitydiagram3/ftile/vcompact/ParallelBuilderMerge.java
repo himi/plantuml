@@ -4,34 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  *
  * Original Author:  Arnaud Roques
- *
- *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
@@ -65,19 +64,19 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 
-	public ParallelBuilderMerge(ISkinParam skinParam, StringBounder stringBounder, List<Ftile> all) {
-		super(skinParam, stringBounder, all);
+	public ParallelBuilderMerge(ISkinParam skinParam, StringBounder stringBounder, final List<Ftile> list, Ftile inner) {
+		super(skinParam, stringBounder, list, inner);
 	}
 
 	@Override
-	protected Ftile doStep1(Ftile inner) {
-		Ftile result = inner;
+	protected Ftile doStep1() {
+		Ftile result = getMiddle();
 		final List<Connection> conns = new ArrayList<Connection>();
 		final HColor colorBar = getRose().getHtmlColor(skinParam(), ColorParam.activityBar);
 
-		final Ftile black = new FtileBlackBlock(skinParam(), colorBar, list99.get(0).getSwimlaneIn());
+		final Ftile black = new FtileBlackBlock(skinParam(), colorBar, getList().get(0).getSwimlaneIn());
 		double x = 0;
-		for (Ftile tmp : list99) {
+		for (Ftile tmp : getList()) {
 			final Dimension2D dim = tmp.calculateDimension(getStringBounder());
 			final Rainbow def;
 			if (SkinParam.USE_STYLES()) {
@@ -99,7 +98,7 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 	}
 
 	@Override
-	protected Ftile doStep2(Ftile inner, Ftile result) {
+	protected Ftile doStep2(Ftile result) {
 		final HColor borderColor = getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBorder);
 		final HColor backColor = getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBackground);
 		final Ftile out = new FtileDiamond(skinParam(), backColor, borderColor, swimlaneOutForStep2());
@@ -108,7 +107,7 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 		final UTranslate diamondTranslate = result.getTranslateFor(out, getStringBounder());
 		int i = 0;
 		double x = 0;
-		for (Ftile tmp : list99) {
+		for (Ftile tmp : getList()) {
 			final Dimension2D dim = tmp.calculateDimension(getStringBounder());
 			final UTranslate translate0 = new UTranslate(x, barHeight);
 			final Rainbow def;

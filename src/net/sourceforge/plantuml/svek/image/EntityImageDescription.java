@@ -4,35 +4,33 @@
  *
  * (C) Copyright 2009-2020, Arnaud Roques
  *
- * Project Info:  http://plantuml.com
+ * Project Info:  https://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
  * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
  * 
  * This file is part of PlantUML.
  *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
- * Original Author:  Arnaud Roques
- * Modified by : Arno Peterson
+ * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
+ * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
+ * 
+ * ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES
+ * RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
+ * 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  */
 package net.sourceforge.plantuml.svek.image;
 
@@ -44,10 +42,11 @@ import java.util.Set;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.BodyEnhanced;
+import net.sourceforge.plantuml.cucadiagram.BodyEnhanced2;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
@@ -65,10 +64,6 @@ import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
-import net.sourceforge.plantuml.style.PName;
-import net.sourceforge.plantuml.style.SName;
-import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Margins;
 import net.sourceforge.plantuml.svek.ShapeType;
@@ -98,7 +93,7 @@ public class EntityImageDescription extends AbstractEntityImage {
 	private final boolean fixCircleLabelOverlapping;
 
 	public EntityImageDescription(ILeaf entity, ISkinParam skinParam, PortionShower portionShower,
-			Collection<Link> links, SName styleName) {
+			Collection<Link> links) {
 		super(entity, entity.getColors(skinParam).mute(skinParam));
 		this.useRankSame = skinParam.useRankSame();
 		this.fixCircleLabelOverlapping = skinParam.fixCircleLabelOverlapping();
@@ -119,40 +114,30 @@ public class EntityImageDescription extends AbstractEntityImage {
 		final Display codeDisplay = Display.getWithNewlines(entity.getCodeGetName());
 		if ((entity.getDisplay().equals(codeDisplay) && symbol.getSkinParameter() == SkinParameter.PACKAGE)
 				|| entity.getDisplay().isWhite()) {
-			desc = TextBlockUtils.empty(skinParam.minClassWidth(), 0);
+			desc = TextBlockUtils.empty(0, 0);
 		} else {
 			desc = new BodyEnhanced(entity.getDisplay(), symbol.getFontParam(), getSkinParam(),
-					HorizontalAlignment.LEFT, stereotype, symbol.manageHorizontalLine(), false, entity,
-					skinParam.minClassWidth());
+					HorizontalAlignment.LEFT, stereotype, symbol.manageHorizontalLine(), false, entity);
+			// Actor bug?
+			// desc = new BodyEnhanced2(entity.getDisplay(), symbol.getFontParam(), getSkinParam(),
+			// HorizontalAlignment.LEFT, new FontConfiguration(skinParam, symbol.getFontParam(), stereotype),
+			// LineBreakStrategy.NONE);
+			// desc = entity.getDisplay().create(new FontConfiguration(skinParam, symbol.getFontParam(), stereotype),
+			// HorizontalAlignment.LEFT, skinParam);
 		}
 
 		this.url = entity.getUrl99();
 
 		final Colors colors = entity.getColors(skinParam);
 		HColor backcolor = colors.getColor(ColorType.BACK);
-		final HColor forecolor;
-		final double roundCorner;
-		final double diagonalCorner;
-		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature
-					.of(SName.root, SName.element, styleName, symbol.getSkinParameter().getStyleName())
-					.getMergedStyle(getSkinParam().getCurrentStyleBuilder());
-			forecolor = style.value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
-			if (backcolor == null) {
-				backcolor = style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
-			}
-			roundCorner = style.value(PName.RoundCorner).asDouble();
-			diagonalCorner = style.value(PName.DiagonalCorner).asDouble();
-		} else {
-			forecolor = SkinParamUtils.getColor(getSkinParam(), stereotype, symbol.getColorParamBorder());
-			if (backcolor == null) {
-				backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), symbol.getColorParamBack());
-			}
-			roundCorner = symbol.getSkinParameter().getRoundCorner(getSkinParam(), stereotype);
-			diagonalCorner = symbol.getSkinParameter().getDiagonalCorner(getSkinParam(), stereotype);
+		if (backcolor == null) {
+			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), symbol.getColorParamBack());
 		}
 
 		assert getStereo() == stereotype;
+		final HColor forecolor = SkinParamUtils.getColor(getSkinParam(), stereotype, symbol.getColorParamBorder());
+		final double roundCorner = symbol.getSkinParameter().getRoundCorner(getSkinParam(), stereotype);
+		final double diagonalCorner = symbol.getSkinParameter().getDiagonalCorner(getSkinParam(), stereotype);
 		final UStroke stroke = colors.muteStroke(symbol.getSkinParameter().getStroke(getSkinParam(), stereotype));
 
 		final SymbolContext ctx = new SymbolContext(backcolor, forecolor).withStroke(stroke)
@@ -175,17 +160,16 @@ public class EntityImageDescription extends AbstractEntityImage {
 				stereotype, symbol.manageHorizontalLine(), false, entity);
 
 		if (hideText) {
-			asSmall = symbol.asSmall(TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0),
-					ctx, skinParam.getStereotypeAlignment());
+			asSmall = symbol.asSmall(TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0),
+					TextBlockUtils.empty(0, 0), ctx, skinParam.getStereotypeAlignment());
 		} else {
 			asSmall = symbol.asSmall(name, desc, stereo, ctx, skinParam.getStereotypeAlignment());
 		}
 	}
 
 	private USymbol getUSymbol(ILeaf entity) {
-		final USymbol result = entity.getUSymbol() == null
-				? (getSkinParam().useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1)
-				: entity.getUSymbol();
+		final USymbol result = entity.getUSymbol() == null ? (getSkinParam().useUml2ForComponent() ? USymbol.COMPONENT2
+				: USymbol.COMPONENT1) : entity.getUSymbol();
 		if (result == null) {
 			throw new IllegalArgumentException();
 		}
@@ -282,7 +266,7 @@ public class EntityImageDescription extends AbstractEntityImage {
 		}
 
 		if (url != null) {
-			ug.closeUrl();
+			ug.closeAction();
 		}
 	}
 
