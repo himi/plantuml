@@ -24,6 +24,7 @@ import net.sourceforge.plantuml.SourceStringReader;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.eclipse.Activator;
+import net.sourceforge.plantuml.security.SFile;
 
 /**
  * Definition of a Diagram Object.
@@ -56,7 +57,7 @@ public class Diagram {
 				// find the real file, which may be linked and thus is not located under the root itself
 				final IResource member = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
 				final File dirPath = member.getLocation().toFile().getAbsoluteFile().getParentFile();
-				FileSystem.getInstance().setCurrentDir(dirPath);
+				FileSystem.getInstance().setCurrentDir(SFile.fromFile(dirPath));
 			} else {
 				FileSystem.getInstance().reset();
 			}
