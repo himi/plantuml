@@ -34,6 +34,6 @@
  */
 package net.sourceforge.plantuml.ugraphic.color;
 
-public class HColorUserDef implements HColor {
+public class HColorUserDef extends HColorAbstract implements HColor {
 
 }

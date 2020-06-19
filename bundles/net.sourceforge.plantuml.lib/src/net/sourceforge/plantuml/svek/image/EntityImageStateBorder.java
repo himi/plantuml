@@ -31,6 +31,7 @@
  * 
  *
  * Original Author:  Arnaud Roques
+ * Contribution :  Hisashi Miyashita
  */
 package net.sourceforge.plantuml.svek.image;
 
@@ -47,15 +48,15 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.svek.Bibliotekon;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.Node;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class EntityImageStateBorder extends AbstractEntityImageBorder {
-	public EntityImageStateBorder(ILeaf leaf, ISkinParam skinParam, Cluster stateParent, final Bibliotekon bibliotekon) {
+
+	public EntityImageStateBorder(ILeaf leaf, ISkinParam skinParam, Cluster stateParent,
+			final Bibliotekon bibliotekon) {
 		super(leaf, skinParam, stateParent, bibliotekon, FontParam.STATE);
 	}
 
@@ -76,14 +77,15 @@ public class EntityImageStateBorder extends AbstractEntityImageBorder {
 		}
 		desc.drawU(ug.apply(new UTranslate(x, y)));
 
-		ug = ug.apply(new UStroke(1.5)).apply(
-				new UChangeColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder)));
+		ug = ug.apply(new UStroke(1.5))
+				.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder));
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBackground);
 		}
-		ug = ug.apply(new UChangeBackColor(backcolor));
+		ug = ug.apply(backcolor.bg());
 
 		entityPosition.drawSymbol(ug, rankdir);
 	}
+
 }

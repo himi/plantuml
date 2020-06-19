@@ -31,6 +31,7 @@
  * 
  *
  * Original Author:  Arnaud Roques
+ * Contribution :  Hisashi Miyashita
  */
 package net.sourceforge.plantuml.descdiagram.command;
 
@@ -176,14 +177,14 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 
 		if (symbol == null) {
 			type = LeafType.DESCRIPTION;
-			usymbol = diagram.getSkinParam().getActorStyle().getUSymbol();
+			usymbol = diagram.getSkinParam().actorStyle().toUSymbol();
 		} else if (symbol.equalsIgnoreCase("portin")) {
 			type = LeafType.PORTIN;
 			usymbol = null;
-        } else if (symbol.equalsIgnoreCase("portout")) {
+		} else if (symbol.equalsIgnoreCase("portout")) {
 			type = LeafType.PORTOUT;
 			usymbol = null;
-        } else if (symbol.equalsIgnoreCase("port")) {
+		} else if (symbol.equalsIgnoreCase("port")) {
 			type = LeafType.PORT;
 			usymbol = null;
 		} else if (symbol.equalsIgnoreCase("usecase")) {
@@ -194,7 +195,7 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 			usymbol = null;
 		} else {
 			type = LeafType.DESCRIPTION;
-			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam());
+			usymbol = USymbol.fromString(symbol, diagram.getSkinParam());
 			if (usymbol == null) {
 				throw new IllegalStateException();
 			}
@@ -222,9 +223,9 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		entity.setDisplay(Display.getWithNewlines(display));
 		entity.setUSymbol(usymbol);
 		if (stereotype != null) {
-			entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
-					.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()
-					.getIHtmlColorSet()));
+			entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+					diagram.getSkinParam().getIHtmlColorSet()));
 		}
 		CommandCreateClassMultilines.addTags(entity, arg.get("TAGS", 0));
 
@@ -244,7 +245,8 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		entity.setColors(colors);
 
 		// entity.setSpecificColorTOBEREMOVED(ColorType.BACK,
-		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR", 0)));
+		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("COLOR",
+		// 0)));
 		return CommandExecutionResult.ok();
 	}
 
@@ -281,3 +283,4 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		return codeRaw != null && codeRaw.length() > 2 ? codeRaw.charAt(0) : 0;
 	}
 }
+	

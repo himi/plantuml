@@ -39,12 +39,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sourceforge.plantuml.ColorParam;
+import net.sourceforge.plantuml.ComponentStyle;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.creole.Stencil;
 import net.sourceforge.plantuml.skin.ActorStyle;
+import net.sourceforge.plantuml.svek.PackageStyle;
 
 public abstract class USymbol {
 
@@ -57,24 +59,24 @@ public abstract class USymbol {
 	public final static USymbol FRAME = record("FRAME", SkinParameter.FRAME, new USymbolFrame());
 	public final static USymbol NODE = record("NODE", SkinParameter.NODE, new USymbolNode());
 	public final static USymbol ARTIFACT = record("ARTIFACT", SkinParameter.ARTIFACT, new USymbolArtifact());
-	public final static USymbol PACKAGE = record("PACKAGE", SkinParameter.PACKAGE, new USymbolFolder(
-			SkinParameter.PACKAGE, true));
-	public final static USymbol FOLDER = record("FOLDER", SkinParameter.FOLDER, new USymbolFolder(SkinParameter.FOLDER,
-			false));
+	public final static USymbol PACKAGE = record("PACKAGE", SkinParameter.PACKAGE,
+			new USymbolFolder(SkinParameter.PACKAGE, true));
+	public final static USymbol FOLDER = record("FOLDER", SkinParameter.FOLDER,
+			new USymbolFolder(SkinParameter.FOLDER, false));
 	public final static USymbol FILE = record("FILE", SkinParameter.FILE, new USymbolFile());
-	public final static USymbol RECTANGLE = record("RECTANGLE", SkinParameter.RECTANGLE, new USymbolRect(
-			SkinParameter.RECTANGLE));
-	public final static USymbol LABEL = record("LABEL", SkinParameter.RECTANGLE, new USymbolLabel(
-			SkinParameter.RECTANGLE));
-	public final static USymbol ARCHIMATE = record("ARCHIMATE", SkinParameter.ARCHIMATE, new USymbolRect(
-			SkinParameter.ARCHIMATE));
-	public final static USymbol COLLECTIONS = record("COLLECTIONS", SkinParameter.COLLECTIONS, new USymbolCollections(
-			SkinParameter.RECTANGLE));
+	public final static USymbol RECTANGLE = record("RECTANGLE", SkinParameter.RECTANGLE,
+			new USymbolRect(SkinParameter.RECTANGLE));
+	public final static USymbol LABEL = record("LABEL", SkinParameter.RECTANGLE,
+			new USymbolLabel(SkinParameter.RECTANGLE));
+	public final static USymbol ARCHIMATE = record("ARCHIMATE", SkinParameter.ARCHIMATE,
+			new USymbolRect(SkinParameter.ARCHIMATE));
+	public final static USymbol COLLECTIONS = record("COLLECTIONS", SkinParameter.COLLECTIONS,
+			new USymbolCollections(SkinParameter.RECTANGLE));
 	public final static USymbol AGENT = record("AGENT", SkinParameter.AGENT, new USymbolRect(SkinParameter.AGENT));
-	public final static USymbol ACTOR_STICKMAN = record("ACTOR_STICKMAN", SkinParameter.ACTOR, new USymbolActor(
-			ActorStyle.STICKMAN));
-	public final static USymbol ACTOR_AWESOME = record("ACTOR_AWESOME", SkinParameter.ACTOR, new USymbolActor(
-			ActorStyle.AWESOME));
+	public final static USymbol ACTOR_STICKMAN = record("ACTOR_STICKMAN", SkinParameter.ACTOR,
+			new USymbolActor(ActorStyle.STICKMAN));
+	public final static USymbol ACTOR_AWESOME = record("ACTOR_AWESOME", SkinParameter.ACTOR,
+			new USymbolActor(ActorStyle.AWESOME));
 	public final static USymbol USECASE = null;
 	public final static USymbol COMPONENT1 = record("COMPONENT1", SkinParameter.COMPONENT1, new USymbolComponent1());
 	public final static USymbol COMPONENT2 = record("COMPONENT2", SkinParameter.COMPONENT2, new USymbolComponent2());
@@ -108,26 +110,6 @@ public abstract class USymbol {
 
 	public ColorParam getColorParamBorder() {
 		return getSkinParameter().getColorParamBorder();
-	}
-
-	public static USymbol getFromString(String s, ActorStyle actorStyle) {
-		if (s == null) {
-			return null;
-		}
-		if (s.equalsIgnoreCase("actor")) {
-			return actorStyle.getUSymbol();
-		}
-		final USymbol result = all.get(StringUtils.goUpperCase(s.replaceAll("\\W", "")));
-		if (result == null) {
-			if (s.equalsIgnoreCase("component")) {
-				return COMPONENT2;
-			}
-			if (s.equalsIgnoreCase("entity")) {
-				return ENTITY_DOMAIN;
-			}
-			return null;
-		}
-		return result;
 	}
 
 	private static USymbol record(String code, SkinParameter skinParameter, USymbol symbol) {
@@ -199,7 +181,25 @@ public abstract class USymbol {
 		};
 	}
 
-	public static USymbol getFromString(String symbol, ISkinParam skinParam) {
+	public static USymbol fromString(String s, ActorStyle actorStyle, ComponentStyle componentStyle,
+			PackageStyle packageStyle) {
+		if (s == null) {
+			return null;
+		}
+		if (s.equalsIgnoreCase("actor")) {
+			return actorStyle.toUSymbol();
+		}
+		if (s.equalsIgnoreCase("component")) {
+			return componentStyle.toUSymbol();
+		}
+		if (s.equalsIgnoreCase("entity")) {
+			return ENTITY_DOMAIN;
+		}
+		final USymbol result = all.get(StringUtils.goUpperCase(s.replaceAll("\\W", "")));
+		return result;
+	}
+
+	public static USymbol fromString(String symbol, ISkinParam skinParam) {
 		USymbol usymbol = null;
 		if (symbol.equalsIgnoreCase("artifact")) {
 			usymbol = USymbol.ARTIFACT;
@@ -232,9 +232,9 @@ public abstract class USymbol {
 		} else if (symbol.equalsIgnoreCase("agent")) {
 			usymbol = USymbol.AGENT;
 		} else if (symbol.equalsIgnoreCase("actor")) {
-			usymbol = skinParam.getActorStyle().getUSymbol();
+			usymbol = skinParam.actorStyle().toUSymbol();
 		} else if (symbol.equalsIgnoreCase("component")) {
-			usymbol = skinParam.useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
+			usymbol = skinParam.componentStyle().toUSymbol();
 		} else if (symbol.equalsIgnoreCase("boundary")) {
 			usymbol = USymbol.BOUNDARY;
 		} else if (symbol.equalsIgnoreCase("control")) {

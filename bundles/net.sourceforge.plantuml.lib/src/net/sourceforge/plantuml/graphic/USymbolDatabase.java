@@ -37,12 +37,14 @@ package net.sourceforge.plantuml.graphic;
 import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.ugraphic.AbstractUGraphicHorizontalLine;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UEmpty;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UHorizontalLine;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 class USymbolDatabase extends USymbol {
 
@@ -67,7 +69,12 @@ class USymbolDatabase extends USymbol {
 		ug.draw(shape);
 
 		final UPath closing = getClosingPath(width);
-		ug.apply(new UChangeBackColor(null)).draw(closing);
+		ug.apply(new HColorNone().bg()).draw(closing);
+
+		if (SkinParam.USE_STYLES()) {
+			ug.apply(new UTranslate(width, height)).draw(new UEmpty(10, 10));
+			// ug.apply(HColorUtils.BLACK).apply(new UTranslate(width, height)).draw(new URectangle(10, 10));
+		}
 
 	}
 
@@ -97,10 +104,9 @@ class USymbolDatabase extends USymbol {
 		protected void drawHline(UGraphic ug, UHorizontalLine line, UTranslate translate) {
 			final UPath closing = getClosingPath(endingX);
 			ug = ug.apply(translate);
-			ug.apply(line.getStroke()).apply(new UChangeBackColor(null)).apply(UTranslate.dy(-15)).draw(closing);
+			ug.apply(line.getStroke()).apply(new HColorNone().bg()).apply(UTranslate.dy(-15)).draw(closing);
 			if (line.isDouble()) {
-				ug.apply(line.getStroke()).apply(new UChangeBackColor(null)).apply(UTranslate.dy(-15 + 2))
-						.draw(closing);
+				ug.apply(line.getStroke()).apply(new HColorNone().bg()).apply(UTranslate.dy(-15 + 2)).draw(closing);
 			}
 			line.drawTitleInternal(ug, 0, endingX, 0, true);
 		}
@@ -136,7 +142,8 @@ class USymbolDatabase extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
+			final double width, final double height, final SymbolContext symbolContext,
+			final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {

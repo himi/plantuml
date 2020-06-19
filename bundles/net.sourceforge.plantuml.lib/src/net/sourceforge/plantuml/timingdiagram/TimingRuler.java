@@ -47,7 +47,6 @@ import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -67,10 +66,10 @@ public class TimingRuler {
 
 	private TimingFormat format = TimingFormat.DECIMAL;
 
-	private UGraphic applyForVLines(UGraphic ug) {
+	static UGraphic applyForVLines(UGraphic ug) {
 		final UStroke stroke = new UStroke(3, 5, 0.5);
 		final HColor color = HColorSet.instance().getColorIfValid("#AAA");
-		return ug.apply(stroke).apply(new UChangeColor(color));
+		return ug.apply(stroke).apply(color);
 	}
 
 	public void ensureNotEmpty() {
@@ -136,6 +135,10 @@ public class TimingRuler {
 		return time / tickUnitary() * tickIntervalInPixels;
 	}
 
+	private long tickToTime(int i) {
+		return tickUnitary * i + getMin().getTime().longValue();
+	}
+
 	public void addTime(TimeTick time) {
 		this.highestCommonFactorInternal = -1;
 		times.add(time);
@@ -154,7 +157,7 @@ public class TimingRuler {
 	}
 
 	public void drawTimeAxis(UGraphic ug) {
-		ug = ug.apply(new UStroke(2.0)).apply(new UChangeColor(HColorUtils.BLACK));
+		ug = ug.apply(new UStroke(2.0)).apply(HColorUtils.BLACK);
 		final double tickHeight = 5;
 		final ULine line = ULine.vline(tickHeight);
 		final int nb = getNbTick(true);
@@ -180,7 +183,7 @@ public class TimingRuler {
 		} else {
 			final int nb = getNbTick(true);
 			for (int i = 0; i <= nb; i++) {
-				final long round = tickUnitary * i;
+				final long round = tickToTime(i);
 				result.add(round);
 			}
 		}
@@ -190,7 +193,7 @@ public class TimingRuler {
 		return result;
 	}
 
-	public void draw0(UGraphic ug, double height) {
+	public void drawVlines(UGraphic ug, double height) {
 		ug = applyForVLines(ug);
 		final ULine line = ULine.vline(height);
 		final int nb = getNbTick(true);

@@ -212,13 +212,13 @@ public class HColorSet {
 		register("Yellow", "#FFFF00");
 		register("YellowGreen", "#9ACD32");
 		// Archimate
-		register("BUSINESS", "#FFFF00");
-		register("APPLICATION", "#A9DCDF");
-		register("MOTIVATION", "#B19CD9");
-		register("STRATEGY", "#F6E4CC");
-		register("TECHNOLOGY", "#90EE90");
-		register("PHYSICAL", "#CCFFCC");
-		register("IMPLEMENTATION", "#FFA6BF");
+		register("BUSINESS", "#FFFFCC");
+		register("APPLICATION", "#C2F0FF");
+		register("MOTIVATION", "#EFEFFF");
+		register("STRATEGY", "#F8E7C0");
+		register("TECHNOLOGY", "#C9FFC9");
+		register("PHYSICAL", "#97FF97");
+		register("IMPLEMENTATION", "#FFE0E0");
 	}
 
 	private void register(String s, String color) {
@@ -256,7 +256,6 @@ public class HColorSet {
 	}
 
 	private HColor build(String s, HColor background) {
-
 		s = removeFirstDieseAndgoLowerCase(s);
 		final Color color;
 		if (s.equalsIgnoreCase("transparent") || s.equalsIgnoreCase("background")) {
@@ -268,6 +267,8 @@ public class HColorSet {
 			color = new Color(Integer.parseInt(s, 16));
 		} else if (s.matches("[0-9A-Fa-f]{6}")) {
 			color = new Color(Integer.parseInt(s, 16));
+		} else if (s.matches("[0-9A-Fa-f]{8}")) {
+			color = fromRGBa(s);
 		} else {
 			final String value = htmlNames.get(s);
 			if (value == null) {
@@ -278,12 +279,27 @@ public class HColorSet {
 		return new HColorSimple(color, false);
 	}
 
+	private Color fromRGBa(String s) {
+		// https://forum.plantuml.net/11606/full-opacity-alpha-compositing-support-for-svg-and-png
+		if (s.length() != 8) {
+			throw new IllegalArgumentException();
+		}
+		final int red = Integer.parseInt(s.substring(0, 2), 16);
+		final int green = Integer.parseInt(s.substring(2, 4), 16);
+		final int blue = Integer.parseInt(s.substring(4, 6), 16);
+		final int alpha = Integer.parseInt(s.substring(6, 8), 16);
+		return new Color(red, green, blue, alpha);
+	}
+
 	private boolean isValid(String s, boolean acceptTransparent) {
 		s = removeFirstDieseAndgoLowerCase(s);
 		if (s.matches("[0-9A-Fa-f]{3}")) {
 			return true;
 		}
 		if (s.matches("[0-9A-Fa-f]{6}")) {
+			return true;
+		}
+		if (s.matches("[0-9A-Fa-f]{8}")) {
 			return true;
 		}
 		if (s.equalsIgnoreCase("automatic")) {

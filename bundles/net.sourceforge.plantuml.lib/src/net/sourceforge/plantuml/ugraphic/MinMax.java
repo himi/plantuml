@@ -89,6 +89,18 @@ public class MinMax {
 		this.minY = minY;
 		this.maxX = maxX;
 		this.maxY = maxY;
+		if (Double.isNaN(minX)) {
+			throw new IllegalArgumentException();
+		}
+		if (Double.isNaN(maxX)) {
+			throw new IllegalArgumentException();
+		}
+		if (Double.isNaN(minY)) {
+			throw new IllegalArgumentException();
+		}
+		if (Double.isNaN(maxY)) {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	public MinMax addPoint(Point2D pt) {
@@ -145,7 +157,7 @@ public class MinMax {
 	}
 
 	public void draw(UGraphic ug, HColor color) {
-		ug = ug.apply(new UChangeColor(color)).apply(new UChangeBackColor(color));
+		ug = ug.apply(color).apply(color.bg());
 		ug = ug.apply(new UTranslate(minX, minY));
 		ug.draw(new URectangle(getWidth(), getHeight()));
 	}

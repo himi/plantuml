@@ -34,8 +34,6 @@
  */
 package net.sourceforge.plantuml.code;
 
-import java.io.IOException;
-
 public interface Compression {
 
 	/**
@@ -46,11 +44,11 @@ public interface Compression {
 	byte[] compress(final byte[] in);
 
 	/**
-	 * Grows the given <code>in</code> array with length <code>len</code>
-	 * compressed with the <code>shrink</code> method.
+	 * Grows the given <code>in</code> array with length <code>len</code> compressed
+	 * with the <code>shrink</code> method.
 	 * 
 	 * @return a newly created array with the expanded data.
 	 */
-	byte[] decompress(byte[] in) throws IOException;
+	ByteArray decompress(byte[] in) throws NoPlantumlCompressionException;
 
 }

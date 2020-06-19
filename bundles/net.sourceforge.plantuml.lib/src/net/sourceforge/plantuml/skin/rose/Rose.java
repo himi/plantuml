@@ -142,13 +142,13 @@ public class Rose {
 					getStroke(param, LineParam.sequenceLifeLineBorder, 1.5), param.getIHtmlColorSet());
 		}
 		if (type == ComponentType.ACTOR_HEAD) {
-			return new ComponentRoseActor(param.getActorStyle(), styles == null ? null : styles[0],
+			return new ComponentRoseActor(param.actorStyle(), styles == null ? null : styles[0],
 					styles == null ? null : styles[1], getSymbolContext(stereotype, param, ColorParam.actorBorder),
 					getUFont2(param, FontParam.ACTOR), stringsToDisplay, true, param, newFontForStereotype,
 					getFontColor(param, FontParam.SEQUENCE_STEREOTYPE));
 		}
 		if (type == ComponentType.ACTOR_TAIL) {
-			return new ComponentRoseActor(param.getActorStyle(), styles == null ? null : styles[0],
+			return new ComponentRoseActor(param.actorStyle(), styles == null ? null : styles[0],
 					styles == null ? null : styles[1], getSymbolContext(stereotype, param, ColorParam.actorBorder),
 					getUFont2(param, FontParam.ACTOR), stringsToDisplay, false, param, newFontForStereotype,
 					getFontColor(param, FontParam.SEQUENCE_STEREOTYPE));
@@ -242,14 +242,14 @@ public class Rose {
 				smallFont = smallFont.changeColor(smallColor);
 			}
 			return new ComponentRoseGroupingHeader(styles == null ? null : styles[0], styles == null ? null : styles[1],
-					param.getBackgroundColor(), getSymbolContext(stereotype, param, ColorParam.sequenceGroupBorder),
+					param.getBackgroundColor(true), getSymbolContext(stereotype, param, ColorParam.sequenceGroupBorder),
 					bigFont, smallFont, stringsToDisplay, param, roundCorner);
 		}
 		if (type == ComponentType.GROUPING_ELSE) {
 			return new ComponentRoseGroupingElse(styles == null ? null : styles[0],
 					getHtmlColor(param, stereotype, ColorParam.sequenceGroupBorder),
 					getUFont2(param, FontParam.SEQUENCE_GROUP), stringsToDisplay.get(0), param,
-					param.getBackgroundColor());
+					param.getBackgroundColor(true));
 		}
 		if (type == ComponentType.GROUPING_SPACE) {
 			return new ComponentRoseGroupingSpace(7);

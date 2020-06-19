@@ -44,7 +44,6 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.skin.rose.Rose;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -123,7 +122,7 @@ public final class CucaDiagramFileMakerSvek2InternalImage extends AbstractTextBl
 			final Dimension2D dim = inner.calculateDimension(stringBounder);
 			ug = ug.apply(separator.move(dim));
 			if (i < inners.size() - 1) {
-				separator.drawSeparator(ug.apply(new UChangeColor(dotColor)), dimTotal);
+				separator.drawSeparator(ug.apply(dotColor), dimTotal);
 			}
 		}
 
@@ -139,7 +138,7 @@ public final class CucaDiagramFileMakerSvek2InternalImage extends AbstractTextBl
 	}
 
 	public HColor getBackcolor() {
-		return skinParam.getBackgroundColor();
+		return skinParam.getBackgroundColor(false);
 	}
 	
 	public double getOverscanX(StringBounder stringBounder) {

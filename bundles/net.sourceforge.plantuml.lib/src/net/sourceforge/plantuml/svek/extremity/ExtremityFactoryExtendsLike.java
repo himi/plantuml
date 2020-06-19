@@ -2,6 +2,17 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
  * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
  * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
@@ -19,9 +30,9 @@
  * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  * Creator:  Hisashi Miyashita
  */
-
 package net.sourceforge.plantuml.svek.extremity;
 
 import java.awt.geom.Point2D;
@@ -34,28 +45,28 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 public class ExtremityFactoryExtendsLike extends AbstractExtremityFactory implements ExtremityFactory {
 
 	private final HColor backgroundColor;
-    private final boolean definedBy;
+	private final boolean definedBy;
 
 	public ExtremityFactoryExtendsLike(HColor backgroundColor, boolean definedBy) {
 		this.backgroundColor = backgroundColor;
-        this.definedBy = definedBy;
+		this.definedBy = definedBy;
 	}
 
 	@Override
 	public UDrawable createUDrawable(Point2D p0, double angle, Side side) {
-        if (definedBy) {
-            return new ExtremityExtendsLike.DefinedBy(p0, angle, backgroundColor);
-        } else {
-            return new ExtremityExtendsLike.Redefines(p0, angle, backgroundColor);
-        }
+		if (definedBy) {
+			return new ExtremityExtendsLike.DefinedBy(p0, angle, backgroundColor);
+		} else {
+			return new ExtremityExtendsLike.Redefines(p0, angle, backgroundColor);
+		}
 	}
 
 	public UDrawable createUDrawable(Point2D p0, Point2D p1, Point2D p2, Side side) {
 		final double ortho = atan2(p0, p2) + (Math.PI / 2.0);
-        if (definedBy) {
-            return new ExtremityExtendsLike.DefinedBy(p1, ortho, backgroundColor);
-        } else {
-            return new ExtremityExtendsLike.Redefines(p1, ortho, backgroundColor);
-        }
+		if (definedBy) {
+			return new ExtremityExtendsLike.DefinedBy(p1, ortho, backgroundColor);
+		} else {
+			return new ExtremityExtendsLike.Redefines(p1, ortho, backgroundColor);
+		}
 	}
 }

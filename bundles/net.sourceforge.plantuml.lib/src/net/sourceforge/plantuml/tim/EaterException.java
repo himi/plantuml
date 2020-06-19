@@ -48,8 +48,8 @@ public class EaterException extends Exception {
 		return new EaterException(message);
 	}
 
-	public static EaterException located(String message, StringLocated unused) {
-		return new EaterException(message);
+	public static EaterException located(String message) {
+		return unlocated(message);
 	}
 
 	public final String getMessage() {

@@ -60,7 +60,7 @@ public abstract class CommandMultilines<S extends Diagram> implements Command<S>
 		if (isCommandForbidden()) {
 			return CommandControl.NOT_OK;
 		}
-		Matcher2 m1 = starting.matcher(lines.getFirst499().getTrimmed().getString());
+		Matcher2 m1 = starting.matcher(lines.getFirst().getTrimmed().getString());
 		if (m1.matches() == false) {
 			return CommandControl.NOT_OK;
 		}
@@ -68,7 +68,7 @@ public abstract class CommandMultilines<S extends Diagram> implements Command<S>
 			return CommandControl.OK_PARTIAL;
 		}
 
-		m1 = MyPattern.cmpile(getPatternEnd()).matcher(lines.getLast499().getTrimmed().getString());
+		m1 = MyPattern.cmpile(getPatternEnd()).matcher(lines.getLast().getTrimmed().getString());
 		if (m1.matches() == false) {
 			return CommandControl.OK_PARTIAL;
 		}

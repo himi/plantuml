@@ -50,8 +50,6 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -63,11 +61,15 @@ public class EntityImagePseudoState extends AbstractEntityImage {
 	private final TextBlock desc;
 
 	public EntityImagePseudoState(ILeaf entity, ISkinParam skinParam) {
+		this(entity, skinParam, "H");
+	}
+
+	public EntityImagePseudoState(ILeaf entity, ISkinParam skinParam, String historyText) {
 		super(entity, skinParam);
 		final Stereotype stereotype = entity.getStereotype();
-		this.desc = Display.create("H").create(new FontConfiguration(getSkinParam(), FontParam.STATE, stereotype),
-				HorizontalAlignment.CENTER, skinParam);
-
+		this.desc = Display.create(historyText).create(
+				new FontConfiguration(getSkinParam(), FontParam.STATE, stereotype), HorizontalAlignment.CENTER,
+				skinParam);
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -80,9 +82,8 @@ public class EntityImagePseudoState extends AbstractEntityImage {
 			circle.setDeltaShadow(4);
 		}
 		ug = ug.apply(new UStroke(1.5));
-		ug = ug.apply(
-				new UChangeBackColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBackground)))
-				.apply(new UChangeColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder)));
+		ug = ug.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBackground).bg())
+				.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder));
 		ug.draw(circle);
 		ug = ug.apply(new UStroke());
 

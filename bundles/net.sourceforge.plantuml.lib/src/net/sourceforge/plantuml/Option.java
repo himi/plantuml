@@ -51,6 +51,7 @@ import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 import net.sourceforge.plantuml.preproc.Defines;
+import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.stats.StatsUtils;
 
 public class Option {
@@ -266,8 +267,8 @@ public class Option {
 				if (i == arg.length) {
 					continue;
 				}
-				OptionFlags.getInstance().setLogData(
-						new File(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg[i])));
+				OptionFlags.getInstance()
+						.setLogData(new SFile(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg[i])));
 			} else if (s.equalsIgnoreCase("-word")) {
 				OptionFlags.getInstance().setWord(true);
 				OptionFlags.getInstance().setQuiet(true);
@@ -280,8 +281,6 @@ public class Option {
 				OptionPrint.printVersion();
 			} else if (s.matches("(?i)^-li[sc][ea]n[sc]e\\s*$")) {
 				OptionPrint.printLicense();
-			} else if (s.equalsIgnoreCase("-checkversion")) {
-				OptionPrint.checkVersion();
 			} else if (s.startsWith("-DPLANTUML_LIMIT_SIZE=")) {
 				final String v = s.substring("-DPLANTUML_LIMIT_SIZE=".length());
 				if (v.matches("\\d+")) {
@@ -293,7 +292,8 @@ public class Option {
 				manageSkinParam(s.substring(2));
 			} else if (s.equalsIgnoreCase("-testdot")) {
 				OptionPrint.printTestDot();
-			} else if (s.equalsIgnoreCase("-about") || s.equalsIgnoreCase("-author") || s.equalsIgnoreCase("-authors")) {
+			} else if (s.equalsIgnoreCase("-about") || s.equalsIgnoreCase("-author")
+					|| s.equalsIgnoreCase("-authors")) {
 				OptionPrint.printAbout();
 			} else if (s.equalsIgnoreCase("-help") || s.equalsIgnoreCase("-h") || s.equalsIgnoreCase("-?")) {
 				OptionPrint.printHelp();
@@ -389,23 +389,23 @@ public class Option {
 		return ftpPort;
 	}
 
-	private void addInConfig(final FileReader source) throws IOException {
-		BufferedReader br = null;
+	private void addInConfig(BufferedReader br) throws IOException {
+		if (br == null) {
+			return;
+		}
 		try {
-			br = new BufferedReader(source);
 			String s = null;
 			while ((s = br.readLine()) != null) {
 				config.add(s);
 			}
 		} finally {
-			if (br != null) {
-				br.close();
-			}
+			br.close();
 		}
 	}
 
 	public void initConfig(String filename) throws IOException {
-		addInConfig(new FileReader(filename));
+		final BufferedReader br = new BufferedReader(new FileReader(filename));
+		addInConfig(br);
 	}
 
 	private void initInclude(String filename) throws IOException {
@@ -413,16 +413,16 @@ public class Option {
 			return;
 		}
 		if (filename.contains("*")) {
-			final FileGroup group = new FileGroup(filename, Collections.<String> emptyList(), null);
+			final FileGroup group = new FileGroup(filename, Collections.<String>emptyList(), null);
 			for (File f : group.getFiles()) {
 				if (f.exists() && f.canRead()) {
-					addInConfig(new FileReader(f));
+					addInConfig(new BufferedReader(new FileReader(f)));
 				}
 			}
 		} else {
 			final File f = new File(filename);
 			if (f.exists() && f.canRead()) {
-				addInConfig(new FileReader(f));
+				addInConfig(new BufferedReader(new FileReader(f)));
 			}
 		}
 	}
@@ -455,7 +455,7 @@ public class Option {
 	}
 
 	public final static String getPattern() {
-		return "(?i)^.*\\.(txt|tex|java|htm|html|c|h|cpp|apt|pu|pump|hpp|hh)$";
+		return "(?i)^.*\\.(txt|tex|java|htm|html|c|h|cpp|apt|pu|puml|hpp|hh)$";
 	}
 
 	public void setOutputDir(File f) {
@@ -466,7 +466,19 @@ public class Option {
 		return Collections.unmodifiableList(excludes);
 	}
 
-	public Defines getDefaultDefines(File f) {
+	public Defines getDefaultDefines(SFile f) {
+		final Defines result = Defines.createWithFileName(f);
+		for (Map.Entry<String, String> ent : defines.entrySet()) {
+			String value = ent.getValue();
+			if (value == null) {
+				value = "";
+			}
+			result.define(ent.getKey(), Arrays.asList(value), false, null);
+		}
+		return result;
+	}
+
+	public Defines getDefaultDefines(java.io.File f) {
 		final Defines result = Defines.createWithFileName(f);
 		for (Map.Entry<String, String> ent : defines.entrySet()) {
 			String value = ent.getValue();

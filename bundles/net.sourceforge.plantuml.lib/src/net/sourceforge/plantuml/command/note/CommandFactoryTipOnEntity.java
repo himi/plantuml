@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.command.note;
 
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -123,7 +122,7 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 
 			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) {
 				// StringUtils.trim(lines, false);
-				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst499().getTrimmed().getString());
+				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
 				lines = lines.removeEmptyColumns();
 

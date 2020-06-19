@@ -34,12 +34,11 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.ugraphic.UBackground;
 import net.sourceforge.plantuml.ugraphic.UChange;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UGraphicNo;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UParamNull;
 import net.sourceforge.plantuml.ugraphic.UShape;
@@ -47,8 +46,9 @@ import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class LiveBoxFinder implements UGraphic {
+public class LiveBoxFinder extends UGraphicNo implements UGraphic {
 
 	public boolean matchesProperty(String propertyName) {
 		return false;
@@ -63,9 +63,9 @@ public class LiveBoxFinder implements UGraphic {
 			return new LiveBoxFinder(stringBounder, translate.compose((UTranslate) change));
 		} else if (change instanceof UStroke) {
 			return new LiveBoxFinder(this);
-		} else if (change instanceof UChangeBackColor) {
+		} else if (change instanceof UBackground) {
 			return new LiveBoxFinder(this);
-		} else if (change instanceof UChangeColor) {
+		} else if (change instanceof HColor) {
 			return new LiveBoxFinder(this);
 		}
 		throw new UnsupportedOperationException();
@@ -118,12 +118,6 @@ public class LiveBoxFinder implements UGraphic {
 
 	public ColorMapper getColorMapper() {
 		return new ColorMapperIdentity();
-	}
-
-	public void startUrl(Url url) {
-	}
-
-	public void closeAction() {
 	}
 
 	public void flushUg() {

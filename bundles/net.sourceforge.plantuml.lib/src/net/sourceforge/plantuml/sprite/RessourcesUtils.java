@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.sprite;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -46,6 +45,7 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.version.Version;
 
 public class RessourcesUtils {
@@ -58,7 +58,7 @@ public class RessourcesUtils {
 		if ("file".equals(protocol)) {
 			final URL local = Version.class.getClassLoader().getResource(path);
 			try {
-				return listEntry(new File(local.toURI()));
+				return listEntry(new SFile(local.toURI()));
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 				return null;
@@ -75,7 +75,7 @@ public class RessourcesUtils {
 
 			}
 		}
-		return Collections.<String> emptySet();
+		return Collections.<String>emptySet();
 	}
 
 	private static String getProtocol() {
@@ -111,7 +111,7 @@ public class RessourcesUtils {
 		return result;
 	}
 
-	private static Set<String> listEntry(File dir) {
+	private static Set<String> listEntry(SFile dir) {
 		final Set<String> result = new TreeSet<String>();
 		for (String n : dir.list()) {
 			result.add(n);

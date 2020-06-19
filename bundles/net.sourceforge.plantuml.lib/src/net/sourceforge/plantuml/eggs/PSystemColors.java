@@ -58,8 +58,6 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -91,8 +89,8 @@ public class PSystemColors extends AbstractPSystem implements UDrawable {
 	@Override
 	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
 			throws IOException {
-		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, HColorUtils.WHITE,
-				getMetadata(), null, 0, 0, null, false);
+		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
+				false, null, getMetadata(), null, 1.0, HColorUtils.WHITE);
 		imageBuilder.setUDrawable(this);
 		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
 	}
@@ -188,7 +186,7 @@ public class PSystemColors extends AbstractPSystem implements UDrawable {
 	}
 
 	private UGraphic applyColor(UGraphic ug, HColor color) {
-		return ug.apply(new UChangeColor(color)).apply(new UChangeBackColor(color));
+		return ug.apply(color).apply(color.bg());
 	}
 
 	private Point2D corner(int i) {
@@ -247,7 +245,7 @@ public class PSystemColors extends AbstractPSystem implements UDrawable {
 	private void drawFull(UGraphic ug) {
 		final UFont font = UFont.sansSerif(14).bold();
 
-		ug = ug.apply(new UChangeColor(HColorUtils.BLACK));
+		ug = ug.apply(HColorUtils.BLACK);
 		int i = 0;
 		int j = 0;
 		for (String name : colors.names()) {

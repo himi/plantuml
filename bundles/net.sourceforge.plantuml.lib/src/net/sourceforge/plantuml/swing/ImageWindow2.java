@@ -56,7 +56,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.prefs.Preferences;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -73,6 +72,8 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.GeneratedImage;
 import net.sourceforge.plantuml.ImageSelection;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
+import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
@@ -308,7 +309,7 @@ class ImageWindow2 extends JFrame {
 		final File png = generatedImage.getPngFile();
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new File(png.getAbsolutePath()));
+			image = ImageIO.read(new SFile(png.getAbsolutePath()));
 			if (sizeMode == SizeMode.ZOOM_FIT) {
 				final Dimension imageDim = new Dimension(image.getWidth(), image.getHeight());
 				final Dimension newImgDim = ImageHelper
@@ -327,8 +328,8 @@ class ImageWindow2 extends JFrame {
 		} catch (IOException ex) {
 			final String msg = "Error reading file: " + ex.toString();
 			final TextBlockBackcolored error = GraphicStrings.createForError(Arrays.asList(msg), false);
-			final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, error.getBackcolor(),
-					null, null, 0, 0, null, false);
+			final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
+					false, null, null, null, 1.0, error.getBackcolor());
 			imageBuilder.setUDrawable(error);
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try {

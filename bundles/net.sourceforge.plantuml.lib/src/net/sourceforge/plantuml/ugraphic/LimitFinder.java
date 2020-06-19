@@ -36,7 +36,6 @@ package net.sourceforge.plantuml.ugraphic;
 
 import java.awt.geom.Dimension2D;
 
-import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.activitydiagram3.ftile.CenteredText;
 import net.sourceforge.plantuml.graphic.SpecialText;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -44,8 +43,9 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.posimo.DotPath;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class LimitFinder implements UGraphic {
+public class LimitFinder extends UGraphicNo implements UGraphic {
 
 	public boolean matchesProperty(String propertyName) {
 		return false;
@@ -60,9 +60,9 @@ public class LimitFinder implements UGraphic {
 			return new LimitFinder(stringBounder, minmax, translate.compose((UTranslate) change), clip);
 		} else if (change instanceof UStroke) {
 			return new LimitFinder(this);
-		} else if (change instanceof UChangeBackColor) {
+		} else if (change instanceof UBackground) {
 			return new LimitFinder(this);
-		} else if (change instanceof UChangeColor) {
+		} else if (change instanceof HColor) {
 			return new LimitFinder(this);
 		} else if (change instanceof UHidden) {
 			return new LimitFinder(this);
@@ -179,8 +179,9 @@ public class LimitFinder implements UGraphic {
 	}
 
 	private void drawRectangle(double x, double y, URectangle shape) {
-		addPoint(x, y);
-		addPoint(x + shape.getWidth() - 1, y + shape.getHeight() - 1);
+		addPoint(x - 1, y - 1);
+		addPoint(x + shape.getWidth() - 1 + shape.getDeltaShadow() * 2,
+				y + shape.getHeight() - 1 + shape.getDeltaShadow() * 2);
 	}
 
 	private void drawDotPath(double x, double y, DotPath shape) {
@@ -201,7 +202,8 @@ public class LimitFinder implements UGraphic {
 
 	private void drawEllipse(double x, double y, UEllipse shape) {
 		addPoint(x, y);
-		addPoint(x + shape.getWidth() - 1, y + shape.getHeight() - 1);
+		addPoint(x + shape.getWidth() - 1 + shape.getDeltaShadow() * 2,
+				y + shape.getHeight() - 1 + shape.getDeltaShadow() * 2);
 	}
 
 	private void drawText(double x, double y, UText text) {
@@ -215,12 +217,6 @@ public class LimitFinder implements UGraphic {
 
 	public ColorMapper getColorMapper() {
 		return new ColorMapperIdentity();
-	}
-
-	public void startUrl(Url url) {
-	}
-
-	public void closeAction() {
 	}
 
 	public double getMaxX() {

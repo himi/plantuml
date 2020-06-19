@@ -39,8 +39,8 @@ import java.util.List;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.json.ParseException;
 import net.sourceforge.plantuml.tim.EaterAffectation;
-import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 import net.sourceforge.plantuml.tim.EaterException;
+import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 import net.sourceforge.plantuml.tim.TContext;
 import net.sourceforge.plantuml.tim.TLineType;
 import net.sourceforge.plantuml.tim.TMemory;
@@ -82,7 +82,7 @@ public class CodeIteratorAffectation extends AbstractCodeIterator {
 				return;
 			} catch (ParseException e) {
 				if (e.getColumn() <= lastLocation) {
-					throw EaterException.located("Error in JSON format", result);
+					throw EaterException.located("Error in JSON format");
 				}
 				lastLocation = e.getColumn();
 				next();

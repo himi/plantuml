@@ -43,6 +43,7 @@ import java.util.Map;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -57,6 +58,9 @@ import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.TextBlockWithUrl;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategy;
@@ -76,30 +80,26 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 
 	private final FontParam fontParam;
 	private final ISkinParam skinParam;
-	private final HColor color;
-	private final HColor hyperlinkColor;
-	private final boolean useUnderlineForHyperlink;
 	private final Rose rose = new Rose();
 	private final List<Member> members = new ArrayList<Member>();
 	private final HorizontalAlignment align;
 	private final Stereotype stereotype;
 	private final ILeaf leaf;
+	private final SName diagramType;
 
 	public MethodsOrFieldsArea(List<Member> members, FontParam fontParam, ISkinParam skinParam, Stereotype stereotype,
-			ILeaf leaf) {
-		this(members, fontParam, skinParam, HorizontalAlignment.LEFT, stereotype, leaf);
+			ILeaf leaf, SName diagramType) {
+		this(members, fontParam, skinParam, HorizontalAlignment.LEFT, stereotype, leaf, diagramType);
 	}
 
 	public MethodsOrFieldsArea(List<Member> members, FontParam fontParam, ISkinParam skinParam,
-			HorizontalAlignment align, Stereotype stereotype, ILeaf leaf) {
+			HorizontalAlignment align, Stereotype stereotype, ILeaf leaf, SName diagramType) {
+		this.diagramType = diagramType;
 		this.leaf = leaf;
 		this.stereotype = stereotype;
 		this.align = align;
 		this.skinParam = skinParam;
 		this.fontParam = fontParam;
-		this.color = rose.getFontColor(skinParam, fontParam);
-		this.hyperlinkColor = skinParam.getHyperlinkColor();
-		this.useUnderlineForHyperlink = skinParam.useUnderlineForHyperlink();
 		this.members.addAll(members);
 	}
 
@@ -158,13 +158,23 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		if (withVisibilityChar && s.startsWith("#")) {
 			s = CharHidder.addTileAtBegin(s);
 		}
-		FontConfiguration config = new FontConfiguration(skinParam, fontParam, stereotype);
+		FontConfiguration config;
+		if (SkinParam.USE_STYLES()) {
+//			final Style style = StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component)
+//			.getMergedStyle(skinParam.getCurrentStyleBuilder());
+			final Style style = fontParam.getStyleDefinition(diagramType)
+					.getMergedStyle(skinParam.getCurrentStyleBuilder());
+			config = new FontConfiguration(style, skinParam, stereotype, fontParam);
+		} else {
+			config = new FontConfiguration(skinParam, fontParam, stereotype);
+		}
 		if (m.isAbstract()) {
 			config = config.italic();
 		}
 		if (m.isStatic()) {
 			config = config.underline();
 		}
+
 		TextBlock bloc = Display.getWithNewlines(s).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
 				skinParam.wrapWidth());
 		bloc = TextBlockUtils.fullInnerPosition(bloc, m.getDisplay(false));
@@ -187,7 +197,7 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 			}
 			bloc.drawU(ug);
 			if (url != null) {
-				ug.closeAction();
+				ug.closeUrl();
 			}
 		}
 
@@ -209,9 +219,10 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 
 				public void drawU(UGraphic ug) {
 				}
-				
+
 				@Override
-				public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+				public Rectangle2D getInnerPosition(String member, StringBounder stringBounder,
+						InnerStrategy strategy) {
 					return null;
 				}
 
@@ -220,8 +231,8 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 				}
 			};
 		}
-		final HColor back = modifier.getBackground() == null ? null : rose.getHtmlColor(skinParam,
-				modifier.getBackground());
+		final HColor back = modifier.getBackground() == null ? null
+				: rose.getHtmlColor(skinParam, modifier.getBackground());
 		final HColor fore = rose.getHtmlColor(skinParam, modifier.getForeground());
 
 		final TextBlock uBlock = modifier.getUBlock(skinParam.classAttributeIconSize(), fore, back, url != null);
@@ -251,8 +262,8 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 	private ULayoutGroup getLayout(final StringBounder stringBounder) {
 		final ULayoutGroup group;
 		if (hasSmallIcon()) {
-			group = new ULayoutGroup(new PlacementStrategyVisibility(stringBounder,
-					skinParam.getCircledCharacterRadius() + 3));
+			group = new ULayoutGroup(
+					new PlacementStrategyVisibility(stringBounder, skinParam.getCircledCharacterRadius() + 3));
 			for (Member att : members) {
 				final TextBlock bloc = createTextBlock(att);
 				final VisibilityModifier modifier = att.getVisibilityModifier();

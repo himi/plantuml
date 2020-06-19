@@ -2,6 +2,17 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
  * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
  * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
@@ -19,7 +30,8 @@
  * limitations under the License.
  * 
  *
- * Original Author:  Hisashi Miyashita
+ * Original Author:  Arnaud Roques
+ * Creator:  Hisashi Miyashita
  */
 
 package net.sourceforge.plantuml.svek.image;
@@ -42,19 +54,18 @@ import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.ShapeType;
 
 public abstract class AbstractEntityImageBorder extends AbstractEntityImage {
-    public final EntityPosition entityPosition;
+	public final EntityPosition entityPosition;
 	protected final Cluster parent;
 	protected final Bibliotekon bibliotekon;
 	protected final Rankdir rankdir;
 
 	protected final TextBlock desc;
 
-    AbstractEntityImageBorder(ILeaf leaf, ISkinParam skinParam, Cluster parent,
-    	                      Bibliotekon bibliotekon,
-                             FontParam fontParam) {
-    	super(leaf, skinParam);
+	AbstractEntityImageBorder(ILeaf leaf, ISkinParam skinParam, Cluster parent, Bibliotekon bibliotekon,
+			FontParam fontParam) {
+		super(leaf, skinParam);
 
-        this.parent = parent;
+		this.parent = parent;
 		this.bibliotekon = bibliotekon;
 		this.entityPosition = leaf.getEntityPosition();
 		this.rankdir = skinParam.getRankdir();
@@ -64,9 +75,9 @@ public abstract class AbstractEntityImageBorder extends AbstractEntityImage {
 		}
 
 		final Stereotype stereotype = leaf.getStereotype();
-        final FontConfiguration fc = new FontConfiguration(skinParam, fontParam, stereotype);
+		final FontConfiguration fc = new FontConfiguration(skinParam, fontParam, stereotype);
 		this.desc = leaf.getDisplay().create(fc, HorizontalAlignment.CENTER, skinParam);
-    }
+	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		return entityPosition.getDimension(rankdir);

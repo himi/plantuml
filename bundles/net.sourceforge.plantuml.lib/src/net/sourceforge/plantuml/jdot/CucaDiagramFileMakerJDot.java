@@ -41,13 +41,6 @@ import static gen.lib.cgraph.node__c.agnode;
 import static gen.lib.cgraph.subg__c.agsubg;
 import static gen.lib.gvc.gvc__c.gvContext;
 import static gen.lib.gvc.gvlayout__c.gvLayoutJobs;
-import h.ST_Agedge_s;
-import h.ST_Agnode_s;
-import h.ST_Agnodeinfo_t;
-import h.ST_Agraph_s;
-import h.ST_Agraphinfo_t;
-import h.ST_GVC_s;
-import h.ST_boxf;
 
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
@@ -55,17 +48,23 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import net.sourceforge.plantuml.ColorParam;
+import h.ST_Agedge_s;
+import h.ST_Agnode_s;
+import h.ST_Agnodeinfo_t;
+import h.ST_Agraph_s;
+import h.ST_Agraphinfo_t;
+import h.ST_GVC_s;
+import h.ST_boxf;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.api.ImageDataSimple;
@@ -77,7 +76,6 @@ import net.sourceforge.plantuml.cucadiagram.GroupType;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
-import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.Member;
 import net.sourceforge.plantuml.cucadiagram.MethodsOrFieldsArea;
@@ -93,7 +91,8 @@ import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.USymbol;
-import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.Bibliotekon;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.CucaDiagramFileMaker;
@@ -106,7 +105,6 @@ import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
 import smetana.core.CString;
 import smetana.core.JUtils;
 import smetana.core.JUtilsDebug;
@@ -238,7 +236,7 @@ public class CucaDiagramFileMakerJDot implements CucaDiagramFileMaker {
 				attribute = new TextBlockEmpty();
 			} else {
 				attribute = new MethodsOrFieldsArea(members, FontParam.STATE_ATTRIBUTE, diagram.getSkinParam(),
-						g.getStereotype(), null);
+						g.getStereotype(), null, SName.stateDiagram);
 			}
 			final Dimension2D dimAttribute = attribute.calculateDimension(stringBounder);
 			final double attributeHeight = dimAttribute.getHeight();
@@ -420,9 +418,18 @@ public class CucaDiagramFileMakerJDot implements CucaDiagramFileMaker {
 
 			final double scale = 1;
 
-			final ImageBuilder imageBuilder = new ImageBuilder(diagram.getSkinParam(), scale,
-					fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null, null, 0, 10,
-					diagram.getAnimation());
+			final int margin1;
+			final int margin2;
+			if (SkinParam.USE_STYLES()) {
+				margin1 = SkinParam.zeroMargin(0);
+				margin2 = SkinParam.zeroMargin(10);
+			} else {
+				margin1 = 0;
+				margin2 = 10;
+			}
+			final ImageBuilder imageBuilder = ImageBuilder.buildD(diagram.getSkinParam(),
+					ClockwiseTopRightBottomLeft.margin1margin2(margin1, margin2), diagram.getAnimation(),
+					fileFormatOption.isWithMetadata() ? diagram.getMetadata() : null, null, scale);
 
 			imageBuilder.setUDrawable(new Drawing(null));
 			final Dimension2D dim = imageBuilder.getFinalDimension(stringBounder);

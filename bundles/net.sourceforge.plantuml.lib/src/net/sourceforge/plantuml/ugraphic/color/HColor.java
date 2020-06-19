@@ -34,8 +34,11 @@
  */
 package net.sourceforge.plantuml.ugraphic.color;
 
+import net.sourceforge.plantuml.ugraphic.UBackground;
+import net.sourceforge.plantuml.ugraphic.UChange;
 
-public interface HColor {
+public interface HColor extends UChange {
 
+	public UBackground bg();
 
 }

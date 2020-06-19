@@ -82,14 +82,15 @@ public class CreoleHorizontalLine extends AbstractAtom implements Atom {
 		if (line.length() == 0) {
 			return TextBlockUtils.empty(0, 0);
 		}
-		final CreoleParser parser = new CreoleParser(fontConfiguration, HorizontalAlignment.LEFT, skinParam, CreoleMode.FULL);
+		final SheetBuilder parser = Parser.build(fontConfiguration, HorizontalAlignment.LEFT, skinParam,
+				CreoleMode.FULL);
 		final Sheet sheet = parser.createSheet(Display.getWithNewlines(line));
 		final TextBlock tb = new SheetBlock1(sheet, LineBreakStrategy.NONE, skinParam.getPadding());
 		return tb;
 	}
 
 	public void drawU(UGraphic ug) {
-		// ug = ug.apply(new UChangeColor(fontConfiguration.getColor()));
+		// ug = ug.apply(UChangeColor.nnn(fontConfiguration.getColor()));
 		final Dimension2D dim = calculateDimension(ug.getStringBounder());
 		ug = ug.apply(UTranslate.dy(dim.getHeight() / 2));
 		ug.draw(getHorizontalLine());
@@ -106,5 +107,5 @@ public class CreoleHorizontalLine extends AbstractAtom implements Atom {
 	public double getStartingAltitude(StringBounder stringBounder) {
 		return 0;
 	}
-	
+
 }

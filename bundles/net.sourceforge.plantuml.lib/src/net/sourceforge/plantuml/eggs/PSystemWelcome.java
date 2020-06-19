@@ -70,7 +70,7 @@ public class PSystemWelcome extends AbstractPSystem {
 		strings.add(" ");
 		strings.add("\"\"class Example\"\"");
 		strings.add(" ");
-		strings.add("You will find more information about PlantUML syntax on <u>http://plantuml.com</u>");
+		strings.add("You will find more information about PlantUML syntax on <u>https://plantuml.com</u>");
 		if (position == GraphicPosition.BACKGROUND_CORNER_BOTTOM_RIGHT) {
 			strings.add(" ");
 			strings.add(" ");
@@ -83,8 +83,8 @@ public class PSystemWelcome extends AbstractPSystem {
 	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
 			throws IOException {
 		final TextBlockBackcolored result = getGraphicStrings();
-		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, result.getBackcolor(),
-				getMetadata(), null, 0, 0, null, false);
+		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
+				false, null, getMetadata(), null, 1.0, result.getBackcolor());
 		imageBuilder.setUDrawable(result);
 		// imageBuilder.setUDrawable(TextBlockUtils.withMargin(result, 4, 4));
 		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);

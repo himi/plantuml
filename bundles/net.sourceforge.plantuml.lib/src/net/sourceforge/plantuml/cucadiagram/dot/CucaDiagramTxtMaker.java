@@ -35,10 +35,8 @@
 package net.sourceforge.plantuml.cucadiagram.dot;
 
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,6 +58,8 @@ import net.sourceforge.plantuml.posimo.Block;
 import net.sourceforge.plantuml.posimo.Cluster;
 import net.sourceforge.plantuml.posimo.GraphvizSolverB;
 import net.sourceforge.plantuml.posimo.Path;
+import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
 
@@ -109,19 +109,20 @@ public final class CucaDiagramTxtMaker {
 		for (Link link : diagram.getLinks()) {
 			final Block b1 = blocks.get(link.getEntity1());
 			final Block b2 = blocks.get(link.getEntity2());
-			paths.add(new Path(b1, b2, null, link.getLength()));
+			paths.add(new Path(b1, b2, null, link.getLength(), link.isInvis()));
 		}
 		solver.solve(root, paths);
 		for (Path p : paths) {
+			if (p.isInvis()) {
+				continue;
+			}
 			p.getDotPath().draw(globalUg.getCharArea(), getXPixelPerChar(), getYPixelPerChar());
 		}
 		for (IEntity ent : diagram.getLeafsvalues()) {
 			final Block b = blocks.get(ent);
 			final Point2D p = b.getPosition();
-			printClass(
-					ent,
-					(UGraphicTxt) globalUg.apply(new UTranslate(p.getX() / getXPixelPerChar(), p.getY()
-									/ getYPixelPerChar())));
+			printClass(ent, (UGraphicTxt) globalUg
+					.apply(new UTranslate(p.getX() / getXPixelPerChar(), p.getY() / getYPixelPerChar())));
 		}
 
 	}
@@ -150,11 +151,11 @@ public final class CucaDiagramTxtMaker {
 		}
 	}
 
-	public List<File> createFiles(File suggestedFile) throws IOException {
+	public List<SFile> createFiles(SFile suggestedFile) throws IOException {
 		if (fileFormat == FileFormat.UTXT) {
-			globalUg.getCharArea().print(new PrintStream(suggestedFile, "UTF-8"));
+			globalUg.getCharArea().print(suggestedFile.createPrintStream("UTF-8"));
 		} else {
-			globalUg.getCharArea().print(new PrintStream(suggestedFile));
+			globalUg.getCharArea().print(suggestedFile.createPrintStream());
 		}
 		return Collections.singletonList(suggestedFile);
 	}
@@ -194,7 +195,7 @@ public final class CucaDiagramTxtMaker {
 	}
 
 	public void createFiles(OutputStream os, int index) {
-		globalUg.getCharArea().print(new PrintStream(os));
+		globalUg.getCharArea().print(SecurityUtils.createPrintStream(os));
 	}
 
 }

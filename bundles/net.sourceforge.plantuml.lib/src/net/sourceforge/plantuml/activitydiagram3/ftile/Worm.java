@@ -46,8 +46,6 @@ import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.cucadiagram.LinkStyle;
 import net.sourceforge.plantuml.graphic.HtmlColorAndStyle;
 import net.sourceforge.plantuml.ugraphic.MinMax;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -70,18 +68,18 @@ public class Worm implements Iterable<Point2D.Double> {
 		this.ignoreForCompression = true;
 	}
 
-	public void drawInternalOneColor(UPolygon startDecoration, UGraphic ug, HtmlColorAndStyle color, double stroke,
-			Direction emphasizeDirection, UPolygon endDecoration) {
-		final HColor color2 = color.getColor();
-		if (color2 == null) {
+	public void drawInternalOneColor(UPolygon startDecoration, UGraphic ug, HtmlColorAndStyle colorAndStyle,
+			double stroke, Direction emphasizeDirection, UPolygon endDecoration) {
+		final HColor arrowColor = colorAndStyle.getArrowColor();
+		if (arrowColor == null) {
 			throw new IllegalArgumentException();
 		}
-		final LinkStyle style = color.getStyle();
+		final LinkStyle style = colorAndStyle.getStyle();
 		if (style.isInvisible()) {
 			return;
 		}
-		ug = ug.apply(new UChangeColor(color2));
-		ug = ug.apply(new UChangeBackColor(color2));
+		ug = ug.apply(arrowColor);
+		ug = ug.apply(arrowColor.bg());
 		if (style.isNormal()) {
 			ug = ug.apply(new UStroke(stroke));
 		} else {
@@ -99,6 +97,17 @@ public class Worm implements Iterable<Point2D.Double> {
 				drawLine(ug, line, null);
 			}
 		}
+
+		final HColor arrowHeadColor = colorAndStyle.getArrowHeadColor();
+		if (arrowHeadColor == null) {
+			throw new IllegalStateException();
+		}
+//		if (arrowHeadColor == null || arrowHeadColor.equals(HColorUtils.transparent())) {
+//			return;
+//		}
+		ug = ug.apply(arrowHeadColor);
+		ug = ug.apply(arrowHeadColor.bg());
+
 		if (startDecoration != null) {
 			ug = ug.apply(new UStroke(1.5));
 			final Point2D start = points.get(0);
@@ -205,6 +214,12 @@ public class Worm implements Iterable<Point2D.Double> {
 	}
 
 	public void addPoint(double x, double y) {
+		if (Double.isNaN(x)) {
+			throw new IllegalArgumentException();
+		}
+		if (Double.isNaN(y)) {
+			throw new IllegalArgumentException();
+		}
 		if (points.size() > 0) {
 			final Point2D last = getLast();
 			if (last.getX() == x && last.getY() == y) {
@@ -351,7 +366,8 @@ public class Worm implements Iterable<Point2D.Double> {
 		for (int i = 0; i < points.size() - 5; i++) {
 			final List<Direction> patternAt = getPatternAt(i);
 			if (Arrays.asList(Direction.DOWN, Direction.LEFT, Direction.DOWN, Direction.RIGHT).equals(patternAt)
-					|| Arrays.asList(Direction.DOWN, Direction.RIGHT, Direction.DOWN, Direction.LEFT).equals(patternAt)) {
+					|| Arrays.asList(Direction.DOWN, Direction.RIGHT, Direction.DOWN, Direction.LEFT)
+							.equals(patternAt)) {
 				final Point2D.Double newPoint = new Point2D.Double(points.get(i + 1).x, points.get(i + 3).y);
 				points.remove(i + 3);
 				points.remove(i + 2);
@@ -399,7 +415,8 @@ public class Worm implements Iterable<Point2D.Double> {
 		for (int i = 0; i < points.size() - 4; i++) {
 			final List<Direction> patternAt = getPatternAt(i);
 			if (Arrays.asList(Direction.DOWN, Direction.RIGHT, Direction.DOWN, Direction.RIGHT).equals(patternAt)
-					|| Arrays.asList(Direction.DOWN, Direction.LEFT, Direction.DOWN, Direction.LEFT).equals(patternAt)) {
+					|| Arrays.asList(Direction.DOWN, Direction.LEFT, Direction.DOWN, Direction.LEFT)
+							.equals(patternAt)) {
 				final Point2D.Double newPoint = new Point2D.Double(points.get(i + 1).x, points.get(i + 3).y);
 				points.remove(i + 3);
 				points.remove(i + 2);

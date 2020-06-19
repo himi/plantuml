@@ -55,6 +55,7 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
@@ -75,14 +76,14 @@ public class EntityImageLollipopInterfaceEye2 extends AbstractEntityImage {
 		super(entity, skinParam);
 		final Stereotype stereotype = entity.getStereotype();
 
-		final USymbol symbol = entity.getUSymbol() == null ? (skinParam.useUml2ForComponent() ? USymbol.COMPONENT2
-				: USymbol.COMPONENT1) : entity.getUSymbol();
+		final USymbol symbol = entity.getUSymbol() == null ? skinParam.componentStyle().toUSymbol()
+				: entity.getUSymbol();
 		if (symbol == null) {
 			throw new IllegalArgumentException();
 		}
 
 		this.desc = new BodyEnhanced(entity.getDisplay(), symbol.getFontParam(), skinParam, HorizontalAlignment.CENTER,
-				stereotype, symbol.manageHorizontalLine(), false, entity);
+				stereotype, symbol.manageHorizontalLine(), false, entity, SName.componentDiagram);
 
 		this.url = entity.getUrl99();
 
@@ -92,8 +93,8 @@ public class EntityImageLollipopInterfaceEye2 extends AbstractEntityImage {
 		}
 		// backcolor = HtmlColorUtils.BLUE;
 		final HColor forecolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), symbol.getColorParamBorder());
-		this.ctx = new SymbolContext(backcolor, forecolor).withStroke(new UStroke(1.5)).withShadow(
-				getSkinParam().shadowing(getEntity().getStereotype()) ? 3 : 0);
+		this.ctx = new SymbolContext(backcolor, forecolor).withStroke(new UStroke(1.5))
+				.withShadow(getSkinParam().shadowing(getEntity().getStereotype()) ? 3 : 0);
 
 		if (stereotype != null && stereotype.getLabel(Guillemet.DOUBLE_COMPARATOR) != null
 				&& portionShower.showPortion(EntityPortion.STEREOTYPE, entity)) {
@@ -131,7 +132,7 @@ public class EntityImageLollipopInterfaceEye2 extends AbstractEntityImage {
 		stereo.drawU(ug.apply(new UTranslate(x2, y2)));
 
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 	}
 

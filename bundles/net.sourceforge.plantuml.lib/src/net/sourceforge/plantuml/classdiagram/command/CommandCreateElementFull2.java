@@ -31,12 +31,12 @@
  * 
  *
  * Original Author:  Arnaud Roques
+ * Contribution :  Hisashi Miyashita
  */
 package net.sourceforge.plantuml.classdiagram.command;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -177,15 +177,9 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 
 		if (symbol == null) {
 			type = LeafType.DESCRIPTION;
-			usymbol = diagram.getSkinParam().getActorStyle().getUSymbol();
+			usymbol = diagram.getSkinParam().actorStyle().toUSymbol();
 		} else if (symbol.equalsIgnoreCase("port")) {
 			type = LeafType.PORT;
-			usymbol = null;
-		} else if (symbol.equalsIgnoreCase("portin")) {
-			type = LeafType.PORTIN;
-			usymbol = null;
-		} else if (symbol.equalsIgnoreCase("portout")) {
-			type = LeafType.PORTOUT;
 			usymbol = null;
 		} else if (symbol.equalsIgnoreCase("usecase")) {
 			type = LeafType.USECASE;
@@ -195,7 +189,7 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 			usymbol = null;
 		} else {
 			type = LeafType.DESCRIPTION;
-			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam());
+			usymbol = USymbol.fromString(symbol, diagram.getSkinParam());
 			if (usymbol == null) {
 				throw new IllegalStateException();
 			}

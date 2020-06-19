@@ -37,13 +37,15 @@ package net.sourceforge.plantuml.graphic;
 import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.ugraphic.AbstractUGraphicHorizontalLine;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UEmpty;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UHorizontalLine;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 class USymbolNode extends USymbol {
 
@@ -80,6 +82,9 @@ class USymbolNode extends USymbol {
 		ug.apply(new UTranslate(width - 10, 10)).draw(new ULine(9, -9));
 		ug.apply(UTranslate.dy(10)).draw(ULine.hline(width - 10));
 		ug.apply(new UTranslate(width - 10, 10)).draw(ULine.vline(height - 10));
+		if (SkinParam.USE_STYLES()) {
+			ug.apply(new UTranslate(0, height)).draw(new UEmpty(10, 10));
+		}
 
 	}
 
@@ -109,7 +114,7 @@ class USymbolNode extends USymbol {
 		}
 
 		private void drawHlineInternal(UGraphic ug, UHorizontalLine line) {
-			ug = ug.apply(line.getStroke()).apply(new UChangeBackColor(null));
+			ug = ug.apply(line.getStroke()).apply(new HColorNone().bg());
 			ug.draw(ULine.hline(endingX - 10));
 			ug.apply(UTranslate.dx(endingX - 10)).draw(new ULine(10, -10));
 		}

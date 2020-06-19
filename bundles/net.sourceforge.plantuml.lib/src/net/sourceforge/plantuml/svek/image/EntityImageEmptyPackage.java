@@ -42,7 +42,6 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.Display;
@@ -56,9 +55,11 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.ClusterDecoration;
+import net.sourceforge.plantuml.svek.GeneralImageBuilder;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -73,9 +74,11 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 	private final Stereotype stereotype;
 	private final TextBlock stereoBlock;
 	private final Url url;
+	private final SName styleName;
 
-	public EntityImageEmptyPackage(ILeaf entity, ISkinParam skinParam, PortionShower portionShower) {
+	public EntityImageEmptyPackage(ILeaf entity, ISkinParam skinParam, PortionShower portionShower, SName styleName) {
 		super(entity, skinParam);
+		this.styleName = styleName;
 		this.skinParam = skinParam;
 		this.specificBackColor = entity.getColors(skinParam).getColor(ColorType.BACK);
 		this.stereotype = entity.getStereotype();
@@ -87,28 +90,19 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 				|| portionShower.showPortion(EntityPortion.STEREOTYPE, entity) == false) {
 			stereoBlock = TextBlockUtils.empty(0, 0);
 		} else {
-			stereoBlock = TextBlockUtils.withMargin(
-					Display.create(stereotype.getLabels(skinParam.guillemet())).create(
-							new FontConfiguration(getSkinParam(), FontParam.PACKAGE_STEREOTYPE, stereotype),
-							HorizontalAlignment.CENTER, skinParam), 1, 0);
+			stereoBlock = TextBlockUtils.withMargin(Display.create(stereotype.getLabels(skinParam.guillemet())).create(
+					new FontConfiguration(getSkinParam(), FontParam.PACKAGE_STEREOTYPE, stereotype),
+					HorizontalAlignment.CENTER, skinParam), 1, 0);
 		}
 
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		final Dimension2D dimDesc = desc.calculateDimension(stringBounder);
-		Dimension2D dim = TextBlockUtils.mergeTB(desc, stereoBlock, HorizontalAlignment.LEFT).calculateDimension(
-				stringBounder);
+		Dimension2D dim = TextBlockUtils.mergeTB(desc, stereoBlock, HorizontalAlignment.LEFT)
+				.calculateDimension(stringBounder);
 		dim = Dimension2DDouble.atLeast(dim, 0, 2 * dimDesc.getHeight());
 		return Dimension2DDouble.delta(dim, MARGIN * 2, MARGIN * 2);
-	}
-
-	private UStroke getStroke() {
-		UStroke stroke = getSkinParam().getThickness(LineParam.packageBorder, getStereo());
-		if (stroke == null) {
-			stroke = new UStroke(1.5);
-		}
-		return stroke;
 	}
 
 	final public void drawU(UGraphic ug) {
@@ -122,11 +116,12 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 		final double widthTotal = dimTotal.getWidth();
 		final double heightTotal = dimTotal.getHeight();
 
-		final HColor back = Cluster.getBackColor(specificBackColor, skinParam, stereotype);
+		final HColor back = Cluster.getBackColor(specificBackColor, skinParam, stereotype, styleName);
 		final double roundCorner = 0;
 
-		final ClusterDecoration decoration = new ClusterDecoration(getSkinParam().getPackageStyle(), null, desc,
-				stereoBlock, 0, 0, widthTotal, heightTotal, getStroke());
+		final UStroke stroke = GeneralImageBuilder.getForcedStroke(getEntity().getStereotype(), getSkinParam());
+		final ClusterDecoration decoration = new ClusterDecoration(getSkinParam().packageStyle(), null, desc,
+				stereoBlock, 0, 0, widthTotal, heightTotal, stroke);
 
 		final double shadowing = getSkinParam().shadowing(getEntity().getStereotype()) ? 3 : 0;
 		decoration.drawU(ug, back, SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.packageBorder),
@@ -135,7 +130,7 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 				getSkinParam().getStereotypeAlignment());
 
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 
 	}

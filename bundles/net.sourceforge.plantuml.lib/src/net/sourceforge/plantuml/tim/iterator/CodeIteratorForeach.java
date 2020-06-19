@@ -38,8 +38,8 @@ import java.util.List;
 
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.json.JsonValue;
-import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 import net.sourceforge.plantuml.tim.EaterException;
+import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 import net.sourceforge.plantuml.tim.EaterForeach;
 import net.sourceforge.plantuml.tim.ExecutionContextForeach;
 import net.sourceforge.plantuml.tim.TContext;
@@ -92,7 +92,7 @@ public class CodeIteratorForeach extends AbstractCodeIterator {
 			} else if (result.getType() == TLineType.ENDFOREACH) {
 				logs.add(result);
 				if (foreach == null) {
-					throw EaterException.located("No foreach related to this endforeach", result);
+					throw EaterException.located("No foreach related to this endforeach");
 				}
 				foreach.inc();
 				if (foreach.isSkipMe()) {

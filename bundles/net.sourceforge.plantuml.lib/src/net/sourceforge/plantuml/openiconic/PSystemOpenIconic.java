@@ -39,8 +39,10 @@ import java.io.OutputStream;
 
 import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
@@ -61,14 +63,23 @@ public class PSystemOpenIconic extends AbstractPSystem {
 		final OpenIcon icon = OpenIcon.retrieve(iconName);
 		// final Dimension2D dim = new Dimension2DDouble(100, 100);
 
-		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, null, null, null, 5, 5,
-				null, false);
+		final int margin1;
+		final int margin2;
+		if (SkinParam.USE_STYLES()) {
+			margin1 = SkinParam.zeroMargin(5);
+			margin2 = SkinParam.zeroMargin(5);
+		} else {
+			margin1 = 5;
+			margin2 = 5;
+		}
+		final ImageBuilder imageBuilder = ImageBuilder.buildB(new ColorMapperIdentity(), false, ClockwiseTopRightBottomLeft.margin1margin2((double) margin1, (double) margin2),
+		null, null, null, 1.0, null);
 		imageBuilder.setUDrawable(icon.asTextBlock(HColorUtils.BLACK, factor));
 		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
 
 		// UGraphic2 ug = fileFormat.createUGraphic(dim);
 		// ug = (UGraphic2) ug.apply(new UTranslate(10, 10));
-		// // ug = ug.apply(new UChangeColor(HtmlColorUtils.BLACK));
+		// // ug = ug.apply(UChangeColor.nnn(HtmlColorUtils.BLACK));
 		// // ug.draw(new URectangle(7, 6));
 		// icon.asTextBlock(HtmlColorUtils.BLACK, factor).drawU(ug);
 		// ug.writeImageTOBEMOVED(os, null, 96);

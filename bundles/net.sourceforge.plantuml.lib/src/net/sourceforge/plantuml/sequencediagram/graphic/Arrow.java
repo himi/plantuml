@@ -39,7 +39,6 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.sequencediagram.InGroupable;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.skin.ArrowComponent;
-import net.sourceforge.plantuml.skin.rose.AbstractComponentRoseArrow;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 
@@ -86,7 +85,7 @@ abstract class Arrow extends GraphicalElement implements InGroupable {
 
 	protected final void endUrl(UGraphic ug) {
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 	}
 

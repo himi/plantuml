@@ -41,7 +41,6 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.project.time.Wink;
 import net.sourceforge.plantuml.project.timescale.TimeScale;
 import net.sourceforge.plantuml.project.timescale.TimeScaleWink;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -71,8 +70,8 @@ public class TimeHeaderSimple extends TimeHeader {
 		final double xmin = getTimeScale().getStartingPosition(min);
 		final double xmax = getTimeScale().getEndingPosition(max);
 		drawSimpleDayCounter(ug, getTimeScale(), totalHeight);
-		ug.apply(new UChangeColor(HColorUtils.LIGHT_GRAY)).draw(ULine.hline(xmax - xmin));
-		ug.apply(new UChangeColor(HColorUtils.LIGHT_GRAY)).apply(UTranslate.dy(getFullHeaderHeight() - 3))
+		ug.apply(HColorUtils.LIGHT_GRAY).draw(ULine.hline(xmax - xmin));
+		ug.apply(HColorUtils.LIGHT_GRAY).apply(UTranslate.dy(getFullHeaderHeight() - 3))
 				.draw(ULine.hline(xmax - xmin));
 
 	}
@@ -89,7 +88,7 @@ public class TimeHeaderSimple extends TimeHeader {
 			if (i.compareTo(max.increment()) < 0) {
 				num.drawU(ug.apply(UTranslate.dx(x1 + delta / 2)));
 			}
-			ug.apply(new UChangeColor(HColorUtils.LIGHT_GRAY)).apply(UTranslate.dx(x1)).draw(vbar);
+			ug.apply(HColorUtils.LIGHT_GRAY).apply(UTranslate.dx(x1)).draw(vbar);
 		}
 	}
 

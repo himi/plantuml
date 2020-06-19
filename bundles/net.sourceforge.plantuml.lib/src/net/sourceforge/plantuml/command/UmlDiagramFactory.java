@@ -127,7 +127,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		final CommandExecutionResult result = sys.executeCommand(step.command, step.blocLines);
 		if (result.isOk() == false) {
 			final ErrorUml err = new ErrorUml(ErrorUmlType.EXECUTION_ERROR, result.getError(),
-					((StringLocated) step.blocLines.getFirst499()).getLocation());
+					((StringLocated) step.blocLines.getFirst()).getLocation());
 			sys = PSystemErrorUtils.buildV2(source, err, result.getDebugLines(), it.getTrace());
 		}
 		if (result.getNewDiagram() != null) {
@@ -149,7 +149,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 	}
 
 	private Step getCandidate(final IteratorCounter2 it) {
-		final BlocLines single = BlocLines.single2(it.peek());
+		final BlocLines single = BlocLines.single(it.peek());
 		if (cmds == null) {
 			cmds = createCommands();
 		}
@@ -195,11 +195,11 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 
 	private BlocLines addOneSingleLineManageEmbedded2(IteratorCounter2 it, BlocLines lines) {
 		final StringLocated linetoBeAdded = it.next();
-		lines = lines.add2(linetoBeAdded);
+		lines = lines.add(linetoBeAdded);
 		if (linetoBeAdded.getTrimmed().getString().equals("{{")) {
 			while (it.hasNext()) {
 				final StringLocated s = it.next();
-				lines = lines.add2(s);
+				lines = lines.add(s);
 				if (s.getTrimmed().getString().equals("}}")) {
 					return lines;
 				}
@@ -218,12 +218,9 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		addTitleCommands(cmds);
 		addCommonCommands2(cmds);
 		addCommonHides(cmds);
-		cmds.add(new CommandStyleMultilinesCSS());
-		cmds.add(new CommandStyleImport());
 	}
 
 	final protected void addCommonCommands2(List<Command> cmds) {
-		// cmds.add(new CommandListSprite());
 		cmds.add(new CommandNope());
 		cmds.add(new CommandPragma());
 
@@ -244,6 +241,10 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		cmds.add(factorySpriteCommand.createMultiLine(false));
 		cmds.add(factorySpriteCommand.createSingleLine());
 		cmds.add(new CommandSpriteFile());
+
+		cmds.add(new CommandStyleMultilinesCSS());
+		cmds.add(new CommandStyleImport());
+
 	}
 
 	final protected void addCommonHides(List<Command> cmds) {
@@ -257,6 +258,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		cmds.add(new CommandTitle());
 		cmds.add(new CommandMainframe());
 		cmds.add(new CommandCaption());
+		cmds.add(new CommandMultilinesCaption());
 		cmds.add(new CommandMultilinesTitle());
 		cmds.add(new CommandMultilinesLegend());
 

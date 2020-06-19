@@ -78,7 +78,7 @@ public class AtomOpenIcon extends AbstractAtom implements Atom {
 		}
 		asTextBlock().drawU(ug);
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 	}
 

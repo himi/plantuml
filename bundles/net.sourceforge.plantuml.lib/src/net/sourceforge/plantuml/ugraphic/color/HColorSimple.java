@@ -36,7 +36,7 @@ package net.sourceforge.plantuml.ugraphic.color;
 
 import java.awt.Color;
 
-public class HColorSimple implements HColor {
+public class HColorSimple extends HColorAbstract implements HColor {
 
 	private final Color color;
 	private final boolean monochrome;
@@ -44,6 +44,14 @@ public class HColorSimple implements HColor {
 	@Override
 	public int hashCode() {
 		return color.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		if (color.getAlpha() == 0) {
+			return "transparent";
+		}
+		return color.toString() + " alpha=" + color.getAlpha() + " monochrome=" + monochrome;
 	}
 
 	@Override

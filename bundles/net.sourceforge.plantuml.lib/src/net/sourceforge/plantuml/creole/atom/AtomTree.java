@@ -43,7 +43,6 @@ import java.util.Map;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.salt.element.Skeleton2;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -54,7 +53,7 @@ public class AtomTree extends AbstractAtom implements Atom {
 	private final List<Atom> cells = new ArrayList<Atom>();
 	private final Map<Atom, Integer> levels = new HashMap<Atom, Integer>();
 	private final double margin = 2;
-	
+
 	public AtomTree(HColor lineColor) {
 		this.lineColor = lineColor;
 	}
@@ -88,7 +87,7 @@ public class AtomTree extends AbstractAtom implements Atom {
 			ug = ug.apply(UTranslate.dy(dim.getHeight()));
 			y += dim.getHeight();
 		}
-		skeleton.draw(ugInit.apply(new UChangeColor(this.lineColor)));
+		skeleton.draw(ugInit.apply(this.lineColor));
 	}
 
 	private int getLevel(Atom atom) {
@@ -99,5 +98,5 @@ public class AtomTree extends AbstractAtom implements Atom {
 		this.cells.add(cell);
 		this.levels.put(cell, level);
 	}
-	
+
 }

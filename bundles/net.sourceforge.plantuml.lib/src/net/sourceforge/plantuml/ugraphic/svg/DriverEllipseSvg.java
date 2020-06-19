@@ -34,7 +34,6 @@
  */
 package net.sourceforge.plantuml.ugraphic.svg;
 
-import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.svg.SvgGraphics;
 import net.sourceforge.plantuml.ugraphic.ClipContainer;
 import net.sourceforge.plantuml.ugraphic.UClip;
@@ -73,13 +72,13 @@ public class DriverEllipseSvg implements UDriver<SvgGraphics> {
 		final HColor back = param.getBackcolor();
 		if (back instanceof HColorGradient) {
 			final HColorGradient gr = (HColorGradient) back;
-			final String id = svg.createSvgGradient(StringUtils.getAsHtml(mapper.getMappedColor(gr.getColor1())),
-					StringUtils.getAsHtml(mapper.getMappedColor(gr.getColor2())), gr.getPolicy());
+			final String id = svg.createSvgGradient(mapper.toRGB(gr.getColor1()),
+					mapper.toRGB(gr.getColor2()), gr.getPolicy());
 			svg.setFillColor("url(#" + id + ")");
 		} else if (back == null || back instanceof HColorBackground) {
 			svg.setFillColor("none");
 		} else {
-			final String backcolor = StringUtils.getAsSvg(mapper, back);
+			final String backcolor = mapper.toSvg(back);
 			svg.setFillColor(backcolor);
 		}
 		DriverRectangleSvg.applyColor(svg, mapper, param);

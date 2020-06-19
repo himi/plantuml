@@ -38,26 +38,27 @@ import java.awt.Color;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-
-import javax.imageio.ImageIO;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FileSystem;
 import net.sourceforge.plantuml.FileUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.code.Base64Coder;
+import net.sourceforge.plantuml.creole.legacy.AtomText;
 import net.sourceforge.plantuml.flashcode.FlashCodeFactory;
 import net.sourceforge.plantuml.flashcode.FlashCodeUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.ImgValign;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TileImageSvg;
+import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SURL;
+import net.sourceforge.plantuml.security.SecurityProfile;
+import net.sourceforge.plantuml.security.SecurityUtils;
+import net.sourceforge.plantuml.ugraphic.AffineTransformType;
+import net.sourceforge.plantuml.ugraphic.PixelImage;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UImage;
@@ -83,7 +84,9 @@ public class AtomImg extends AbstractAtom implements Atom {
 		if (im == null) {
 			im = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
 		}
-		return new AtomImg(new UImage(null, im).scaleNearestNeighbor(scale).getImage(), 1, null, null);
+		return new AtomImg(
+				new UImage(new PixelImage(im, AffineTransformType.TYPE_NEAREST_NEIGHBOR)).scale(scale).getImage(1), 1,
+				null, null);
 	}
 
 	public static Atom create(String src, ImgValign valign, int vspace, double scale, Url url) {
@@ -94,7 +97,7 @@ public class AtomImg extends AbstractAtom implements Atom {
 			final String data = src.substring(DATA_IMAGE_PNG_BASE64.length(), src.length());
 			try {
 				final byte bytes[] = Base64Coder.decode(data);
-				return build(src, fc, bytes, scale, url);
+				return buildRasterFromData(src, fc, bytes, scale, url);
 			} catch (Exception e) {
 				return AtomText.create("ERROR " + e.toString(), fc);
 			}
@@ -103,28 +106,44 @@ public class AtomImg extends AbstractAtom implements Atom {
 		try {
 			// Check if valid URL
 			if (src.startsWith("http:") || src.startsWith("https:")) {
-				// final byte image[] = getFile(src);
-				return build(src, fc, new URL(src), scale, url);
+				if (src.endsWith(".svg")) {
+					return buildSvgFromUrl(src, fc, SURL.create(src), scale, url);
+				}
+				return buildRasterFromUrl(src, fc, SURL.create(src), scale, url);
 			}
-			final File f = FileSystem.getInstance().getFile(src);
+			final SFile f = FileSystem.getInstance().getFile(src);
 			if (f.exists() == false) {
-				return AtomText.create("(File not found: " + f.getCanonicalPath() + ")", fc);
+				if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
+					return AtomText.create("(File not found: " + f.getPrintablePath() + ")", fc);
+				}
+				return AtomText.create("(Cannot decode)", fc);
 			}
 			if (f.getName().endsWith(".svg")) {
-				return new AtomImgSvg(new TileImageSvg(f));
+				final String tmp = FileUtils.readSvg(f);
+				if (tmp == null) {
+					return AtomText.create("(Cannot decode)", fc);
+				}
+				return new AtomImgSvg(new TileImageSvg(tmp));
 			}
-			final BufferedImage read = FileUtils.ImageIO_read(f);
+			final BufferedImage read = f.readRasterImageFromFile();
 			if (read == null) {
-				return AtomText.create("(Cannot decode: " + f.getCanonicalPath() + ")", fc);
+				if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
+					return AtomText.create("(Cannot decode: " + f.getPrintablePath() + ")", fc);
+				}
+				return AtomText.create("(Cannot decode)", fc);
 			}
-			return new AtomImg(FileUtils.ImageIO_read(f), scale, url, src);
+			return new AtomImg(f.readRasterImageFromFile(), scale, url, src);
 		} catch (IOException e) {
-			return AtomText.create("ERROR " + e.toString(), fc);
+			e.printStackTrace();
+			if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
+				return AtomText.create("ERROR " + e.toString(), fc);
+			}
+			return AtomText.create("ERROR", fc);
 		}
 	}
 
-	private static Atom build(String source, final FontConfiguration fc, final byte[] data, double scale, Url url)
-			throws IOException {
+	private static Atom buildRasterFromData(String source, final FontConfiguration fc, final byte[] data, double scale,
+			Url url) throws IOException {
 		final BufferedImage read = ImageIO.read(new ByteArrayInputStream(data));
 		if (read == null) {
 			return AtomText.create("(Cannot decode: " + source + ")", fc);
@@ -132,35 +151,28 @@ public class AtomImg extends AbstractAtom implements Atom {
 		return new AtomImg(read, scale, url, null);
 	}
 
-	private static Atom build(String text, final FontConfiguration fc, URL source, double scale, Url url)
+	private static Atom buildRasterFromUrl(String text, final FontConfiguration fc, SURL source, double scale, Url url)
 			throws IOException {
-		final BufferedImage read = FileUtils.ImageIO_read(source);
+		if (source == null) {
+			return AtomText.create("(Cannot decode: " + text + ")", fc);
+		}
+		final BufferedImage read = source.readRasterImageFromURL();
 		if (read == null) {
 			return AtomText.create("(Cannot decode: " + text + ")", fc);
 		}
-		return new AtomImg(read, scale, url, source.getPath());
+		return new AtomImg(read, scale, url, "http");
 	}
 
-	// Added by Alain Corbiere
-	private static byte[] getFile(String host) throws IOException {
-		final ByteArrayOutputStream image = new ByteArrayOutputStream();
-		InputStream input = null;
-		try {
-			final URL url = new URL(host);
-			final URLConnection connection = url.openConnection();
-			input = connection.getInputStream();
-			final byte[] buffer = new byte[1024];
-			int read;
-			while ((read = input.read(buffer)) > 0) {
-				image.write(buffer, 0, read);
-			}
-			image.close();
-			return image.toByteArray();
-		} finally {
-			if (input != null) {
-				input.close();
-			}
+	private static Atom buildSvgFromUrl(String text, final FontConfiguration fc, SURL source, double scale, Url url)
+			throws IOException {
+		if (source == null) {
+			return AtomText.create("(Cannot decode SVG: " + text + ")", fc);
 		}
+		final byte[] read = source.getBytes();
+		if (read == null) {
+			return AtomText.create("(Cannot decode SVG: " + text + ")", fc);
+		}
+		return new AtomImgSvg(new TileImageSvg(new String(read, "UTF-8")));
 	}
 
 	// End
@@ -177,9 +189,10 @@ public class AtomImg extends AbstractAtom implements Atom {
 		if (url != null) {
 			ug.startUrl(url);
 		}
-		ug.draw(new UImage(rawFileName, image).scale(scale));
+		ug.draw(new UImage(new PixelImage(image, AffineTransformType.TYPE_BILINEAR)).withRawFileName(rawFileName)
+				.scale(scale));
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 	}
 

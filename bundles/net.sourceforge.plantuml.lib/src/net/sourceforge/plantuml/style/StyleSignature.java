@@ -53,7 +53,7 @@ public class StyleSignature {
 		if (s.contains("*") || s.contains("&") || s.contains("-")) {
 			throw new IllegalArgumentException();
 		}
-		this.names.add(s.toLowerCase());
+		this.names.add(clean(s));
 	}
 
 	public static StyleSignature empty() {
@@ -85,7 +85,7 @@ public class StyleSignature {
 			throw new IllegalArgumentException();
 		}
 		final Set<String> result = new HashSet<String>(names);
-		result.add(s.toLowerCase());
+		result.add(clean(s));
 		return new StyleSignature(result);
 	}
 
@@ -144,7 +144,7 @@ public class StyleSignature {
 	public static StyleSignature of(SName... names) {
 		final List<String> result = new ArrayList<String>();
 		for (SName name : names) {
-			result.add(name.name().toLowerCase());
+			result.add(name.name().toLowerCase().replace("_", ""));
 		}
 		return new StyleSignature(result);
 	}
@@ -153,10 +153,10 @@ public class StyleSignature {
 		final List<String> result = new ArrayList<String>(names);
 		if (stereotype != null) {
 			for (String name : stereotype.getStyleNames()) {
-				result.add(name.toLowerCase());
+				result.add(clean(name));
 			}
 		}
-		result.add(SName.stereotype.name().toLowerCase());
+		result.add(SName.stereotype.name().toLowerCase().replace("_", ""));
 		return new StyleSignature(result);
 	}
 
@@ -164,10 +164,14 @@ public class StyleSignature {
 		final List<String> result = new ArrayList<String>(names);
 		if (stereotype != null) {
 			for (String name : stereotype.getStyleNames()) {
-				result.add(name.toLowerCase());
+				result.add(clean(name));
 			}
 		}
 		return new StyleSignature(result);
+	}
+
+	private String clean(String name) {
+		return name.toLowerCase().replace("_", "");
 	}
 
 	public StyleSignature mergeWith(List<Style> others) {
@@ -195,7 +199,7 @@ public class StyleSignature {
 
 	public boolean match(Stereotype stereotype) {
 		for (String s : stereotype.getMultipleLabels()) {
-			if (names.contains(s.toLowerCase())) {
+			if (names.contains(clean(s))) {
 				return true;
 			}
 		}

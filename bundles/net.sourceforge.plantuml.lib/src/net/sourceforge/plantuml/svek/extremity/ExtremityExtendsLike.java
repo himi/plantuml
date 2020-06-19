@@ -2,6 +2,17 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
  * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
  * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
@@ -19,14 +30,14 @@
  * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  * Creator:  Hisashi Miyashita
  */
-
 package net.sourceforge.plantuml.svek.extremity;
 
 import java.awt.geom.Point2D;
 
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
+import net.sourceforge.plantuml.ugraphic.UBackground;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -36,11 +47,11 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 abstract class ExtremityExtendsLike extends Extremity {
-    private static final double XLEN = -19;// 8 * 2.4;
-    private static final double HALF_WIDTH = 7;// 3 * 2.4;
+	private static final double XLEN = -19;// 8 * 2.4;
+	private static final double HALF_WIDTH = 7;// 3 * 2.4;
 
 	private final UPolygon trig;
-    private final UChangeBackColor back;
+	private final UBackground back;
 	private final Point2D contact;
 
 	@Override
@@ -48,107 +59,111 @@ abstract class ExtremityExtendsLike extends Extremity {
 		return contact;
 	}
 
-    private static class Point {
-        public double x;
-        public double y;
+	private static class Point {
+		public double x;
+		public double y;
 
-        public void rotate(double theta) {
-            double ct = Math.cos(theta);
-            double st = -Math.sin(theta);
-            double nx = x * ct - y * st;
-            y = - x * st - y * ct;
-            x = nx;
-        }
-        
-        public Point(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
+		public void rotate(double theta) {
+			double ct = Math.cos(theta);
+			double st = -Math.sin(theta);
+			double nx = x * ct - y * st;
+			y = -x * st - y * ct;
+			x = nx;
+		}
 
-        public UTranslate getPos(Point2D pt) {
-            return new UTranslate(x + pt.getX(), y + pt.getY());
-        }
+		public Point(double x, double y) {
+			this.x = x;
+			this.y = y;
+		}
 
-        public void translate(Point2D pt) {
-            x += pt.getX();
-            y += pt.getY();
-        }
+		public UTranslate getPos(Point2D pt) {
+			return new UTranslate(x + pt.getX(), y + pt.getY());
+		}
 
-        public void add(UPolygon p) {
-            p.addPoint(x, y);
-        }
-    }
+		public void translate(Point2D pt) {
+			x += pt.getX();
+			y += pt.getY();
+		}
 
-    static class Redefines extends ExtremityExtendsLike {
-        private static final double XSUFFIX = XLEN * 1.2;
-        private final UStroke barStroke = new UStroke(2.0);
-        private final UTranslate pos;
-        private final ULine bar;
+		public void add(UPolygon p) {
+			p.addPoint(x, y);
+		}
+	}
 
-        public Redefines(Point2D porig, double angle, HColor backgroundColor) {
-            super(porig, angle, backgroundColor);
+	static class Redefines extends ExtremityExtendsLike {
+		private static final double XSUFFIX = XLEN * 1.2;
+		private final UStroke barStroke = new UStroke(2.0);
+		private final UTranslate pos;
+		private final ULine bar;
 
-            Point p1 = new Point(XSUFFIX, -HALF_WIDTH);
-            Point p2 = new Point(XSUFFIX, +HALF_WIDTH);
-            p1.rotate(angle);
-            p2.rotate(angle);
-            this.bar = new ULine(p2.x - p1.x, p2.y - p1.y);
-            this.pos = p1.getPos(porig);
-        }
-        public void drawU(UGraphic ug) {
-            super.drawU(ug);
-            ug.apply(barStroke).apply(pos).draw(bar);
-        }
-    }
+		public Redefines(Point2D porig, double angle, HColor backgroundColor) {
+			super(porig, angle, backgroundColor);
 
-    static class DefinedBy extends ExtremityExtendsLike {
-        private static final double XSUFFIX = XLEN * 1.3;
-        private static final double DOTHSIZE = 2;
-        private final UTranslate pos1, pos2;
-        private final UEllipse dot;
+			Point p1 = new Point(XSUFFIX, -HALF_WIDTH);
+			Point p2 = new Point(XSUFFIX, +HALF_WIDTH);
+			p1.rotate(angle);
+			p2.rotate(angle);
+			this.bar = new ULine(p2.x - p1.x, p2.y - p1.y);
+			this.pos = p1.getPos(porig);
+		}
 
-        private static UTranslate getDotPos(double x, double y, double angle, double size, Point2D porig) {
-            Point p = new Point(x, y);
-            p.rotate(angle);
-            p.x -= size;
-            p.y -= size;
-            return p.getPos(porig);
-        }
+		public void drawU(UGraphic ug) {
+			super.drawU(ug);
+			ug.apply(barStroke).apply(pos).draw(bar);
+		}
+	}
 
-        public DefinedBy(Point2D porig, double angle, HColor backgroundColor) {
-            super(porig, angle, backgroundColor);
-            double w = HALF_WIDTH - DOTHSIZE;
+	static class DefinedBy extends ExtremityExtendsLike {
+		private static final double XSUFFIX = XLEN * 1.3;
+		private static final double DOTHSIZE = 2;
+		private final UTranslate pos1, pos2;
+		private final UEllipse dot;
 
-            this.pos1 = getDotPos(XSUFFIX, -w, angle, DOTHSIZE, porig);
-            this.pos2 = getDotPos(XSUFFIX, +w, angle, DOTHSIZE, porig);
+		private static UTranslate getDotPos(double x, double y, double angle, double size, Point2D porig) {
+			Point p = new Point(x, y);
+			p.rotate(angle);
+			p.x -= size;
+			p.y -= size;
+			return p.getPos(porig);
+		}
 
-            double s = DOTHSIZE + DOTHSIZE;
-            this.dot = new UEllipse(s, s);
-        }
-        public void drawU(UGraphic ug) {
-            super.drawU(ug);
-			ug = ug.apply(new UChangeBackColor(ug.getParam().getColor()));
-            ug.apply(pos1).draw(dot);
-            ug.apply(pos2).draw(dot);
-        }
-    }
+		public DefinedBy(Point2D porig, double angle, HColor backgroundColor) {
+			super(porig, angle, backgroundColor);
+			double w = HALF_WIDTH - DOTHSIZE;
 
-    private static void addTrigPoint(UPolygon up, double x, double y, double angle, Point2D porig) {
-        Point p = new Point(x, y);
-        p.rotate(angle);
-        p.translate(porig);
-        p.add(up);
-    }
+			this.pos1 = getDotPos(XSUFFIX, -w, angle, DOTHSIZE, porig);
+			this.pos2 = getDotPos(XSUFFIX, +w, angle, DOTHSIZE, porig);
+
+			double s = DOTHSIZE + DOTHSIZE;
+			this.dot = new UEllipse(s, s);
+		}
+
+		public void drawU(UGraphic ug) {
+			super.drawU(ug);
+			if (ug.getParam().getColor() != null) {
+				ug = ug.apply(ug.getParam().getColor().bg());
+			}
+			ug.apply(pos1).draw(dot);
+			ug.apply(pos2).draw(dot);
+		}
+	}
+
+	private static void addTrigPoint(UPolygon up, double x, double y, double angle, Point2D porig) {
+		Point p = new Point(x, y);
+		p.rotate(angle);
+		p.translate(porig);
+		p.add(up);
+	}
 
 	private ExtremityExtendsLike(Point2D porig, double angle, HColor backgroundColor) {
-        this.back = new UChangeBackColor(backgroundColor);
+		this.back = backgroundColor.bg();
 		this.contact = new Point2D.Double(porig.getX(), porig.getY());
 		angle = manageround(angle);
 
-        this.trig = new UPolygon();
-        trig.addPoint(porig);
-        addTrigPoint(trig, XLEN, -HALF_WIDTH, angle, porig);
-        addTrigPoint(trig, XLEN, +HALF_WIDTH, angle, porig);
+		this.trig = new UPolygon();
+		trig.addPoint(porig);
+		addTrigPoint(trig, XLEN, -HALF_WIDTH, angle, porig);
+		addTrigPoint(trig, XLEN, +HALF_WIDTH, angle, porig);
 		trig.addPoint(porig);
 	}
 

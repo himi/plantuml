@@ -48,8 +48,6 @@ import net.sourceforge.plantuml.skin.Area;
 import net.sourceforge.plantuml.skin.ArrowConfiguration;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
@@ -57,6 +55,7 @@ import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
+import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 public class ComponentRoseGroupingElse extends AbstractTextualComponent {
 
@@ -70,7 +69,7 @@ public class ComponentRoseGroupingElse extends AbstractTextualComponent {
 		if (SkinParam.USE_STYLES()) {
 			if (spriteContainer instanceof SkinParamBackcolored) {
 				style = style.eventuallyOverride(PName.BackGroundColor,
-						((SkinParamBackcolored) spriteContainer).getBackgroundColor());
+						((SkinParamBackcolored) spriteContainer).getBackgroundColor(false));
 			}
 			this.groupBorder = style.value(PName.LineColor).asColor(getIHtmlColorSet());
 			this.backgroundColor = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
@@ -87,13 +86,13 @@ public class ComponentRoseGroupingElse extends AbstractTextualComponent {
 		}
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
 		final URectangle rect = new URectangle(dimensionToUse.getWidth(), dimensionToUse.getHeight());
-		ug.apply(new UChangeColor(null)).apply(new UChangeBackColor(backgroundColor)).draw(rect);
+		ug.apply(new HColorNone()).apply(backgroundColor.bg()).draw(rect);
 	}
 
 	@Override
 	protected void drawInternalU(UGraphic ug, Area area) {
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
-		ug = ArrowConfiguration.stroke(ug, 2, 2, 1).apply(new UChangeColor(groupBorder));
+		ug = ArrowConfiguration.stroke(ug, 2, 2, 1).apply(groupBorder);
 		ug.apply(UTranslate.dy(1)).draw(ULine.hline(dimensionToUse.getWidth()));
 		ug = ug.apply(new UStroke());
 		getTextBlock().drawU(ug.apply(new UTranslate(getMarginX1(), getMarginY())));

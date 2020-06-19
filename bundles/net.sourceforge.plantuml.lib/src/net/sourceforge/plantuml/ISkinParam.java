@@ -62,7 +62,7 @@ public interface ISkinParam extends ISkinSimple {
 
 	public boolean useUnderlineForHyperlink();
 
-	public HColor getBackgroundColor();
+	public HColor getBackgroundColor(boolean replaceTransparentByWhite);
 
 	public HColor getHtmlColor(ColorParam param, Stereotype stereotype, boolean clickable);
 
@@ -95,9 +95,9 @@ public interface ISkinParam extends ISkinSimple {
 
 	public boolean shadowing2(Stereotype stereotype, SkinParameter skinParameter);
 
-	public PackageStyle getPackageStyle();
+	public PackageStyle packageStyle();
 
-	public boolean useUml2ForComponent();
+	public ComponentStyle componentStyle();
 
 	public boolean stereotypePositionTop();
 
@@ -155,7 +155,7 @@ public interface ISkinParam extends ISkinSimple {
 
 	public UmlDiagramType getUmlDiagramType();
 
-	public HColor getHoverPathColor();
+	public HColor hoverPathColor();
 
 	public TikzFontDistortion getTikzFontDistortion();
 
@@ -175,7 +175,7 @@ public interface ISkinParam extends ISkinSimple {
 
 	public boolean isUseVizJs();
 
-	public Padder getSequenceDiagramPadder();
+	public Padder sequenceDiagramPadder();
 
 	public StyleBuilder getCurrentStyleBuilder();
 
@@ -187,6 +187,6 @@ public interface ISkinParam extends ISkinSimple {
 
 	public void setDefaultSkin(String newSkin);
 
-	public ActorStyle getActorStyle();
+	public ActorStyle actorStyle();
 
 }

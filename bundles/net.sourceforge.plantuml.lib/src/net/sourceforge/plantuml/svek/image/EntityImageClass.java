@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineConfigurable;
 import net.sourceforge.plantuml.LineParam;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.creole.Stencil;
@@ -56,14 +57,16 @@ import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Margins;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
@@ -71,12 +74,13 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 public class EntityImageClass extends AbstractEntityImage implements Stencil, WithPorts {
 
 	final private TextBlock body;
 	final private Margins shield;
-	final private EntityImageClassHeader2 header;
+	final private EntityImageClassHeader header;
 	final private Url url;
 	final private double roundCorner;
 	final private LeafType leafType;
@@ -95,11 +99,9 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		this.body = entity.getBodier().getBody(FontParam.CLASS_ATTRIBUTE, getSkinParam(), showMethods, showFields,
 				entity.getStereotype());
 
-		header = new EntityImageClassHeader2(entity, getSkinParam(), portionShower);
+		header = new EntityImageClassHeader(entity, getSkinParam(), portionShower);
 		this.url = entity.getUrl99();
 	}
-
-	// private int marginEmptyFieldsOrMethod = 13;
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		final Dimension2D dimHeader = header.calculateDimension(stringBounder);
@@ -131,8 +133,16 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		drawInternal(ug);
 
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
+	}
+
+	private Style getStyle() {
+		return getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+	}
+
+	private StyleSignature getDefaultStyleDefinition() {
+		return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.class_);
 	}
 
 	private void drawInternal(UGraphic ug) {
@@ -149,33 +159,59 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		}
 
 		HColor classBorder = lineConfig.getColors(getSkinParam()).getColor(ColorType.LINE);
+		HColor headerBackcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.HEADER);
+
 		if (classBorder == null) {
-			classBorder = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBorder);
+			if (SkinParam.USE_STYLES())
+				classBorder = getStyle().value(PName.LineColor).asColor(getSkinParam().getIHtmlColorSet());
+			else
+				classBorder = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBorder);
 		}
-		ug = ug.apply(new UChangeColor(classBorder));
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
-			if (leafType == LeafType.ENUM) {
-				backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.enumBackground,
-						ColorParam.classBackground);
-			} else {
-				backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBackground);
+			if (SkinParam.USE_STYLES())
+				backcolor = getStyle().value(PName.BackGroundColor).asColor(getSkinParam().getIHtmlColorSet());
+			else {
+				if (leafType == LeafType.ENUM) {
+					backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.enumBackground,
+							ColorParam.classBackground);
+				} else {
+					backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBackground);
+				}
 			}
 		}
-		ug = ug.apply(new UChangeBackColor(backcolor));
+
+		ug = ug.apply(classBorder);
+		ug = ug.apply(backcolor.bg());
 
 		final UStroke stroke = getStroke();
-		ug.apply(stroke).draw(rect);
 
-		HColor headerBackcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.HEADER);
 		if (headerBackcolor == null) {
-			headerBackcolor = getSkinParam().getHtmlColor(ColorParam.classHeaderBackground, getStereo(), false);
+			if (SkinParam.USE_STYLES())
+				headerBackcolor = getStyle().value(PName.BackGroundColor).asColor(getSkinParam().getIHtmlColorSet());
+			else
+				headerBackcolor = getSkinParam().getHtmlColor(ColorParam.classHeaderBackground, getStereo(), false);
 		}
 		UGraphic ugHeader = ug;
-		if (headerBackcolor != null && roundCorner == 0) {
-			final Shadowable rect2 = new URectangle(widthTotal, dimHeader.getHeight()).rounded(roundCorner);
-			ugHeader = ugHeader.apply(new UChangeBackColor(headerBackcolor));
+		if (roundCorner == 0 && headerBackcolor != null && backcolor.equals(headerBackcolor) == false) {
+			ug.apply(stroke).draw(rect);
+			final Shadowable rect2 = new URectangle(widthTotal, dimHeader.getHeight());
+			rect2.setDeltaShadow(0);
+			ugHeader = ugHeader.apply(headerBackcolor.bg());
 			ugHeader.apply(stroke).draw(rect2);
+		} else if (roundCorner != 0 && headerBackcolor != null && backcolor.equals(headerBackcolor) == false) {
+			ug.apply(stroke).draw(rect);
+			final Shadowable rect2 = new URectangle(widthTotal, dimHeader.getHeight()).rounded(roundCorner);
+			final URectangle rect3 = new URectangle(widthTotal, roundCorner / 2);
+			rect2.setDeltaShadow(0);
+			rect3.setDeltaShadow(0);
+			ugHeader = ugHeader.apply(headerBackcolor.bg()).apply(headerBackcolor);
+			ugHeader.apply(stroke).draw(rect2);
+			ugHeader.apply(stroke).apply(UTranslate.dy(dimHeader.getHeight() - rect3.getHeight())).draw(rect3);
+			rect.setDeltaShadow(0);
+			ug.apply(stroke).apply(new HColorNone().bg()).draw(rect);
+		} else {
+			ug.apply(stroke).draw(rect);
 		}
 		header.drawU(ugHeader, dimTotal.getWidth(), dimHeader.getHeight());
 

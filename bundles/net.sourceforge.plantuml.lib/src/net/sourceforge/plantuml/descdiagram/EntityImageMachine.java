@@ -56,8 +56,6 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULayoutGroup;
 import net.sourceforge.plantuml.ugraphic.URectangle;
@@ -126,12 +124,12 @@ public class EntityImageMachine extends AbstractEntityImage {
 		final URectangle rect = new URectangle(widthTotal, heightTotal);
 		URectangle rect2 = new URectangle(4, heightTotal);
 
-		ug = ug.apply(new UChangeColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.machineBorder)));
+		ug = ug.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.machineBorder));
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.machineBackground);
 		}
-		ug = ug.apply(new UChangeBackColor(backcolor));
+		ug = ug.apply(backcolor.bg());
 		if (url != null) {
 			ug.startUrl(url);
 		}
@@ -145,7 +143,7 @@ public class EntityImageMachine extends AbstractEntityImage {
 		header.drawU(ug.apply(UTranslate.dx(5)), dimTotal.getWidth(), dimTitle.getHeight());
 
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 	}
 

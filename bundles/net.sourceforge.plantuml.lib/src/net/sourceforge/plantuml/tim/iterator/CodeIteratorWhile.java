@@ -37,8 +37,8 @@ package net.sourceforge.plantuml.tim.iterator;
 import java.util.List;
 
 import net.sourceforge.plantuml.StringLocated;
-import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 import net.sourceforge.plantuml.tim.EaterException;
+import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 import net.sourceforge.plantuml.tim.EaterWhile;
 import net.sourceforge.plantuml.tim.ExecutionContextWhile;
 import net.sourceforge.plantuml.tim.TContext;
@@ -91,7 +91,7 @@ public class CodeIteratorWhile extends AbstractCodeIterator {
 			} else if (result.getType() == TLineType.ENDWHILE) {
 				logs.add(result);
 				if (currentWhile == null) {
-					throw EaterException.located("No while related to this endwhile", result);
+					throw EaterException.located("No while related to this endwhile");
 				}
 				final TValue value = currentWhile.conditionValue(result.getLocation(), context, memory);
 				if (value.toBoolean()) {

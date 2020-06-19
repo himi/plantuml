@@ -2,6 +2,17 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  https://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * https://plantuml.com/patreon (only 1$ per month!)
+ * https://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
  * THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC
  * LICENSE ("AGREEMENT"). [Eclipse Public License - v 1.0]
  * 
@@ -19,8 +30,10 @@
  * limitations under the License.
  * 
  *
+ * Original Author:  Arnaud Roques
  * Creator:  Hisashi Miyashita
  */
+
 package net.sourceforge.plantuml.svek.image;
 
 import java.awt.geom.Dimension2D;
@@ -40,8 +53,6 @@ import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -49,8 +60,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class EntityImagePort extends AbstractEntityImageBorder {
-	public EntityImagePort(ILeaf leaf, ISkinParam skinParam,
-                           Cluster parent, final Bibliotekon bibliotekon) {
+	public EntityImagePort(ILeaf leaf, ISkinParam skinParam, Cluster parent, final Bibliotekon bibliotekon) {
 		super(leaf, skinParam, parent, bibliotekon, FontParam.BOUNDARY);
 	}
 
@@ -61,8 +71,8 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
-        double sp = EntityPosition.RADIUS * 2;
-        return new Dimension2DDouble(sp, sp);
+		double sp = EntityPosition.RADIUS * 2;
+		return new Dimension2DDouble(sp, sp);
 	}
 
 	public double getMaxWidthFromLabelForEntryExit(StringBounder stringBounder) {
@@ -70,11 +80,10 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 		return dimDesc.getWidth();
 	}
 
-    private void drawSymbol(UGraphic ug) {
-        final Shadowable rect = new URectangle(EntityPosition.RADIUS * 2,
-                                               EntityPosition.RADIUS * 2);
-        ug.draw(rect);
-    }
+	private void drawSymbol(UGraphic ug) {
+		final Shadowable rect = new URectangle(EntityPosition.RADIUS * 2, EntityPosition.RADIUS * 2);
+		ug.draw(rect);
+	}
 
 	final public void drawU(UGraphic ug) {
 		double y = 0;
@@ -88,13 +97,13 @@ public class EntityImagePort extends AbstractEntityImageBorder {
 		}
 		desc.drawU(ug.apply(new UTranslate(x, y)));
 
-		ug = ug.apply(new UStroke(1.5)).apply(
-				new UChangeColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder)));
+		ug = ug.apply(new UStroke(1.5))
+				.apply(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBorder).bg());
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.stateBackground);
 		}
-		ug = ug.apply(new UChangeBackColor(backcolor));
+		ug = ug.apply(backcolor);
 
 		drawSymbol(ug);
 	}

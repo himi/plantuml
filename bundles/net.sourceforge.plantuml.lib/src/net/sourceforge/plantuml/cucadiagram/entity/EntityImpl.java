@@ -31,6 +31,7 @@
  * 
  *
  * Original Author:  Arnaud Roques
+ * Contribution :  Hisashi Miyashita  * 
  */
 package net.sourceforge.plantuml.cucadiagram.entity;
 
@@ -267,7 +268,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 		// + getUid();
 		if (entityFactory.namespaceSeparator.V1972())
 			return getUid() + " " + ident + " " + display + "(" + leafType + ")[" + groupType + "]";
-		return super.toString() + code + ident + " " + display + "(" + leafType + ")[" + groupType + "] " + getUid();
+		return "EntityImpl " + code + ident + " " + display + "(" + leafType + ")[" + groupType + "] " + getUid();
 	}
 
 	public final Url getUrl99() {
@@ -800,6 +801,13 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public IGroup getOriginalGroup() {
 		return originalGroup;
+	}
+
+	private boolean together;
+
+	public void setThisIsTogether() {
+		this.together = true;
+		// System.err.println("setThisIsTogether");
 	}
 
 }

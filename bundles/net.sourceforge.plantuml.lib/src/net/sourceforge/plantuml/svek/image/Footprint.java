@@ -39,12 +39,11 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.UChange;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UGraphicNo;
 import net.sourceforge.plantuml.ugraphic.UHorizontalLine;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -57,6 +56,7 @@ import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class Footprint {
 
@@ -67,7 +67,7 @@ public class Footprint {
 
 	}
 
-	class MyUGraphic implements UGraphic {
+	class MyUGraphic extends UGraphicNo implements UGraphic {
 
 		private final UTranslate translate;
 		private final List<Point2D.Double> all;
@@ -92,7 +92,7 @@ public class Footprint {
 		public UGraphic apply(UChange change) {
 			if (change instanceof UTranslate) {
 				return new MyUGraphic(all, translate.compose((UTranslate) change));
-			} else if (change instanceof UStroke || change instanceof UChangeColor) {
+			} else if (change instanceof UStroke || change instanceof HColor) {
 				return new MyUGraphic(all, translate);
 			}
 			throw new UnsupportedOperationException();
@@ -127,12 +127,6 @@ public class Footprint {
 
 		public ColorMapper getColorMapper() {
 			return new ColorMapperIdentity();
-		}
-
-		public void startUrl(Url url) {
-		}
-
-		public void closeAction() {
 		}
 
 		private void addPoint(double x, double y) {

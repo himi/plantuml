@@ -37,7 +37,6 @@ package net.sourceforge.plantuml.descdiagram.command;
 import java.util.List;
 
 import net.sourceforge.plantuml.FontParam;
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -123,8 +122,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 
 	@Override
 	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines) {
-		lines = lines.trim(false);
-		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst499().getTrimmed().getString());
+		lines = lines.trimSmart(1);
+		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final String symbol = StringUtils.goUpperCase(line0.get("TYPE", 0));
 		final LeafType type;
 		USymbol usymbol;
@@ -133,7 +132,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 			type = LeafType.USECASE;
 			usymbol = null;
 		} else {
-			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam().getActorStyle());
+			usymbol = USymbol.fromString(symbol, diagram.getSkinParam().actorStyle(),
+					diagram.getSkinParam().componentStyle(), diagram.getSkinParam().packageStyle());
 			if (usymbol == null) {
 				throw new IllegalStateException();
 			}
@@ -141,8 +141,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		}
 
 		final String idShort = line0.get("CODE", 0);
-		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()), lines.getLast499()
-				.getString());
+		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()),
+				lines.getLast().getTrimmed().getString());
 		lines = lines.subExtract(1, 1);
 		Display display = lines.toDisplay();
 		final String descStart = line0.get("DESC", 0);
@@ -167,9 +167,9 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		}
 		result.setUSymbol(usymbol);
 		if (stereotype != null) {
-			result.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
-					.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()
-					.getIHtmlColorSet()));
+			result.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+					diagram.getSkinParam().getIHtmlColorSet()));
 		}
 
 		final String urlString = line0.get("URL", 0);
