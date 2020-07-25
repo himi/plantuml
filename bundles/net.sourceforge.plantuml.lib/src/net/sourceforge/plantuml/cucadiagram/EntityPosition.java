@@ -163,7 +163,7 @@ public enum EntityPosition {
 	}
 
 	public boolean isPort() {
-		return this == PORT || this == PORTIN || this == PORTOUT;
+		return this == PORT || this == PORTIN || this == PORTOUT || this == INPUT_PIN || this == OUTPUT_PIN;
 	}
 
 }

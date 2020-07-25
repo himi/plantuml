@@ -565,7 +565,7 @@ public class Cluster implements Moveable {
 		return node.getMaxWidthFromLabelForEntryExit(stringBounder);
 	}
 
-	private void printRanks(String rank, List<? extends IShapePseudo> entries, StringBuilder sb,
+	private String printRanks(String rank, List<? extends IShapePseudo> entries, StringBuilder sb,
 			StringBounder stringBounder) {
 		if (entries.size() > 0) {
 			sb.append("{rank=" + rank + ";");
@@ -591,10 +591,15 @@ public class Cluster implements Moveable {
 				}
 				sb.append(';');
 				SvekUtils.println(sb);
-				sb.append(node + "->" + empty() + ";");
-				SvekUtils.println(sb);
+                if (rank.equals(RANK_SOURCE)) {
+                    sb.append(node + "->" + empty() + ";");
+                    SvekUtils.println(sb);
+                } else if (rank.equals(RANK_SINK)) {
+                    return node;
+                }
 			}
 		}
+        return null;
 	}
 
 	private List<? extends IShapePseudo> withPositionProtected(StringBounder stringBounder,
@@ -619,10 +624,10 @@ public class Cluster implements Moveable {
 		return result;
 	}
 
-	private void printClusterEntryExit(StringBuilder sb, StringBounder stringBounder) {
+	private String printClusterEntryExit(StringBuilder sb, StringBounder stringBounder) {
 		printRanks(RANK_SOURCE, withPositionProtected(stringBounder, EntityPosition.getInputs()), sb, stringBounder);
 		printRanks(RANK_SAME, withPositionProtected(stringBounder, EntityPosition.getSame()), sb, stringBounder);
-		printRanks(RANK_SINK, withPositionProtected(stringBounder, EntityPosition.getOutputs()), sb, stringBounder);
+		return printRanks(RANK_SINK, withPositionProtected(stringBounder, EntityPosition.getOutputs()), sb, stringBounder);
 	}
 
 	public Node printCluster2(StringBuilder sb, Collection<Line> lines, StringBounder stringBounder, DotMode dotMode,
@@ -780,7 +785,8 @@ public class Cluster implements Moveable {
 			subgraphClusterNoLabel(sb, "p0");
 		}
 		sb.append("subgraph " + getClusterId() + " {");
-		sb.append("style=solid;");
+		//sb.append("style=solid;");
+		sb.append("style=solid;label=\"\";");
 		sb.append("color=\"" + DotStringFactory.sharp000000(color) + "\";");
 
 		final String label;
@@ -796,8 +802,9 @@ public class Cluster implements Moveable {
 			label = "\"\"";
 		}
 
+        String bottomNode = null;
 		if (entityPositionsExceptNormal.size() > 0) {
-			printClusterEntryExit(sb, stringBounder);
+			bottomNode = printClusterEntryExit(sb, stringBounder);
 			if (hasPort()) {
 				subgraphClusterNoLabel(sb, ID_EE);
 			} else {
@@ -808,12 +815,14 @@ public class Cluster implements Moveable {
 			SvekUtils.println(sb);
 		}
 
-		if (thereALinkFromOrToGroup2) {
-			sb.append(getSpecialPointId(group) + " [shape=point,width=.01,label=\"\"];");
-		}
-		if (thereALinkFromOrToGroup1) {
-			subgraphClusterNoLabel(sb, "i");
-		}
+        if (entityPositionsExceptNormal.isEmpty()) {
+            if (thereALinkFromOrToGroup2) {
+                sb.append(getSpecialPointId(group) + " [shape=point,width=.01,label=\"\"];");
+            }
+        }
+        if (thereALinkFromOrToGroup1) {
+            subgraphClusterNoLabel(sb, "i");
+        }
 		if (protection1) {
 			subgraphClusterNoLabel(sb, "p1");
 		}
@@ -840,12 +849,26 @@ public class Cluster implements Moveable {
 				sb.append(empty() + " [shape=rect,width=.01,height=.01,label=");
 				sb.append(label);
 				sb.append("];");
+                if (added != null) {
+                    SvekUtils.println(sb);
+                    sb.append(empty() + "->" + added.getUid() + ";");
+                }
 			} else if (added == null) {
 				sb.append(empty() + " [shape=point,width=.01,label=\"\"];");
 			}
 			SvekUtils.println(sb);
 		}
 
+        String bName = null;
+        if (bottomNode != null) {
+            bName = "bt" + color;
+            SvekUtils.println(sb);
+            sb.append("{rank=sink;");
+            sb.append(bName);
+            sb.append(" [shape=point,width=.01,label=\"\"];");
+            sb.append("}");
+            SvekUtils.println(sb);
+        }
 		sb.append("}");
 		if (protection1) {
 			sb.append("}");
@@ -855,6 +878,14 @@ public class Cluster implements Moveable {
 			sb.append("}");
 		}
 		if (entityPositionsExceptNormal.size() > 0) {
+            if (bName != null) {
+                SvekUtils.println(sb);
+                sb.append(bName);
+                sb.append("->");
+                sb.append(bottomNode);
+                sb.append(';');
+                SvekUtils.println(sb);
+            }
 			sb.append("}");
 		}
 		if (protection0) {
@@ -891,6 +922,9 @@ public class Cluster implements Moveable {
 	private void subgraphClusterWithLabel(StringBuilder sb, String id, String label) {
 		sb.append("subgraph " + getClusterId() + id + " {");
 		sb.append("label=" + label + ";");
+        /*sb.append("{rank=source; ");
+        sb.append(empty());
+        sb.append(";}"); */
 	}
 
 	public int getColor() {

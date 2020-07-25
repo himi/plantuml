@@ -56,6 +56,7 @@ import net.sourceforge.plantuml.statediagram.command.CommandConcurrentState;
 import net.sourceforge.plantuml.statediagram.command.CommandCreatePackageState;
 import net.sourceforge.plantuml.statediagram.command.CommandCreateState;
 import net.sourceforge.plantuml.statediagram.command.CommandEndState;
+import net.sourceforge.plantuml.statediagram.command.CommandLinkElement;
 import net.sourceforge.plantuml.statediagram.command.CommandLinkState;
 
 public class StateDiagramFactory extends UmlDiagramFactory {
@@ -83,6 +84,7 @@ public class StateDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandEndState());
 		cmds.add(new CommandAddField());
 		cmds.add(new CommandConcurrentState());
+		cmds.add(new CommandLinkElement());
 
 		final CommandFactoryNoteOnEntity factoryNoteOnEntityCommand = new CommandFactoryNoteOnEntity("state",
 				new RegexOr("ENTITY", new RegexLeaf("[\\p{L}0-9_.]+"), //
