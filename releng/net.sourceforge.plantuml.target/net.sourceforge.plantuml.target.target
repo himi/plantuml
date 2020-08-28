@@ -9,11 +9,11 @@
     <unit id="org.eclipse.uml2.feature.group"/>
     <unit id="org.eclipse.xtext.sdk.feature.group"/>
     <unit id="org.apache.ant"/>
-    <repository location="http://download.eclipse.org/releases/2019-12"/>
+    <repository location="http://download.eclipse.org/releases/2020-06"/>
   </location>
   <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
     <unit id="org.eclipse.cdt.feature.group"/>
-    <repository location="http://download.eclipse.org/releases/2019-12"/>
+    <repository location="http://download.eclipse.org/releases/2020-06"/>
   </location>
 </locations>
 <environment>
