@@ -58,6 +58,12 @@ public class BodierImpl implements Bodier {
 	private List<Member> fieldsToDisplay;
 	private final boolean manageModifier;
 	private ILeaf leaf;
+	private boolean isEnhanced;
+
+	@Override
+	public void setEnhanced() {
+		this.isEnhanced = true;
+	}
 
 	public void muteClassToObject() {
 		methodsToDisplay = null;
@@ -90,6 +96,7 @@ public class BodierImpl implements Bodier {
 	}
 
 	private boolean isBodyEnhanced() {
+		if (isEnhanced) return true;
 		for (String s : rawBody) {
 			if (BodyEnhanced.isBlockSeparator(s)) {
 				return true;

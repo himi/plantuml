@@ -60,6 +60,8 @@ public enum LeafType {
 	
 	PORT, PORTIN, PORTOUT,
 
+	USAGE,
+
 	STILL_UNKNOWN;
 
 	public static LeafType getLeafType(String type) {
@@ -74,8 +76,18 @@ public enum LeafType {
 	}
 
 	public boolean isLikeClass() {
-		return this == LeafType.ANNOTATION || this == LeafType.ABSTRACT_CLASS || this == LeafType.CLASS
-				|| this == LeafType.INTERFACE || this == LeafType.ENUM || this == LeafType.ENTITY;
+		switch (this) {
+		case ANNOTATION:
+		case ABSTRACT_CLASS:
+		case CLASS:
+		case INTERFACE:
+		case ENUM:
+		case ENTITY:
+		case USAGE:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	public String toHtml() {
@@ -84,10 +96,18 @@ public enum LeafType {
 	}
 
 	public boolean manageModifier() {
-		if (this == ANNOTATION || this == ABSTRACT_CLASS || this == CLASS || this == INTERFACE || this == ENUM
-				|| this == OBJECT || this == ENTITY) {
+		switch (this) {
+		case ANNOTATION:
+		case ABSTRACT_CLASS:
+		case CLASS:
+		case INTERFACE:
+		case ENUM:
+		case OBJECT:
+		case ENTITY:
+		case USAGE:
 			return true;
+		default:
+			return false;
 		}
-		return false;
 	}
 }

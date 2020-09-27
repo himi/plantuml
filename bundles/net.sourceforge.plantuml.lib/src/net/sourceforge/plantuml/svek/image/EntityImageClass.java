@@ -91,7 +91,15 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		super(entity, entity.getColors(skinParam).mute(skinParam));
 		this.leafType = entity.getLeafType();
 		this.lineConfig = entity;
-		this.roundCorner = getSkinParam().getRoundCorner(CornerParam.DEFAULT, null);
+
+        CornerParam cornerParam;
+        if (leafType == LeafType.USAGE) {
+            cornerParam = CornerParam.usage;
+        } else {
+            cornerParam = CornerParam.DEFAULT;
+        }
+        this.roundCorner = getSkinParam().getRoundCorner(cornerParam, null);
+
 		this.shield = version != null && version.useShield() && entity.hasNearDecoration() ? Margins.uniform(16)
 				: Margins.NONE;
 		final boolean showMethods = portionShower.showPortion(EntityPortion.METHOD, entity);

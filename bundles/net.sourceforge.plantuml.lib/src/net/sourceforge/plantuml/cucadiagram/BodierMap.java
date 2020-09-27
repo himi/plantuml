@@ -52,6 +52,10 @@ public class BodierMap implements Bodier {
 	private final Map<String, String> map = new LinkedHashMap<String, String>();
 	private ILeaf leaf;
 
+	public void setEnhanced() {
+		// do nothing
+	}
+
 	public void muteClassToObject() {
 		throw new UnsupportedOperationException();
 	}

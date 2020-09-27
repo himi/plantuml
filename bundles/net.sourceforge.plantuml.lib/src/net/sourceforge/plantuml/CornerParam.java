@@ -35,7 +35,7 @@
 package net.sourceforge.plantuml;
 
 public enum CornerParam {
-	DEFAULT, diagramBorder, titleBorder, rectangle, archimate, component, card, agent;
+	DEFAULT, diagramBorder, titleBorder, rectangle, archimate, component, card, agent, usage;
 
 	public String getRoundKey() {
 		if (this == DEFAULT) {

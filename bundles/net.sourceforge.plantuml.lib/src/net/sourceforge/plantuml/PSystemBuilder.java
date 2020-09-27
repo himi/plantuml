@@ -84,8 +84,8 @@ import net.sourceforge.plantuml.sprite.PSystemListInternalSpritesFactory;
 import net.sourceforge.plantuml.sprite.StdlibDiagramFactory;
 import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.stats.StatsUtilsIncrement;
+import net.sourceforge.plantuml.sysml2.SysML2DiagramFactory;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagramFactory;
-import net.sourceforge.plantuml.version.License;
 import net.sourceforge.plantuml.version.PSystemLicenseFactory;
 import net.sourceforge.plantuml.version.PSystemVersionFactory;
 import net.sourceforge.plantuml.wbs.WBSDiagramFactory;
@@ -151,6 +151,7 @@ public class PSystemBuilder {
 		factories.add(new ClassDiagramFactory(skinParam));
 		factories.add(new ActivityDiagramFactory(skinParam));
 		factories.add(new DescriptionDiagramFactory(skinParam));
+		factories.add(new SysML2DiagramFactory(skinParam));
 		factories.add(new StateDiagramFactory(skinParam));
 		factories.add(new ActivityDiagramFactory3(skinParam));
 		// factories.add(new CompositeDiagramFactory(skinParam));

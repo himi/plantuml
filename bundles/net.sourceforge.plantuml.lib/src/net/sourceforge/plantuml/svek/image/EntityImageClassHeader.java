@@ -182,6 +182,8 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return ColorParam.stereotypeABackground;
 		case CLASS:
 			return ColorParam.stereotypeCBackground;
+		case USAGE:
+			return ColorParam.stereotypeUBackground;
 		case INTERFACE:
 			return ColorParam.stereotypeIBackground;
 		case ENUM:
@@ -201,6 +203,8 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return ColorParam.stereotypeABorder;
 		case CLASS:
 			return ColorParam.stereotypeCBorder;
+		case USAGE:
+			return ColorParam.stereotypeUBorder;
 		case INTERFACE:
 			return ColorParam.stereotypeIBorder;
 		case ENUM:
@@ -220,6 +224,8 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return 'A';
 		case CLASS:
 			return 'C';
+		case USAGE:
+			return 'U';
 		case INTERFACE:
 			return 'I';
 		case ENUM:

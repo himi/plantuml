@@ -885,7 +885,9 @@ public class SkinParam implements ISkinParam {
 		}
 		if (param == CornerParam.DEFAULT) {
 			return 0;
-		}
+		} else if (param == CornerParam.usage) {
+            return 20.0;
+        }
 		return getRoundCorner(CornerParam.DEFAULT, stereotype);
 	}
 

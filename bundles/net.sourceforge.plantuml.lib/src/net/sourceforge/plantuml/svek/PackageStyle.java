@@ -49,7 +49,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public enum PackageStyle {
 
-	FOLDER, RECTANGLE, NODE, FRAME, CLOUD, DATABASE, AGENT, STORAGE, COMPONENT1, COMPONENT2, ARTIFACT, CARD;
+	FOLDER, RECTANGLE, NODE, FRAME, CLOUD, DATABASE, AGENT, STORAGE, COMPONENT1, COMPONENT2, ARTIFACT, CARD, STATE;
 
 	public static PackageStyle fromString(String value) {
 		for (PackageStyle p : EnumSet.allOf(PackageStyle.class)) {

@@ -340,7 +340,8 @@ public class Cluster implements Moveable {
 				drawSwinLinesState(ug, borderColor);
 				return;
 			}
-			final boolean isState = umlDiagramType == UmlDiagramType.STATE;
+			PackageStyle packageStyle = group.getPackageStyle();
+			final boolean isState = (umlDiagramType == UmlDiagramType.STATE) || (packageStyle == PackageStyle.STATE);
 			if (isState) {
 				if (group.getColors(skinParam).getSpecificLineStroke() != null) {
 					strokeForState = group.getColors(skinParam).getSpecificLineStroke();
@@ -351,7 +352,7 @@ public class Cluster implements Moveable {
 				drawUState(ug, borderColor, skinParam2, strokeForState, umlDiagramType);
 				return;
 			}
-			PackageStyle packageStyle = group.getPackageStyle();
+
 			if (packageStyle == null) {
 				packageStyle = skinParam2.packageStyle();
 			}

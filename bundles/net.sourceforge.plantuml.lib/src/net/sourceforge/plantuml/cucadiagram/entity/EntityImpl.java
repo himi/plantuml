@@ -523,10 +523,21 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public PackageStyle getPackageStyle() {
 		checkGroup();
-		if (stereotype == null) {
-			return null;
+
+		switch (groupType) {
+		case STATE:
+		case CONCURRENT_STATE:
+			return PackageStyle.STATE;
+		case DEF:
+            // TODO: Tentative solution.  We need different rendering for DEF.
+			return PackageStyle.RECTANGLE;
+		default:
+            if (stereotype != null) {
+                return stereotype.getPackageStyle();
+            } else {
+                return null;
+            }
 		}
-		return stereotype.getPackageStyle();
 	}
 
 	public boolean isGroup() {

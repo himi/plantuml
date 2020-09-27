@@ -53,6 +53,8 @@ public interface Bodier {
 	public TextBlock getBody(FontParam fontParam, ISkinParam skinParam, boolean showMethods, boolean showFields,
 			Stereotype stereotype);
 
+	void setEnhanced();
+
 	public List<String> getRawBody();
 
 	public void muteClassToObject();

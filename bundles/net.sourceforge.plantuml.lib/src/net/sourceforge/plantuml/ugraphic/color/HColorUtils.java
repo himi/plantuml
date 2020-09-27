@@ -66,6 +66,7 @@ public class HColorUtils {
 	public static final HColor COL_EEEEEE;
 	public static final HColor COL_FBFB77;
 	public static final HColor COL_ADD1B2;
+	public static final HColor COL_B6DBBB;
 	public static final HColor COL_A9DCDF;
 	public static final HColor COL_E3664A;
 	public static final HColor COL_EB937F;
@@ -105,6 +106,7 @@ public class HColorUtils {
 		COL_EEEEEE = set.getColorIfValid("#EEEEEE");
 		COL_FBFB77 = set.getColorIfValid("#FBFB77");
 		COL_ADD1B2 = set.getColorIfValid("#ADD1B2");
+		COL_B6DBBB = set.getColorIfValid("#B6DBBB");
 		COL_A9DCDF = set.getColorIfValid("#A9DCDF");
 		COL_E3664A = set.getColorIfValid("#E3664A");
 		COL_EB937F = set.getColorIfValid("#EB937F");
