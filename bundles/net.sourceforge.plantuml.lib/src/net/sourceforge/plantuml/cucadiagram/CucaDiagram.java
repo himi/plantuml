@@ -679,7 +679,7 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 	}
 
 	public boolean isAutarkic(IGroup g) {
-		if (g.getGroupType() == GroupType.PACKAGE) {
+		if (g.getGroupType().isPackageLike()) {
 			return false;
 		}
 		if (g.getGroupType() == GroupType.INNER_ACTIVITY) {

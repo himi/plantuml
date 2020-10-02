@@ -116,10 +116,13 @@ public final class EntityFactory {
 	}
 
 	public ILeaf createLeafForEmptyGroup(IGroup g, ISkinParam skinParam) {
-		final ILeaf folder = this.createLeaf(g.getIdent(), g.getCode(), g.getDisplay(), LeafType.EMPTY_PACKAGE,
+		final ILeaf folder = this.createLeaf(g.getIdent(), g.getCode(), g.getDisplay(), g.getGroupType().getCorrespondingLeafType(),
 				g.getParentContainer(), null, this.namespaceSeparator.getNamespaceSeparator());
 		((EntityImpl) folder).setOriginalGroup(g);
-		final USymbol symbol = g.getUSymbol();
+		USymbol symbol = g.getGroupType().getUSymbol();
+		if (symbol == null) {
+			symbol = g.getUSymbol();
+		}
 		folder.setUSymbol(symbol);
 		folder.setStereotype(g.getStereotype());
 		if (g.getUrl99() != null) {
@@ -166,7 +169,7 @@ public final class EntityFactory {
 		if (leafs == 0 && children.size() == 1) {
 			final IGroup g = children.iterator().next();
 			if (g.getLeafsDirect().size() == 0 && g.getChildren().size() == 0
-					&& g.getGroupType() == GroupType.PACKAGE) {
+					&& g.getGroupType().isPackageLike()) {
 				return null;
 			}
 			for (Link link : this.getLinks()) {

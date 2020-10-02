@@ -34,8 +34,33 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
+import net.sourceforge.plantuml.graphic.USymbol;
+
 public enum GroupType {
 
-	PACKAGE, STATE, CONCURRENT_STATE, INNER_ACTIVITY, CONCURRENT_ACTIVITY, DOMAIN, REQUIREMENT, DEF
+	PACKAGE, STATE, CONCURRENT_STATE, INNER_ACTIVITY, CONCURRENT_ACTIVITY, DOMAIN, REQUIREMENT, DEF;
+	
+	public boolean isPackageLike() {
+		return this == PACKAGE || this == DEF || this == STATE;
+	}
+	
+	public LeafType getCorrespondingLeafType() {
+		switch (this) {
+		case DEF:
+			return LeafType.DESCRIPTION;
+		case STATE:
+			return LeafType.STATE;
+		default:
+			return LeafType.EMPTY_PACKAGE;
+		}
+	}
 
+    public USymbol getUSymbol() {
+		switch (this) {
+		case DEF:
+			return USymbol.RECTANGLE;
+		default:
+			return null;
+		}
+    }
 }

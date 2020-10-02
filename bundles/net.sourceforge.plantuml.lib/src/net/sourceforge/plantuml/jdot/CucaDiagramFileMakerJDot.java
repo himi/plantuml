@@ -207,7 +207,7 @@ public class CucaDiagramFileMakerJDot implements CucaDiagramFileMaker {
 			if (g.isRemoved()) {
 				continue;
 			}
-			if (diagram.isEmpty(g) && g.getGroupType() == GroupType.PACKAGE) {
+			if (diagram.isEmpty(g) && g.getGroupType().isPackageLike()) {
 				final ISkinParam skinParam = diagram.getSkinParam();
 				final EntityFactory entityFactory = diagram.getEntityFactory();
 				final ILeaf folder = entityFactory.createLeafForEmptyGroup(g, skinParam);
@@ -452,7 +452,7 @@ public class CucaDiagramFileMakerJDot implements CucaDiagramFileMaker {
 			if (g.isRemoved()) {
 				continue;
 			}
-			if (diagram.isEmpty(g) && g.getGroupType() == GroupType.PACKAGE) {
+			if (diagram.isEmpty(g) && g.getGroupType().isPackageLike()) {
 				final EntityFactory entityFactory = diagram.getEntityFactory();
 				final ILeaf folder = entityFactory.getLeafForEmptyGroup(g);
 				exportEntity(graph, folder);
