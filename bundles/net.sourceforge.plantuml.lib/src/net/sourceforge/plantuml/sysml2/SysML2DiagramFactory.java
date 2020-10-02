@@ -79,11 +79,15 @@ public class SysML2DiagramFactory extends UmlDiagramFactory {
 	@Override
 	protected List<Command> createCommands() {
 		final List<Command> cmds = new ArrayList<Command>();
+
         cmds.add(new CommandSysML2());
         cmds.add(new CommandSysML2Compartment());
         cmds.add(new CommandSysML2Start());
         cmds.add(new CommandSysML2End());
         cmds.add(new CommandSysML2Link());
+
+		addCommonHides(cmds);
+		cmds.add(new CommandHideShow2());
 
 		cmds.add(new CommandPackage());
 		cmds.add(new CommandEndPackage());
@@ -113,9 +117,10 @@ public class SysML2DiagramFactory extends UmlDiagramFactory {
 		cmds.add(factoryNoteCommand.createSingleLine());
 		cmds.add(factoryNoteCommand.createMultiLine(false));
 
-		addCommonCommands1(cmds);
-		cmds.add(new CommandHideShow2());
 		cmds.add(new CommandNamespaceSeparator());
+
+		addTitleCommands(cmds);
+		addCommonCommands2(cmds);
 
 		return cmds;
 	}

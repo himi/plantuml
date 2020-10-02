@@ -37,7 +37,6 @@ package net.sourceforge.plantuml.sysml2;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.UmlDiagramType;
-import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityUtils;
@@ -50,9 +49,10 @@ import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.NamespaceStrategy;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.objectdiagram.AbstractClassOrObjectDiagram;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
-public class SysML2Diagram extends AbstractEntityDiagram {
+public class SysML2Diagram extends AbstractClassOrObjectDiagram {
 
 	private static final String CONCURRENT_PREFIX = "CONC";
 
