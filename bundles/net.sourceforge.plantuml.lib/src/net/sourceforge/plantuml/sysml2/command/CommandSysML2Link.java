@@ -216,7 +216,7 @@ public class CommandSysML2Link extends SingleLineCommand2<SysML2Diagram> {
 
 	private static RegexLeaf getGroup(String name) {
 		return new RegexLeaf(name,
-				"([\\p{L}0-9_.]+|\\(\\)[%s]*[\\p{L}0-9_.]+|\\(\\)[%s]*[%g][^%g]+[%g]|:[^:]+:|(?!\\[\\*\\])\\[[^\\[\\]]+\\]|\\((?!\\*\\))[^)]+\\))");
+				"([\\p{L}0-9_.]+|\\[\\*\\]|\\[H\\*?\\]|\\(\\)[%s]*[\\p{L}0-9_.]+|\\(\\)[%s]*[%g][^%g]+[%g]|:[^:]+:|(?!\\[\\*\\])\\[[^\\[\\]]+\\]|\\((?!\\*\\))[^)]+\\))");
 	}
 
 	@Override
@@ -240,15 +240,9 @@ public class CommandSysML2Link extends SingleLineCommand2<SysML2Diagram> {
 		}
 		final Labels labels = new Labels(arg);
 
-		final IEntity cl1;
-		final IEntity cl2;
-		if (diagram.isGroup(code1) && diagram.isGroup(code2)) {
-			cl1 = diagram.getGroup(diagram.buildCode(ent1String));
-			cl2 = diagram.getGroup(diagram.buildCode(ent2String));
-		} else {
-			cl1 = getFoo1(diagram, code1, ident1, ident1pure);
-			cl2 = getFoo1(diagram, code2, ident2, ident2pure);
-		}
+		final IEntity cl1 = getFoo1(diagram, ent1String, code1, ident1, ident1pure);
+		final IEntity cl2 = getFoo2(diagram, ent2String, code2, ident2, ident2pure);
+
 		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labels.getLabelLink()), queue.length(),
 				labels.getFirstLabel(), labels.getSecondLabel(), diagram.getLabeldistance(), diagram.getLabelangle(),
 				diagram.getSkinParam().getCurrentStyleBuilder());
@@ -266,7 +260,34 @@ public class CommandSysML2Link extends SingleLineCommand2<SysML2Diagram> {
 		return CommandExecutionResult.ok();
 	}
 
-	private IEntity getFoo1(SysML2Diagram diagram, Code code, Ident ident, Ident pure) {
+	private IEntity getFoo1(SysML2Diagram diagram, String ent, Code code, Ident ident, Ident pure) {
+        if (ent.startsWith("[*]")) {
+            return diagram.getStart();
+        }
+        return getFoo(diagram, ent, code, ident, pure);
+    }
+
+	private IEntity getFoo2(SysML2Diagram diagram, String ent, Code code, Ident ident, Ident pure) {
+        if (ent.startsWith("[*]")) {
+            return diagram.getEnd();
+        }
+        return getFoo(diagram, ent, code, ident, pure);
+    }
+
+	private IEntity getFoo(SysML2Diagram diagram, String ent, Code code, Ident ident, Ident pure) {
+		if (ent.equalsIgnoreCase("[H]")) {
+			return diagram.getHistorical();
+		}
+		if (ent.endsWith("[H]")) {
+			return diagram.getHistorical(ent.substring(0, ent.length() - 3));
+		}
+		if (ent.equalsIgnoreCase("[H*]")) {
+			return diagram.getDeepHistory();
+		}
+		if (ent.endsWith("[H*]")) {
+			return diagram.getDeepHistory(ent.substring(0, ent.length() - 4));
+		}
+
 		if (diagram.isGroup(code)) {
 			return diagram.getGroup(code);
 		}
