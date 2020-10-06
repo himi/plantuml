@@ -69,7 +69,7 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandSysML2.class.getName(),
                                  RegexLeaf.start(), //
-                                 new RegexLeaf("TYPE", "(choice|fork|join|end|state|port|portin|portout|usage|def)"), //
+                                 new RegexLeaf("TYPE", "(choice|fork|join|end|state|desc|port|portin|portout|usage|def)"), //
                                  RegexLeaf.spaceOneOrMore(), //
                                  new RegexOr(new RegexConcat(new RegexLeaf("DISPLAY1", "[%g]([^%g]+)[%g]"), //
                                                              RegexLeaf.spaceOneOrMore(),
@@ -100,6 +100,7 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
     private static Map<String, LeafType> initLeafTypeMap() {
         Map<String, LeafType> m = new HashMap<String, LeafType>();
         m.put("state", LeafType.STATE);
+        m.put("desc", LeafType.STATE);
         m.put("usage", LeafType.USAGE);
         m.put("def", LeafType.CLASS);
         m.put("port", LeafType.PORT);
@@ -129,7 +130,8 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
 			display = code.getName();
 		}
 
-        final LeafType type = getLeafType(arg.get("TYPE", 0));
+        final String typeStr = arg.get("TYPE", 0);
+        final LeafType type = getLeafType(typeStr);
 
 		final String stereotype = arg.get("STEREOTYPE", 0);
 
@@ -137,7 +139,13 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
 			return CommandExecutionResult.error("The state " + code.getName()
 					+ " has been created in a concurrent state : it cannot be used here.");
 		}
-		final IEntity ent = diagram.getOrCreateLeaf(diagram.buildLeafIdent(idShort), code, type, null);
+        final IEntity ent;
+
+        if ("desc".equals(typeStr)) {
+            ent = diagram.getCurrentGroup();
+        } else {
+            ent = diagram.getOrCreateLeaf(diagram.buildLeafIdent(idShort), code, type, null);
+        }
 		ent.setDisplay(Display.getWithNewlines(display));
 
 		if (stereotype != null) {
