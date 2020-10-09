@@ -116,8 +116,7 @@ public final class EntityFactory {
 	}
 
 	public ILeaf createLeafForEmptyGroup(IGroup g, ISkinParam skinParam) {
-		final ILeaf folder = this.createLeaf(g.getIdent(), g.getCode(), g.getDisplay(), g.getGroupType().getCorrespondingLeafType(),
-				g.getParentContainer(), null, this.namespaceSeparator.getNamespaceSeparator());
+		final ILeaf folder = this.createLeafForGroup(g);
 		((EntityImpl) folder).setOriginalGroup(g);
 		USymbol symbol = g.getGroupType().getUSymbol();
 		if (symbol == null) {
@@ -231,6 +230,20 @@ public final class EntityFactory {
 				namespaceSeparator, rawLayout);
 		bodier.setLeaf(result);
 		result.setDisplay(display);
+		return result;
+	}
+
+	private ILeaf createLeafForGroup(IGroup g) {
+		final EntityImpl result = new EntityImpl(g.getIdent(),
+                                                 g.getCode(),
+                                                 this,
+                                                 g.getBodier(),
+                                                 g.getParentContainer(),
+                                                 g.getGroupType().getCorrespondingLeafType(),
+                                                 this.namespaceSeparator.getNamespaceSeparator(),
+                                                 rawLayout);
+        g.getBodier().setLeaf(result);
+		result.setDisplay(g.getDisplay());
 		return result;
 	}
 

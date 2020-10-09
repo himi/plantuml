@@ -139,10 +139,16 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
 			return CommandExecutionResult.error("The state " + code.getName()
 					+ " has been created in a concurrent state : it cannot be used here.");
 		}
-        final IEntity ent;
 
+        IEntity ent;
         if ("desc".equals(typeStr)) {
-            ent = diagram.getCurrentGroup();
+        	ent = diagram.getGroup(code);
+        	if (ent == null) {
+        		ent = diagram.getLeaf(code);
+                if (ent == null) {
+                    throw new IllegalArgumentException("No entity of the code:" + code);
+                }
+        	}
         } else {
             ent = diagram.getOrCreateLeaf(diagram.buildLeafIdent(idShort), code, type, null);
         }
