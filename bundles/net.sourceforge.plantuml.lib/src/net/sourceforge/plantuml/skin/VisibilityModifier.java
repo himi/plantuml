@@ -46,6 +46,7 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -61,13 +62,14 @@ public enum VisibilityModifier {
 	PACKAGE_PRIVATE_METHOD(ColorParam.iconPackage, ColorParam.iconPackageBackground),
 	PUBLIC_METHOD(ColorParam.iconPublic, ColorParam.iconPublicBackground),
 
-	IE_MANDATORY(ColorParam.iconIEMandatory, ColorParam.iconIEMandatory);
+	IE_MANDATORY(ColorParam.iconIEMandatory, ColorParam.iconIEMandatory),
+    REDEFINED(ColorParam.iconRedefined, ColorParam.iconRedefinedBackground);
 
 	private final ColorParam foregroundParam;
 	private final ColorParam backgroundParam;
 
 	public static String regexForVisibilityCharacterInClassName() {
-		return "[-#+~]";
+		return "[-#+~\\>]";
 	}
 
 	private VisibilityModifier(ColorParam foreground, ColorParam background) {
@@ -152,6 +154,10 @@ public enum VisibilityModifier {
 			drawCircle(ug, true, size, x, y);
 			break;
 
+		case REDEFINED:
+			drawRightTriangle(ug, size, x, y, true);
+            break;
+
 		default:
 			throw new IllegalStateException();
 		}
@@ -191,6 +197,17 @@ public enum VisibilityModifier {
 		ug.apply(new UTranslate(x + 1, y)).draw(poly);
 	}
 
+	private void drawRightTriangle(UGraphic ug, int size, double x, double y, boolean withBar) {
+		final UPolygon poly = new UPolygon();
+		poly.addPoint(3, 1);
+		poly.addPoint(size, size / 2);
+		poly.addPoint(3, size - 1);
+        final ULine line = new ULine(0, size - 1);
+        final UTranslate pos = new UTranslate(x, y);
+        ug.apply(pos).draw(line);
+		ug.apply(pos).draw(poly);
+	}
+
 	public static boolean isVisibilityCharacter(CharSequence s) {
 		if (s.length() <= 2) {
 			return false;
@@ -212,6 +229,9 @@ public enum VisibilityModifier {
 			return true;
 		}
 		if (c == '*') {
+			return true;
+		}
+		if (c == '>') {
 			return true;
 		}
 		return false;
@@ -247,6 +267,9 @@ public enum VisibilityModifier {
 		if (c == '*') {
 			return VisibilityModifier.IE_MANDATORY;
 		}
+		if (c == '>') {
+			return VisibilityModifier.REDEFINED;
+		}
 		return null;
 	}
 
@@ -265,6 +288,9 @@ public enum VisibilityModifier {
 		}
 		if (c == '*') {
 			return VisibilityModifier.IE_MANDATORY;
+		}
+		if (c == '>') {
+			return VisibilityModifier.REDEFINED;
 		}
 		return null;
 	}

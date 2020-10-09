@@ -170,6 +170,8 @@ public enum ColorParam {
 	iconPublic(HColorUtils.COL_038048),
 	iconPublicBackground(HColorUtils.COL_84BE84),
 	iconIEMandatory(HColorUtils.BLACK),
+	iconRedefined(HColorUtils.BLACK),
+	iconRedefinedBackground(HColorUtils.COL_FFFF44),
 	
 	arrowLollipop(HColorUtils.WHITE),
 	
