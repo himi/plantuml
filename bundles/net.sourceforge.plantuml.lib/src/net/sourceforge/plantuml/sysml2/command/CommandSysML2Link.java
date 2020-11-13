@@ -39,6 +39,9 @@ import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.UrlBuilder;
+import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
@@ -96,6 +99,8 @@ public class CommandSysML2Link extends SingleLineCommand2<SysML2Diagram> {
 				color().getRegex(), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREOTYPE", "(\\<\\<.*\\>\\>)?"), //
+				RegexLeaf.spaceZeroOrMore(), //
+				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 				RegexLeaf.spaceZeroOrMore(), new RegexLeaf("LABEL_LINK", "(?::[%s]*(.+))?"), RegexLeaf.end());
 	}
 
@@ -256,6 +261,15 @@ public class CommandSysML2Link extends SingleLineCommand2<SysML2Diagram> {
 			final Stereotype stereotype = new Stereotype(arg.get("STEREOTYPE", 0));
 			link.setColors(link.getColors().applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.arrow));
 		}
+
+		final String urlString = arg.get("URL", 0);
+		if (urlString != null) {
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"),
+                                                         ModeUrl.STRICT);
+			final Url url = urlBuilder.getUrl(urlString);
+			link.setUrl(url);
+		}
+
 		diagram.addLink(link);
 		return CommandExecutionResult.ok();
 	}
