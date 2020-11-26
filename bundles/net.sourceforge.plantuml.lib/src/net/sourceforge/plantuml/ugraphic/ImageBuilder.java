@@ -421,6 +421,12 @@ public class ImageBuilder {
 
 	private UGraphic2 createUGraphic(FileFormatOption fileFormatOption, long seed, final Dimension2D dim,
 			Animation animationArg, double dx, double dy) {
+		FileFormatOption.IGraphicsFactory factory = fileFormatOption.getGraphicsFactory();
+		if (factory instanceof IUGraphic2Factory) {
+			return ((IUGraphic2Factory) factory).createUGraphic(colorMapper, dpiFactor, dim, mybackcolor, fileFormatOption.getSvgLinkTarget(),
+					fileFormatOption.getHoverColor(), seed, fileFormatOption.getPreserveAspectRatio());
+		}
+
 		final FileFormat fileFormat = fileFormatOption.getFileFormat();
 		switch (fileFormat) {
 		case PNG:
