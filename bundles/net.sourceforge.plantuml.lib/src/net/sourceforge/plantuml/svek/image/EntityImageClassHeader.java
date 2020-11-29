@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
+import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.PortionShower;
@@ -71,15 +72,35 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 
 	final private HeaderLayout headerLayout;
 
-	public EntityImageClassHeader(ILeaf entity, ISkinParam skinParam, PortionShower portionShower) {
+	public EntityImageClassHeader(IEntity entity, ISkinParam skinParam, PortionShower portionShower) {
 		super(entity, skinParam);
 
 		final boolean italic = entity.getLeafType() == LeafType.ABSTRACT_CLASS
 				|| entity.getLeafType() == LeafType.INTERFACE;
 
 		final Stereotype stereotype = entity.getStereotype();
-		final boolean displayGenericWithOldFashion = skinParam.displayGenericWithOldFashion();
-		final String generic = displayGenericWithOldFashion ? null : entity.getGeneric();
+
+		final String generic;
+		final VisibilityModifier modifier;
+		TextBlock circledCharacter = null;
+		if (!entity.isGroup() && (entity instanceof ILeaf)) {
+			final ILeaf leaf = (ILeaf) entity;
+			modifier = leaf.getVisibilityModifier();
+
+			if (skinParam.displayGenericWithOldFashion()) {
+				generic = null; 
+			} else {
+				generic = leaf.getGeneric();
+			}
+
+            if (portionShower.showPortion(EntityPortion.CIRCLED_CHARACTER, leaf)) {
+                circledCharacter = TextBlockUtils.withMargin(getCircledCharacter(leaf, skinParam), 4, 0, 5, 5);
+            }
+		} else {
+			modifier = null;
+			generic = null;
+		}
+
 		FontConfiguration fontConfigurationName;
 
 		if (SkinParam.USE_STYLES()) {
@@ -93,11 +114,11 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			fontConfigurationName = fontConfigurationName.italic();
 		}
 		Display display = entity.getDisplay();
-		if (displayGenericWithOldFashion && entity.getGeneric() != null) {
-			display = display.addGeneric(entity.getGeneric());
+		if (generic != null) {
+			display = display.addGeneric(generic);
 		}
 		TextBlock name = display.createWithNiceCreoleMode(fontConfigurationName, HorizontalAlignment.CENTER, skinParam);
-		final VisibilityModifier modifier = entity.getVisibilityModifier();
+
 		if (modifier == null) {
 			name = TextBlockUtils.withMargin(name, 3, 3, 0, 0);
 		} else {
@@ -134,13 +155,6 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 					stereotype);
 			genericBlock = new TextBlockGeneric(genericBlock, classBackground, classBorder);
 			genericBlock = TextBlockUtils.withMargin(genericBlock, 1, 1);
-		}
-
-		final TextBlock circledCharacter;
-		if (portionShower.showPortion(EntityPortion.CIRCLED_CHARACTER, (ILeaf) getEntity())) {
-			circledCharacter = TextBlockUtils.withMargin(getCircledCharacter(entity, skinParam), 4, 0, 5, 5);
-		} else {
-			circledCharacter = null;
 		}
 		this.headerLayout = new HeaderLayout(circledCharacter, stereo, name, genericBlock);
 	}
@@ -181,8 +195,10 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 		case ABSTRACT_CLASS:
 			return ColorParam.stereotypeABackground;
 		case CLASS:
+		case REC_DEF:
 			return ColorParam.stereotypeCBackground;
 		case USAGE:
+		case REC_USAGE:
 			return ColorParam.stereotypeUBackground;
 		case INTERFACE:
 			return ColorParam.stereotypeIBackground;
@@ -190,9 +206,10 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return ColorParam.stereotypeEBackground;
 		case ENTITY:
 			return ColorParam.stereotypeCBackground;
+		default:
+			assert false;
+			return null;
 		}
-		assert false;
-		return null;
 	}
 
 	private ColorParam spotBorder(LeafType leafType) {
@@ -202,8 +219,10 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 		case ABSTRACT_CLASS:
 			return ColorParam.stereotypeABorder;
 		case CLASS:
+		case REC_DEF:
 			return ColorParam.stereotypeCBorder;
 		case USAGE:
+		case REC_USAGE:
 			return ColorParam.stereotypeUBorder;
 		case INTERFACE:
 			return ColorParam.stereotypeIBorder;
@@ -211,9 +230,11 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 			return ColorParam.stereotypeEBorder;
 		case ENTITY:
 			return ColorParam.stereotypeCBorder;
+		default:
+			assert false;
+			return null;
 		}
-		assert false;
-		return null;
+
 	}
 
 	private char getCircledChar(LeafType leafType) {
@@ -225,16 +246,20 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 		case CLASS:
 			return 'C';
 		case USAGE:
+		case REC_USAGE:
 			return 'U';
+		case REC_DEF:
+			return 'D';
 		case INTERFACE:
 			return 'I';
 		case ENUM:
 			return 'E';
 		case ENTITY:
 			return 'E';
+		default:
+			assert false;
+			return '?';
 		}
-		assert false;
-		return '?';
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {

@@ -125,6 +125,7 @@ import net.sourceforge.plantuml.svek.image.EntityImageNote;
 import net.sourceforge.plantuml.svek.image.EntityImageObject;
 import net.sourceforge.plantuml.svek.image.EntityImagePort;
 import net.sourceforge.plantuml.svek.image.EntityImagePseudoState;
+import net.sourceforge.plantuml.svek.image.EntityImageRec;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
 import net.sourceforge.plantuml.svek.image.EntityImageState2;
 import net.sourceforge.plantuml.svek.image.EntityImageStateBorder;
@@ -164,6 +165,9 @@ public final class GeneralImageBuilder {
 				|| (leaf.getLeafType() == LeafType.PORTOUT)) {
 			final Cluster parent = bibliotekon.getCluster(leaf.getParentContainer());
 			return new EntityImagePort(leaf, skinParam, parent, bibliotekon);
+		}
+		if (leaf.getLeafType().isRec()) {
+			return new EntityImageRec(leaf, skinParam, portionShower);
 		}
 		if (leaf.getLeafType() == LeafType.STATE) {
 			if (leaf.getEntityPosition() != EntityPosition.NORMAL) {

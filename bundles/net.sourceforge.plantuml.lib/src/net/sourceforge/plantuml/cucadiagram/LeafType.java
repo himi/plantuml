@@ -62,6 +62,8 @@ public enum LeafType {
 
 	USAGE,
 
+	REC_DEF, REC_USAGE,
+
 	STILL_UNKNOWN;
 
 	public static LeafType getLeafType(String type) {
@@ -105,6 +107,16 @@ public enum LeafType {
 		case OBJECT:
 		case ENTITY:
 		case USAGE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public boolean isRec() {
+		switch (this) {
+		case REC_USAGE:
+		case REC_DEF:
 			return true;
 		default:
 			return false;

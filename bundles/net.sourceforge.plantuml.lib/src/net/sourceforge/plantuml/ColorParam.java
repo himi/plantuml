@@ -75,6 +75,8 @@ public enum ColorParam {
 	stereotypeABorder(null),
 	stereotypeIBorder(null),
 	stereotypeEBorder(null),
+
+	recHeaderBackground(HColorUtils.MY_YELLOW, true, ColorType.BACK),
 		
 	packageBackground(HColorUtils.MY_YELLOW, true, ColorType.BACK),
 	packageBorder(HColorUtils.BLACK, ColorType.LINE),

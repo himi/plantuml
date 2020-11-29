@@ -49,7 +49,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public enum PackageStyle {
 
-	FOLDER, RECTANGLE, NODE, FRAME, CLOUD, DATABASE, AGENT, STORAGE, COMPONENT1, COMPONENT2, ARTIFACT, CARD, STATE;
+	FOLDER, RECTANGLE, NODE, FRAME, CLOUD, DATABASE, AGENT, STORAGE, COMPONENT1, COMPONENT2, ARTIFACT, CARD, STATE, REC_DEF, REC_USAGE;
 
 	public static PackageStyle fromString(String value) {
 		for (PackageStyle p : EnumSet.allOf(PackageStyle.class)) {
@@ -61,6 +61,10 @@ public enum PackageStyle {
 			return RECTANGLE;
 		}
 		return null;
+	}
+
+	public boolean isRec() {
+		return this == REC_DEF || this == REC_USAGE;
 	}
 
 	public USymbol toUSymbol() {

@@ -79,6 +79,7 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.svek.image.EntityImageRec;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
 import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -341,6 +342,16 @@ public class Cluster implements Moveable {
 				return;
 			}
 			PackageStyle packageStyle = group.getPackageStyle();
+			if (packageStyle == null) {
+				packageStyle = skinParam2.packageStyle();
+			}
+            if (packageStyle.isRec()) {
+                EntityImageRec.drawPackageStyle(ug, packageStyle, group, skinParam2, borderColor,
+                                                minX, minY, maxX, maxY, xTitle, yTitle,
+                                                ztitle, zstereo);
+                return;
+            }
+
 			final boolean isState = (umlDiagramType == UmlDiagramType.STATE) || (packageStyle == PackageStyle.STATE);
 			if (isState) {
 				if (group.getColors(skinParam).getSpecificLineStroke() != null) {
@@ -353,9 +364,6 @@ public class Cluster implements Moveable {
 				return;
 			}
 
-			if (packageStyle == null) {
-				packageStyle = skinParam2.packageStyle();
-			}
 			if (border != null) {
 				final HColor tmp = skinParam2.getHtmlColor(border, group.getStereotype(), false);
 				if (tmp != null) {

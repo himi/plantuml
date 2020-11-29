@@ -38,16 +38,18 @@ import net.sourceforge.plantuml.graphic.USymbol;
 
 public enum GroupType {
 
-	PACKAGE, STATE, CONCURRENT_STATE, INNER_ACTIVITY, CONCURRENT_ACTIVITY, DOMAIN, REQUIREMENT, DEF;
+	PACKAGE, STATE, CONCURRENT_STATE, INNER_ACTIVITY, CONCURRENT_ACTIVITY, DOMAIN, REQUIREMENT, REC_DEF, REC_USAGE;
 	
 	public boolean isPackageLike() {
-		return this == PACKAGE || this == DEF || this == STATE;
+		return this == PACKAGE || this == REC_DEF || this == REC_USAGE || this == STATE;
 	}
 	
 	public LeafType getCorrespondingLeafType() {
 		switch (this) {
-		case DEF:
-			return LeafType.DESCRIPTION;
+		case REC_DEF:
+			return LeafType.REC_DEF;
+		case REC_USAGE:
+			return LeafType.REC_USAGE;
 		case STATE:
 			return LeafType.STATE;
 		default:
@@ -56,11 +58,10 @@ public enum GroupType {
 	}
 
     public USymbol getUSymbol() {
-		switch (this) {
-		case DEF:
-			return USymbol.RECTANGLE;
-		default:
-			return null;
-		}
+        /* Currently, it returns null and GroupType does not impose any USymbol
+           because we explicitly assign a specific EntityImage for GroupType.
+           However, if we want to use the generic Cluster.drawU() to show a group,
+           it should return a relevant USymbol.  See Cluster.drawU() for details.  */
+    	return null;
     }
 }

@@ -108,9 +108,9 @@ public class CommandSysML2Start extends SingleLineCommand2<SysML2Diagram> {
 
         final GroupType groupType;
         if ("usage".equals(arg.get("UD", 0))) {
-            groupType = GroupType.STATE;
+            groupType = GroupType.REC_USAGE;
         } else {
-            groupType = GroupType.DEF;
+            groupType = GroupType.REC_DEF;
         }
 		diagram.gotoGroup(idNewLong, code, Display.getWithNewlines(display), groupType, currentPackage,
                           NamespaceStrategy.SINGLE);

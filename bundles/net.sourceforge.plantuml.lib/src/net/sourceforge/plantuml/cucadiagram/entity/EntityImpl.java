@@ -528,9 +528,10 @@ final public class EntityImpl implements ILeaf, IGroup {
 		case STATE:
 		case CONCURRENT_STATE:
 			return PackageStyle.STATE;
-		case DEF:
-            // TODO: Tentative solution.  We need different rendering for DEF.
-			return PackageStyle.RECTANGLE;
+		case REC_DEF:
+			return PackageStyle.REC_DEF;
+		case REC_USAGE:
+			return PackageStyle.REC_USAGE;
 		default:
             if (stereotype != null) {
                 return stereotype.getPackageStyle();
