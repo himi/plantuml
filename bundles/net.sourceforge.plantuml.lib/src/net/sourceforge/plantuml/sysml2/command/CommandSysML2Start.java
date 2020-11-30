@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.sysml2.command;
 
+import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -117,7 +118,10 @@ public class CommandSysML2Start extends SingleLineCommand2<SysML2Diagram> {
 		final IEntity p = diagram.getCurrentGroup();
 		final String stereotype = arg.get("STEREOTYPE", 0);
 		if (stereotype != null) {
-			p.setStereotype(new Stereotype(stereotype));
+			// p.setStereotype(new Stereotype(stereotype));
+			p.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+                                           diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+                                           diagram.getSkinParam().getIHtmlColorSet()));
 		}
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
