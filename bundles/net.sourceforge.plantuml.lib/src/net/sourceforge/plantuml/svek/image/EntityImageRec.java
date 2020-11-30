@@ -170,7 +170,7 @@ public class EntityImageRec extends AbstractEntityImage {
 		final Dimension2D dim = Dimension2DDouble.mergeTB(dimHeader, dimFields);
 		final Dimension2D result;
 		if (dimFields.getHeight() == 0) {
-			result = dim;
+			result = Dimension2DDouble.delta(dim, MARGIN);
 		} else {
 			result = Dimension2DDouble.delta(dim, MARGIN + MARGIN_LINE);
 		}
