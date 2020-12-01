@@ -77,7 +77,7 @@ public class StripeTree implements Stripe {
 		for (String s : lines) {
 			final StripeSimple cell = new StripeSimple(fontConfiguration, stripeStyle, new CreoleContext(), skinParam,
 					CreoleMode.FULL);
-			final String text = s.replaceFirst("^\\s*\\|_", "");
+			final String text = s.replaceFirst("^\\s*(\\|_)+", "");
 			final int level = computeLevel(s);
 			cell.analyzeAndAdd(text);
 			this.tree.addCell(StripeTable.asAtom(Collections.singletonList(cell), 0), level);
@@ -88,7 +88,7 @@ public class StripeTree implements Stripe {
 	private int computeLevel(String s) {
 		int result = 1;
 		while (s.length() > 0) {
-			if (s.startsWith("  ")) {
+			if (s.startsWith("|_") || s.startsWith("  ")) {
 				result++;
 				s = s.substring(2);
 				continue;
