@@ -150,6 +150,18 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPo
 		return getArea(stringBounder).calculateDimension(stringBounder);
 	}
 
+    private void flushMembers(StringBounder stringBounder,
+                              List<TextBlock> blocks,
+                              List<Member> members,
+                              char separator,
+                              TextBlock title) {
+        blocks.add(decorate(stringBounder,
+                            new MethodsOrFieldsArea(members, fontParam, skinParam, align,
+                                                    stereotype, entity, diagramType),
+                            separator, title));
+        members.clear();
+    }
+
 	private TextBlock getArea(StringBounder stringBounder) {
 		if (area != null) {
 			return area;
@@ -168,21 +180,18 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPo
 			} else {
 				final String s = s2.toString();
 				if (manageHorizontalLine && isBlockSeparator(s)) {
-					blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align,
-							stereotype, entity, diagramType), separator, title));
+                    flushMembers(stringBounder, blocks, members, separator, title);
 					separator = s.charAt(0);
 					title = getTitle(s, skinParam);
-					members = new ArrayList<Member>();
 				} else if (Parser.isTreeStart(s)) {
-					if (members.size() > 0) {
-						blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align,
-								stereotype, entity, diagramType), separator, title));
-					}
-					members = new ArrayList<Member>();
+                    if (!members.isEmpty()) {
+                        flushMembers(stringBounder, blocks, members, separator, title);
+                    }
 					final List<CharSequence> allTree = buildAllTree(s, it);
 					final TextBlock bloc = Display.create(allTree).create7(fontParam.getFontConfiguration(skinParam),
 							align, skinParam, CreoleMode.FULL);
 					blocks.add(bloc);
+                    separator = 0;
 				} else {
 					final Member m = new Member(s, Member.isMethod(s), manageModifier);
 					members.add(m);
@@ -195,9 +204,7 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPo
 		if (inEllipse && members.size() == 0) {
 			members.add(new Member("", false, false));
 		}
-		blocks.add(decorate(stringBounder,
-				new MethodsOrFieldsArea(members, fontParam, skinParam, align, stereotype, entity, diagramType),
-				separator, title));
+        flushMembers(stringBounder, blocks, members, separator, title);
 
 		if (blocks.size() == 1) {
 			this.area = blocks.get(0);
