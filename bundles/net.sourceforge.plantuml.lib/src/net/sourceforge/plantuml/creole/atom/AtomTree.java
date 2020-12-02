@@ -62,15 +62,15 @@ public class AtomTree extends AbstractAtom implements Atom {
 		final Skeleton2 skeleton = new Skeleton2();
 		double width = 0;
 		double height = 0;
-		int maxLevel = 0;
+		int effectiveLevel = 0;
 		for (Atom cell : cells) {
 			final Dimension2D dim = cell.calculateDimension(stringBounder);
 			height += dim.getHeight();
 			final int level = getLevel(cell);
-			if (level > maxLevel) {
-				maxLevel = level;
-			}
-			width = Math.max(width, skeleton.getXEndForLevel(maxLevel) + margin + dim.getWidth());
+			if (level > 0) {
+                effectiveLevel = level;
+            }
+			width = Math.max(width, skeleton.getXEndForLevel(effectiveLevel) + margin + dim.getWidth());
 		}
 		return new Dimension2DDouble(width, height);
 	}
@@ -83,17 +83,15 @@ public class AtomTree extends AbstractAtom implements Atom {
 		final Skeleton2 skeleton = new Skeleton2();
 		double y = 0;
 		UGraphic ug = ugInit;
-		int maxLevel = 0;
+		int effectiveLevel = 0;
 		for (Atom cell : cells) {
-			final int level = getLevel(cell);
-			if (level > maxLevel) {
-				maxLevel = level;
-			}
-			cell.drawU(ug.apply(UTranslate.dx(margin + skeleton.getXEndForLevel(maxLevel))));
 			final Dimension2D dim = cell.calculateDimension(ug.getStringBounder());
+			final int level = getLevel(cell);
 			if (level > 0) {
+                effectiveLevel = level;
 				skeleton.add(level, y + dim.getHeight() / 2);
 			}
+			cell.drawU(ug.apply(UTranslate.dx(margin + skeleton.getXEndForLevel(effectiveLevel))));
 			ug = ug.apply(UTranslate.dy(dim.getHeight()));
 			y += dim.getHeight();
 		}
