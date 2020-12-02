@@ -135,7 +135,8 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPo
 
 	private TextBlock decorate(StringBounder stringBounder, TextBlock b, char separator, TextBlock title) {
 		if (separator == 0) {
-			return b;
+			//return b;
+			return TextBlockUtils.withMargin(b, 6, 1);
 		}
 		if (title == null) {
 			return new TextBlockLineBefore(TextBlockUtils.withMargin(b, 6, 4), separator);
