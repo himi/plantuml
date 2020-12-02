@@ -98,9 +98,9 @@
 	      <appArgLine>-application org.eclipse.ant.core.antRunner -buildfile packaging-p2composite.ant p2.composite.add -Dsite.label="${site.label}" -Dproject.build.directory=${project.build.directory} -DunqualifiedVersion=${unqualifiedVersion} -DbuildQualifier=${buildQualifier} -Dchild.repository.path.prefix="${child.repository.path.prefix}"</appArgLine>
 	      <repositories>
 		<repository>
-		  <id>2018-12</id>
+		  <id>2020-06</id>
 		  <layout>p2</layout>
-		  <url>http://download.eclipse.org/releases/2018-12</url>
+		  <url>http://download.eclipse.org/releases/2020-06</url>
 		</repository>
 	      </repositories>
 	      <dependencies>
