@@ -86,7 +86,7 @@ public class StripeTree implements Stripe {
 	}
 
 	private int computeLevel(String s) {
-		int result = 1;
+		int result = 0;
 		while (s.length() > 0) {
 			if (s.startsWith("|_") || s.startsWith("  ")) {
 				result++;
