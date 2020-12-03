@@ -17,7 +17,7 @@
       <category name="net.sourceforge.plantuml.feature.source"/>
    </feature>
 
-   <feature url="features/net.sourceforge.plantuml.lib.feature_1.2020.14.himi4.jar" id="net.sourceforge.plantuml.lib.feature" version="1.2020.14.himi4">
+   <feature url="features/net.sourceforge.plantuml.lib.feature_1.2020.14.himi5.jar" id="net.sourceforge.plantuml.lib.feature" version="1.2020.14.himi5">
       <category name="net.sourceforge.plantuml.lib.feature"/>
    </feature>
    <feature url="features/net.sourceforge.plantuml.lib.jlatexmath.feature_1.0.7.jar" id="net.sourceforge.plantuml.lib.jlatexmath.feature" version="1.0.7">
