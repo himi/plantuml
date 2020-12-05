@@ -496,13 +496,21 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 	}
 
 	private Action createSetDiagramStyleAction(final IEditorPart editor, final ISelectionProvider selectionProvider, final DiagramTextProviderS2 dtps2, final String style) {
-		return new Action(style) {
+		return new Action(style, Action.AS_CHECK_BOX) {
+			@Override
+			public boolean isChecked() {
+				return dtps2.isStyleEnabled(style);
+			}
 			@Override
 			public void run() {
 				asyncExec(new Runnable() {
 					@Override
 					public void run() {
-                        dtps2.setStyle(style);
+						if (isChecked()) {
+							dtps2.disableStyle(style);
+						} else {
+							dtps2.enableStyle(style);
+						}
 						diagramTextChangedListener.diagramChanged(editor, null);
 					}
 				});

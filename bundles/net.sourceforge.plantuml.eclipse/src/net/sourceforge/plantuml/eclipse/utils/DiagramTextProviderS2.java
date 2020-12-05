@@ -15,5 +15,9 @@ public interface DiagramTextProviderS2 extends DiagramTextProvider {
 
     Collection<String> getStyles();
 
-    void setStyle(String style);
+    boolean isStyleEnabled(String style);
+
+    void enableStyle(String style);
+
+    void disableStyle(String style);
 }
