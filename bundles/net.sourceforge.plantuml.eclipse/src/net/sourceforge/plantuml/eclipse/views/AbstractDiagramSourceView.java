@@ -46,6 +46,7 @@ import net.sourceforge.plantuml.eclipse.utils.DiagramTextIteratorProvider;
 import net.sourceforge.plantuml.eclipse.utils.DiagramTextProvider;
 import net.sourceforge.plantuml.eclipse.utils.DiagramTextProvider2;
 import net.sourceforge.plantuml.eclipse.utils.DiagramTextProviderS2;
+import net.sourceforge.plantuml.eclipse.utils.DiagramTextProviderS3;
 import net.sourceforge.plantuml.eclipse.utils.PlantumlConstants;
 
 public abstract class AbstractDiagramSourceView extends ViewPart {
@@ -499,18 +500,24 @@ public abstract class AbstractDiagramSourceView extends ViewPart {
 		return new Action(style, Action.AS_CHECK_BOX) {
 			@Override
 			public boolean isChecked() {
-				return dtps2.isStyleEnabled(style);
+                if (dtps2 instanceof DiagramTextProviderS3) {
+                    return ((DiagramTextProviderS3) dtps2).isStyleEnabled(style);
+                } else {
+                    return false;
+                }
 			}
 			@Override
 			public void run() {
 				asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						if (isChecked()) {
-							dtps2.disableStyle(style);
-						} else {
-							dtps2.enableStyle(style);
-						}
+                        if (isChecked()) {
+                            if (dtps2 instanceof DiagramTextProviderS3) {
+                                ((DiagramTextProviderS3) dtps2).disableStyle(style);
+                            }
+                        } else {
+                            dtps2.setStyle(style);
+                        }
 						diagramTextChangedListener.diagramChanged(editor, null);
 					}
 				});
