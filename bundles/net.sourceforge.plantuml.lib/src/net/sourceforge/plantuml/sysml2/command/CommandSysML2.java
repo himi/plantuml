@@ -37,6 +37,7 @@ package net.sourceforge.plantuml.sysml2.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -102,7 +103,7 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
         m.put("state", LeafType.STATE);
         m.put("desc", LeafType.STATE);
         m.put("usage", LeafType.USAGE);
-        m.put("def", LeafType.CLASS);
+        m.put("def", LeafType.REC_DEF);
         m.put("port", LeafType.PORT);
         m.put("portin", LeafType.PORTIN);
         m.put("portout", LeafType.PORTOUT);
@@ -155,7 +156,10 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
 		ent.setDisplay(Display.getWithNewlines(display));
 
 		if (stereotype != null) {
-			ent.setStereotype(new Stereotype(stereotype));
+			ent.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+                                             diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+                                             diagram.getSkinParam().getIHtmlColorSet()));
+
 		}
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
