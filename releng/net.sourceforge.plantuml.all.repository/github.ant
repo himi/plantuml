@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Handle p2 composite metadata from Bintray" basedir=".">
+<project name="Handle p2 composite metadata from GitHub" basedir=".">
 
   <property environment="env"/>
-  <property name="bintray.user" value="${env.BINTRAY_USER}" />
-  <property name="bintray.apikey" value="${env.BINTRAY_APIKEY}" />
+  <property name="github.user" value="${env.GITHUB_USER}" />
+  <property name="github.apikey" value="${env.GITHUB_APIKEY}" />
   <!--
     These must be set from outside
-    <property name="bintray.repo" value="" />
-    <property name="bintray.package" value="" />
-    <property name="releases.path" value="" />
-    <property name="composite.path" value="" />
-    <property name="zip.path" value="" />
+    <property name="github.repo" value="" />
+    <property name="github.branch" value="" />
   -->
 
-  <property name="bintray.url" value="https://dl.bintray.com/${bintray.owner}/${bintray.repo}" />
+  <property name="github.url" value="https://raw.githubusercontent.com/${github.owner}/${github.repo}/${github.branch}"/>
+
   <property name="package.version" value="${unqualifiedVersion}.${buildQualifier}" />
   <property name="releases.target.path" value="${releases.path}/${package.version}" />
 
-  <property name="main.composite.url" value="${bintray.url}/${composite.path}" />
+  <property name="main.composite.url" value="${github.url}/${composite.path}" />
   <property name="target" value="target" />
   <property name="composite.repository.directory" value="composite-child" />
   <property name="main.composite.repository.directory" value="composite-main" />
@@ -96,15 +94,16 @@
     </replaceregexp>
   </target>
 
-  <target name="push-to-bintray" >
+  <target name="push-to-github" >
     <antcall target="postprocess-metadata" />
-    <antcall target="push-p2-repo-to-bintray" />
-    <antcall target="push-p2-repo-zipped-to-bintray" />
-    <antcall target="push-composite-to-bintray" />
-    <antcall target="push-main-composite-to-bintray" />
+    <antcall target="push-p2-repo-to-github" />
+    <!-- Currently it's disabled.  We should put zipped update site to GitHub release -->
+    <!-- <antcall target="push-p2-repo-zipped-to-github" /> -->
+    <antcall target="push-composite-to-github" />
+    <antcall target="push-main-composite-to-github" />
   </target>
 
-  <target name="push-p2-repo-to-bintray">
+  <target name="push-p2-repo-to-github">
     <!--
     <apply executable="cmd" parallel="false" relative="true" addsourcefile="false">
       <arg value="/c" />
@@ -124,15 +123,15 @@
         <compositemapper>
           <mergemapper to="-T" />
           <globmapper from="*" to="${local.p2.repository}/*" />
-          <mergemapper to="-u${bintray.user}:${bintray.apikey}" />
-          <globmapper from="*" to="https://api.bintray.com/content/${bintray.owner}/${bintray.repo}/${bintray.releases.target.path}/*;bt_package=${bintray.package};bt_version=${package.version};publish=1" />
+          <mergemapper to="-u${github.user}:${github.apikey}" />
+          <globmapper from="*" to="https://api.github.com/content/${github.owner}/${github.repo}/${github.releases.target.path}/*;bt_package=${github.package};bt_version=${github.package.version};publish=1" />
         </compositemapper>
       </chainedmapper>
     </apply>
     -->
 
-    <apply executable="curl" parallel="false" relative="true" addsourcefile="false">
-      <arg value="-XPUT" />
+    <apply executable="bash" parallel="false" relative="true" addsourcefile="false">
+      <arg value='./github-put.sh' />
       <targetfile />
 
       <fileset dir="${local.p2.repository}">
@@ -146,59 +145,59 @@
           <replacestring from="\" to="/"/>
         </filtermapper>
         <compositemapper>
-          <mergemapper to="-T" />
           <globmapper from="*" to="${local.p2.repository}/*" />
-          <mergemapper to="-u${bintray.user}:${bintray.apikey}" />
-          <globmapper from="*" to="https://api.bintray.com/content/${bintray.owner}/${bintray.repo}/${bintray.releases.target.path}/*;bt_package=${bintray.package};bt_version=${bintray.package.version};publish=1" />
+          <mergemapper to="${github.user}:${github.apikey}" />
+          <mergemapper to="${github.branch}" />
+          <globmapper from="*" to="https://api.github.com/repos/${github.owner}/${github.repo}/contents/${releases.target.path}/*" />
         </compositemapper>
       </chainedmapper>
     </apply>
   </target>
 
-  <target name="push-p2-repo-zipped-to-bintray">
-    <apply executable="curl" parallel="false" relative="true" addsourcefile="false">
-      <arg value="-XPUT" />
+  <target name="push-p2-repo-zipped-to-github">
+    <apply executable="bash" parallel="false" relative="true" addsourcefile="false">
+      <arg value='./github-put.sh' />
       <targetfile />
 
       <fileset dir="${target}" includes="*.zip" />
 
       <compositemapper>
-	<mergemapper to="-T" />
 	<globmapper from="*" to="${target}/*" />
-	<mergemapper to="-u${bintray.user}:${bintray.apikey}" />
-	<globmapper from="*" to="https://api.bintray.com/content/${bintray.owner}/${bintray.repo}/${zip.path}/*;bt_package=${bintray.package};bt_version=${bintray.package.version};publish=1" />
+	<mergemapper to="${github.user}:${github.apikey}" />
+	<mergemapper to="${github.branch}" />
+	<globmapper from="*" to="https://api.github.com/repos/${github.owner}/${github.repo}/contents/${zip.path}/*" />
       </compositemapper>
     </apply>
   </target>
 
-  <target name="push-composite-to-bintray" depends="getMajorMinorVersion" >
-    <apply executable="curl" parallel="false" relative="true" addsourcefile="false">
-      <arg value="-XPUT" />
+  <target name="push-composite-to-github" depends="getMajorMinorVersion" >
+    <apply executable="bash" parallel="false" relative="true" addsourcefile="false">
+      <arg value='./github-put.sh' />
       <targetfile />
 
       <fileset dir="${target}/${composite.repository.directory}" />
 
       <compositemapper>
-	<mergemapper to="-T" />
 	<globmapper from="*" to="${target}/${composite.repository.directory}/*" />
-	<mergemapper to="-u${bintray.user}:${bintray.apikey}" />
-	<globmapper from="*" to="https://api.bintray.com/content/${bintray.owner}/${bintray.repo}/${bintray.composite.path}/${majorMinorVersion}/*;publish=1" />
+	<mergemapper to="${github.user}:${github.apikey}" />
+	<mergemapper to="${github.branch}" />
+	<globmapper from="*" to="https://api.github.com/repos/${github.owner}/${github.repo}/contents/${composite.path}/${majorMinorVersion}/*" />
       </compositemapper>
     </apply>
   </target>
 
-  <target name="push-main-composite-to-bintray" >
-    <apply executable="curl" parallel="false" relative="true" addsourcefile="false">
-      <arg value="-XPUT" />
+  <target name="push-main-composite-to-github" >
+    <apply executable="bash" parallel="false" relative="true" addsourcefile="false">
+      <arg value='./github-put.sh' />
       <targetfile />
 
       <fileset dir="${target}/${main.composite.repository.directory}" />
 
       <compositemapper>
-	<mergemapper to="-T" />
 	<globmapper from="*" to="${target}/${main.composite.repository.directory}/*" />
-	<mergemapper to="-u${bintray.user}:${bintray.apikey}" />
-	<globmapper from="*" to="https://api.bintray.com/content/${bintray.owner}/${bintray.repo}/${bintray.composite.path}/*;publish=1" />
+	<mergemapper to="${github.user}:${github.apikey}" />
+	<mergemapper to="${github.branch}" />
+	<globmapper from="*" to="https://api.github.com/repos/${github.owner}/${github.repo}/contents/${composite.path}/*" />
       </compositemapper>
     </apply>
   </target>
