@@ -89,6 +89,9 @@ public abstract class USymbol {
 	public final static USymbol STACK = record("STACK", SkinParameter.STACK, new USymbolStack());
 	public final static USymbol TOGETHER = record("TOGETHER", SkinParameter.QUEUE, new USymbolTogether());
 
+	public final static USymbol SEND = record("SEND", SkinParameter.RECTANGLE, new USymbolSendAccept(SkinParameter.RECTANGLE, true));
+	public final static USymbol ACCEPT = record("ACCEPT", SkinParameter.RECTANGLE, new USymbolSendAccept(SkinParameter.RECTANGLE, false));
+
 	abstract public SkinParameter getSkinParameter();
 
 	// public USymbol withStereoAlignment(HorizontalAlignment alignment) {
@@ -245,6 +248,10 @@ public abstract class USymbol {
 			usymbol = USymbol.CARD;
 		} else if (symbol.equalsIgnoreCase("interface")) {
 			usymbol = USymbol.INTERFACE;
+		} else if (symbol.equalsIgnoreCase("send")) {
+			usymbol = USymbol.SEND;
+		} else if (symbol.equalsIgnoreCase("accept")) {
+			usymbol = USymbol.ACCEPT;
 		} else if (symbol.equalsIgnoreCase("()")) {
 			usymbol = USymbol.INTERFACE;
 		}

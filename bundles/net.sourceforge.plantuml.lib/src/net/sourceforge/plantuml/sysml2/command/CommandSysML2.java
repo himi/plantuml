@@ -56,6 +56,7 @@ import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
+import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
@@ -70,7 +71,7 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandSysML2.class.getName(),
                                  RegexLeaf.start(), //
-                                 new RegexLeaf("TYPE", "(choice|fork|join|end|state|desc|port|portin|portout|usage|def)"), //
+                                 new RegexLeaf("TYPE", "(choice|fork|join|end|state|desc|port|portin|portout|usage|def|send|accept|file|usecase|actor|queue|stack|component|cloud|rectangle|frame|collections|interface|database|agent|card|entity)"), //
                                  RegexLeaf.spaceOneOrMore(), //
                                  new RegexOr(new RegexConcat(new RegexLeaf("DISPLAY1", "[%g]([^%g]+)[%g]"), //
                                                              RegexLeaf.spaceOneOrMore(),
@@ -111,6 +112,25 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
         m.put("fork", LeafType.STATE_FORK_JOIN);
         m.put("join", LeafType.STATE_FORK_JOIN);
         m.put("end", LeafType.CIRCLE_END);
+
+        m.put("file", LeafType.DESCRIPTION);
+        m.put("send", LeafType.DESCRIPTION);
+        m.put("accept", LeafType.DESCRIPTION);
+        m.put("usecase", LeafType.DESCRIPTION);
+        m.put("actor", LeafType.DESCRIPTION);
+        m.put("queue", LeafType.DESCRIPTION);
+        m.put("stack", LeafType.DESCRIPTION);
+        m.put("component", LeafType.DESCRIPTION);
+        m.put("cloud", LeafType.DESCRIPTION);
+        m.put("rectangle", LeafType.DESCRIPTION);
+        m.put("frame", LeafType.DESCRIPTION);
+        m.put("collections", LeafType.DESCRIPTION);
+        m.put("interface", LeafType.DESCRIPTION);
+        m.put("database", LeafType.DESCRIPTION);
+        m.put("agent", LeafType.DESCRIPTION);
+        m.put("card", LeafType.DESCRIPTION);
+        m.put("entity", LeafType.DESCRIPTION);
+
         return m;
     }
 
@@ -154,6 +174,10 @@ public class CommandSysML2 extends SingleLineCommand2<SysML2Diagram> {
             ent = diagram.getOrCreateLeaf(diagram.buildLeafIdent(idShort), code, type, null);
         }
 		ent.setDisplay(Display.getWithNewlines(display));
+
+        if (type == LeafType.DESCRIPTION) {
+            ent.setUSymbol(USymbol.fromString(typeStr, diagram.getSkinParam()));
+        }
 
 		if (stereotype != null) {
 			ent.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
